@@ -1,0 +1,181 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TrunkUnlit
+  m_Shader: {fileID: -6465566751694194690, guid: 38e0ebb22e0632943a514453d8ddf24f, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _NORMALMAP
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - ProjectionTexture:
+        m_Texture: {fileID: 2800000, guid: f5ebb65a836361749bf3475b7d2b4012, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - RampTexture:
+        m_Texture: {fileID: 2800000, guid: daa27ef30c073fb4aba238b1f2dd5573, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - ScrollingTexture:
+        m_Texture: {fileID: 2800000, guid: 015ca7be379e1486e990da8d9b896c60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: f5ebb65a836361749bf3475b7d2b4012, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmoothnessTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_E8C87502_Out_0:
+        m_Texture: {fileID: 2800000, guid: bf91a9f94ae4348b09a32bb9c02a7b4d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Alpha: 0
+    - Cutoff: 0.26
+    - DesintegrateValue: 0.19
+    - EdgeSpread: 0.039
+    - EffectMix: 1
+    - EffectMixAmount: 0.71
+    - FresnelPower: 10
+    - HARD_SHADING: 1
+    - LerpAmount: 0.35
+    - MixEffect: 0.701
+    - MixEffectAmount: 1
+    - ProjectionRotation: 0
+    - RimPower: 0.71
+    - Spread: 1
+    - Vector1_79D7161B: 0.5
+    - Vector1_962926F1: 1.1
+    - Vector1_BB021EE6: 0.1
+    - _AlphaClip: 1
+    - _AlphaClipThreshold: 0.5
+    - _BacklightAmount: 2.3
+    - _Blend: 0
+    - _BumpScale: 0
+    - _Cull: 2
+    - _Cutoff: 1
+    - _DabsRotation: 15
+    - _DabsTiling: 10
+    - _DstBlend: 0
+    - _EnvironmentReflections: 1
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _Metallic: 0
+    - _NormalMult: 1
+    - _OcclusionMult: 1
+    - _OcclusionStrength: 1
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 0.09
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _Spread: 1.82
+    - _SrcBlend: 1
+    - _Surface: 0
+    - _WorkflowMode: 1
+    - _ZWrite: 1
+    m_Colors:
+    - BottomColor: {r: 0.9622642, g: 0, b: 0.4240965, a: 1}
+    - Color_8D93C3F7: {r: 0.19607843, g: 1.6941177, b: 2, a: 1}
+    - Color_AAB1CC22: {r: 2, g: 0, b: 1.827451, a: 1}
+    - EdgeColor: {r: 0, g: 2, b: 1.631373, a: 1}
+    - FresnelColor: {r: 0.8679245, g: 0.7273885, b: 0.42168033, a: 1}
+    - ProjectionCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - ProjectionOffset: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - ProjectionTiling: {r: 1, g: 1, b: 0, a: 0}
+    - RimColor: {r: 0, g: 2, b: 0.5611491, a: 0.7843137}
+    - ScrollingSpeed: {r: 0.2, g: 0.2, b: 0, a: 0}
+    - ScrollingTextureTiling: {r: 1, g: 1, b: 0, a: 0}
+    - TopColor: {r: 0.9622642, g: 0.52898425, b: 0.38581347, a: 1}
+    - _BaseColor: {r: 0.764151, g: 0.6657314, b: 0.4577697, a: 1}
+    - _BottomColor: {r: 0, g: 0.7038727, b: 1, a: 1}
+    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Specular: {r: 0.20754716, g: 0.20754716, b: 0.20754716, a: 0}
+    - _TextureTiling: {r: 1, g: 1, b: 0, a: 0}
+    - _Tiling: {r: 1, g: 1, b: 0, a: 0}
+    - _TopColor: {r: 0.5566037, g: 0.29520285, b: 0.15490386, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &4074627392096695038
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9

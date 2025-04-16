@@ -1,0 +1,23 @@
+## Overview
+The Fortnight Effect Shader is designed to create a dynamic bending effect on a material in Unity. This shader can simulate the appearance of an object being bent when hit, adding a unique visual distortion to the surface.
+
+### Surface Inputs
+- Speed: Controls the speed of the bending effect. Higher values increase the animation speed.
+- Area of Bending: Adjusts the size of the area affected by the bending effect.
+- Stretch Distance: Controls the distance over which the bending effect stretches.
+- Pointeness: Adjusts the sharpness of the bending effect.
+- Texture: Assign the main texture of the material here.
+- Point of Bend: Sets the origin point of the bending effect. Look at the ClickToBounce.cs script for an example.
+- Direction: Defines the direction of the bending effect. Use X, Y, and Z values to set the direction.
+
+## Tips
+- Experiment with different Speed values to find the optimal animation speed for your effect.
+- Adjust the Area of Bending and Stretch Distance values to achieve the desired level of distortion.
+- Use the Point of Bend and Direction values to customize the origin and direction of the bending effect.
+
+Enter play mode and click on the wooden wall to have the effect of bounce
+
+The effect needs a collider and the ClickToBounce script on any object as well as the material
+
+The tutorial video on creating this is:
+https://www.youtube.com/watch?v=oP7o-l9KG8I

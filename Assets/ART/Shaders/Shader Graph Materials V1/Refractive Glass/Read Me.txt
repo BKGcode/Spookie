@@ -1,0 +1,39 @@
+## Overview
+The Refractive Shader is designed to simulate the refraction using either the nearest reflection probe or a cube map which can be created by backing a reflection probe (HDRP has to use the cube map method). This shader can be used to create realistic glass, water, or any other refractive surface.
+
+### Surface Inputs
+#### Texture
+- Texture: Assign the main texture of the material here.
+
+#### Surface Color
+- Surface Color: Base color of the material.
+- Specular: Controls the specular reflection color.
+- Smoothness: Determines how smooth or rough the surface appears. Higher values result in a shinier, more reflective surface.
+- Normal: Assign a normal map to add detailed surface texture and definition and affect refraction.
+
+#### Additional Parameters
+- Normal Strength: Adjusts the intensity of the normal map. A value of 1 means full strength, while 0 means no effect.
+- Emission: Defines the color and intensity of light emitted by the material.
+- Refraction Tint: Tints the color of the refracted light.
+- IOR (Index of Refraction): Controls the bending of light through the material. Adjust to simulate different materials.
+- Refraction Blur: Adds a blur effect to the refracted light, simulating imperfections in the material.
+
+#### Tiling and Offset
+- Tiling: Adjusts the scale of the texture. Use X and Y values to stretch or shrink the texture.
+- Offset: Moves the texture along the X and Y axes.
+
+- Refraction Cube: Assign a cubemap to be used.
+- Use Cube: Enable this checkbox to use the assigned Refraction Cube instead of reflection probe (HDRP only works with this option).
+
+
+## Tips
+- Experiment with different IOR values to achieve the desired refractive effect.
+- Use high-quality normal maps to enhance the surface detail.
+- Combine refraction and reflection properties to create realistic glass-like materials.
+- Use the lit version if you want your object to interact with lights.
+
+By following these instructions, you can effectively utilize the Refractive Shader to create stunning, realistic materials for your projects.
+
+
+The tutorial video on creating this is:
+https://www.youtube.com/watch?v=-7UmfKUb1Zg

@@ -1,0 +1,44 @@
+## Overview
+The Water Fountain Shader is designed to create a realistic, flowing water effect on a material in Unity. This shader simulates the appearance of water in motion, making it ideal for objects like fountains, waterfalls, or other water-related features.
+
+### Surface Inputs
+- Albedo: Assign the main texture for the water surface. This texture will define the primary color and pattern of the water.
+- Alpha: Adjusts the transparency of the material.
+
+#### Cutout
+- Cutout Start: Defines the starting point for the cutout effect. Adjust to control where the water starts becoming visible.
+- Cutout Speed: Controls the speed of the cutout effect. Higher values make the cutout effect progress faster.
+
+#### Tiling & Offset
+- Tiling X/Y: Adjusts the scale of the texture on the X and Y axes. Higher values repeat the texture more frequently.
+- Offset Z/W: Adjusts the position of the texture on the Z and W axes. Useful for animating the texture or fine-tuning its placement.
+
+#### Noise
+- Noise Scale: Adjusts the scale of the noise pattern used to distort the water texture. Higher values create larger, more noticeable distortions.
+- Texture Speed: Controls the speed at which the texture moves, simulating flowing water.
+
+#### Distortion
+- Distortion: Controls the overall intensity of the distortion effect. Higher values result in more pronounced distortions.
+- Distortion Speed: Adjusts the speed of the distortion effect. Higher values make the water appear to flow faster.
+- Distortion Size: Adjusts the scale of the distortion effect. Larger values create bigger, more noticeable waves.
+
+- Cutout X Tiling: Adjusts the scale of the cutout effect on the X axis. Higher values repeat the cutout pattern more frequently.
+
+#### Normal
+- Normal: Assign a normal map to add detailed surface texture and definition to the water.
+- Normal Power: Adjusts the intensity of the normal map. A value of 1 means full strength, while 0 means no effect.
+
+- Smoothness: Determines how smooth or rough the surface appears. Higher values result in a shinier, more reflective surface.
+
+## Tips
+- Distortion Settings: Experiment with different Distortion Speed and Size values to achieve various water movement patterns.
+- Noise Scale: Use varying Noise Scale values to create different types of water distortions, from gentle ripples to turbulent flows.
+- Cutout Effect: Adjust the Cutout Start and Cutout Speed to control how the water appears and disappears, useful for simulating effects like rising water levels.
+- Normal Map: Utilize high-quality normal maps to enhance the surface detail and realism of the water.
+
+
+
+Make sure to have the mesh unwraped such that it occupy the whole texture if the texture is seamless
+
+The tutorial video on creating this is:
+https://www.youtube.com/watch?v=nhYrtvT543w

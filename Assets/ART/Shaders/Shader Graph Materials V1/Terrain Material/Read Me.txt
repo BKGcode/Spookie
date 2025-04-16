@@ -1,0 +1,36 @@
+## Overview
+The Terrain Shader is designed to create detailed and dynamic terrain surfaces in Unity. This shader allows for intricate control over both water and dirt properties, enhancing the realism of environmental textures.
+
+### Surface Inputs
+- Water Dirt Edge: Controls the transition edge between water and dirt.
+- Water Dirt Smoothness: Adjusts the smoothness at the edge where water meets dirt.
+- Water Metallic: Defines the metallic appearance of the water surface.
+- Water Smoothness: Adjusts the smoothness of the water surface.
+- Water Color: Sets the color of the water.
+- Water Speed: Controls the speed of water movement.
+- Water Waves Height: Adjusts the height of the water waves.
+- Water Noise Size: Sets the size of the noise pattern on the water surface.
+
+#### Tiling & Offset
+- X: Controls the horizontal tiling of the texture.
+- Y: Controls the vertical tiling of the texture.
+- Z: Adjusts the horizontal offset of the texture.
+- W: Adjusts the vertical offset of the texture.
+
+- Dirt Metallic: Defines the metallic appearance of the dirt surface.
+- Dirt Smoothness: Adjusts the smoothness of the dirt surface.
+- Dirt Texture: Assign the base texture for the dirt surface.
+- Normal Map: Assign a normal map texture to simulate small surface details.
+
+## Tips
+- Experiment with different Water Color and Water Noise Size values to achieve unique water effects.
+- Adjust Water Speed and Water Waves Height to simulate various water conditions, from calm lakes to turbulent rivers.
+- Use Dirt Smoothness and Dirt Metallic to fine-tune the appearance of the dirt surface, creating the desired level of realism for your terrain.
+
+
+This is one material for any terrain to define a height whatever under is water and what is above is dirt (and can be multiple layers)
+
+for this material to work you have to choose none for the normals of the terrain mesh in the import settings and have a normal map of the terrain applied
+
+Tutorial on creation of this shader:
+https://www.youtube.com/watch?v=CB6aVgPSRNA

@@ -1,0 +1,35 @@
+## Overview
+The Wind Shader is designed to simulate the effect of wind blowing across a material in Unity. This shader can create a realistic waving or fluttering motion, making it ideal for materials like fabric or other objects that need to respond dynamically to wind.
+
+### Surface Inputs
+#### Texture
+- Texture Color: Assign the base texture of the material. This texture defines the primary color and pattern of the material.
+- Normal Map: Assign a normal map to add detailed surface texture and definition.
+
+### Wind Properties
+- Normal Strength: Adjusts the intensity of the normal map. A value of 1 means full strength, while 0 means no effect.
+- Smoothness: Determines how smooth or rough the surface appears. Higher values result in a shinier, more reflective surface.
+- Metallic: Adjusts the metallic appearance of the material. Higher values make the material look more like metal.
+- Wind Speed: Controls the speed of the wind effect. Higher values make the material move faster, simulating stronger wind.
+- Wind Noise Scale: Adjusts the scale of the noise pattern used to simulate wind. Higher values create larger, more noticeable wind patterns.
+- Wind Power: Controls the intensity of the wind effect. Higher values result in more pronounced movements.
+
+### Additional Parameters
+- Normal or Absolute?: Determines whether the wind direction is relative (normal) or absolute.
+- Absolute Vector: Defines the direction of the wind when "Normal or Absolute?" is set to absolute. The vector components (X, Y, Z) control the wind direction on each axis.
+
+## Tips
+- Wind Settings: Experiment with different Wind Speed and Wind Power values to achieve the desired wind effect. 
+- Normal Map: Use high-quality normal maps to enhance the surface detail and realism of the material's response to wind.
+- Noise Scale: Adjust the Wind Noise Scale to create varied wind patterns, from gentle breezes to turbulent gusts.
+- Smoothness and Metallic: Fine-tune these settings to match the visual style of your material, ensuring it reflects light and appears as intended under different lighting conditions.
+
+
+
+This effect is applied on the whole mesh ... there are several ways to limit it to parts of the mesh:
+1- having a texture that defines in white the areas that have full effect and to the black less and less until no effect
+2- limit based on the uv which works if the mesh is unwraped as one piece
+3- based on the position of the vertices
+
+I have a video tutorial on some of these methods:
+https://www.youtube.com/watch?v=2gY5b6mkCWs

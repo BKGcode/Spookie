@@ -1,0 +1,63 @@
+## Parallax Shader Overview
+The Parallax Shader is designed to create a visually striking effect that simulates depth and detail on surfaces. This shader is especially useful for creating intricate and realistic textures on 3D models.
+
+#### Tiling n offset
+- X: Controls the horizontal tiling of the texture.
+- Y: Controls the vertical tiling of the texture.
+- Z: Adjusts the horizontal offset of the texture.
+- W: Adjusts the vertical offset of the texture.
+
+- AO (Ambient Occlusion): An image that defines how exposed each point on the surface is to ambient lighting.
+- Height: Controls the height map, influencing the depth effect. Adjust the slider to set the height intensity.
+- Iterations: Determines the number of iterations for the parallax effect. Higher values produce more detailed effects but may impact - performance.
+- Normal Map: A texture that simulates small surface details.
+- Color Texture: The base color texture of the material.
+- Color Texture Multy: Multiplier for the color texture intensity. (Default: 1)
+- Smoothness: Adjusts the smoothness of the material's surface. Higher values result in a shinier surface.
+- Metallic: Defines how metallic the surface appears. Higher values result in a more metallic look.
+
+## Tips
+- Experiment with different AO, Height, and Normal Map textures to achieve unique effects.
+- Balancing the Iterations value can help maintain performance while achieving the desired visual effect.
+- Use higher resolution textures for better visual quality.
+
+For the parallax shader, it has a custom node that can be connected to the UV of any texture, this effect depends on a loop so you
+ can change that number in the script but increasing it will consume more power and will take more time to compile
+
+Tutorial on how it is created:
+https://www.youtube.com/watch?v=LKhGqKYOmbo
+
+
+
+
+
+## Marble Shader Overview
+The Marble Shader is designed to create a realistic marble effect on surfaces in Unity. This shader enhances 3D models with intricate and visually appealing marble textures.
+
+#### Tiling n offset
+- X: Controls the horizontal tiling of the texture.
+- Y: Controls the vertical tiling of the texture.
+- Z: Adjusts the horizontal offset of the texture.
+- W: Adjusts the vertical offset of the texture.
+
+- Normal Map: A texture that simulates small surface details.
+- Texture Color: The base color texture of the material.
+- AO (Ambient Occlusion): An image that defines how exposed each point on the surface is to ambient lighting.
+- Hue Fresnel Multy: Multiplier for the Fresnel effect on the hue.
+- Hue: Adjusts the hue of the marble texture.
+- Smoothness: Adjusts the smoothness of the material's surface. Higher values result in a shinier surface.
+- Fresnel Power: Controls the power of the Fresnel effect, affecting how light interacts with the surface edges.
+- Inner Smoothness: Adjusts the smoothness of the inner parts of the marble texture.
+- Reflection Overlay: Controls the intensity of the reflection overlay on the surface.
+- Reflection Brightness: Adjusts the brightness of reflections on the material.
+
+## Tips
+- Experiment with different Normal Map and Texture Color options to achieve unique marble effects.
+- Adjust the Hue and Hue Fresnel Multy to customize the color and intensity of the marble texture.
+- Use the Smoothness and Inner Smoothness sliders to fine-tune the surface appearance for a more realistic look.
+
+I have a tutorial video that goes through multiple looks for the marble shader (double reflection):
+https://www.youtube.com/watch?v=YOUxN_YeUqk
+
+
+

@@ -1,0 +1,38 @@
+## Overview
+The Water Ball Shader is designed to create a dynamic, watery effect on a material in Unity. This shader simulates the appearance of a water-filled ball with animated distortions and colorful highlights, ideal for enhancing the visual appeal of water-related objects in your project.
+
+### Surface Inputs
+#### Distortion
+- Distortion Speed Y: Controls the vertical speed of the distortion effect. Adjust to change the flow rate of the water pattern.
+- Distortion Speed X: Controls the horizontal speed of the distortion effect. Adjust to change the flow rate of the water pattern.
+- Distortion Size: Adjusts the scale of the distortion effect. Larger values create bigger, more noticeable waves.
+- Distortion: Controls the overall intensity of the distortion effect. Higher values result in more pronounced distortions.
+
+#### Emission
+- Emission: Sets the color of the light emitted by the material. Useful for creating a glowing effect.
+- Emit Multy: Multiplier for the emission intensity. Higher values increase the brightness of the emitted light.
+
+- Alpha: Adjusts the transparency of the material. Higher values make the material more opaque.
+- Texture: Assign the main texture for the water pattern.
+- Tiling X/Y: Adjusts the scale of the texture on the X and Y axes. Higher values repeat the texture more frequently.
+
+### Additional Parameters
+- Smoothness: Determines how smooth or rough the surface appears. Higher values result in a shinier, more reflective surface.
+- Metallic: Adjusts the metallic appearance of the material. Higher values make the material look more like metal.
+- Explo Color: Sets the color of the explosion effect within the water ball.
+- Explo Power: Controls the intensity of the explosion effect.
+- Explo Contrast: Adjusts the contrast of the explosion effect.
+- Explosion: Controls the size of the explosion effect. Larger values create bigger explosions.
+- Outer Color: Sets the color of the outer edge of the water ball.
+
+## Tips
+- Distortion Settings: Experiment with different Distortion Speed and Size values to achieve various water movement patterns.
+- Emission Color: Use bright and contrasting emission colors to make the water ball stand out, especially in darker environments.
+- Tiling Adjustments: Fine-tune the tiling settings to match the scale of the water texture to your object, avoiding overly repetitive patterns.
+- Explosion Effect: Use the Explo Power and Explo Contrast settings to create dynamic and visually appealing explosion effects inside the water ball.
+
+
+Enter play mode to say how the parameters are animated and result in an explosion look
+
+The tutorial video on creating this is:
+https://www.youtube.com/watch?v=IzvKGsdByFk

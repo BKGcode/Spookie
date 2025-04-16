@@ -1,0 +1,20 @@
+Toon Shader uses the main light to create toon shading like cartoon.
+
+### Surface Inputs
+- Texture Color: The base color texture of the material.
+- Light Intensity: Changes how bright the surface is.
+- Shadow Edge: Defines where the shadow starts.
+- Shadow Tint: Defines the tint/darkness to apply.
+- Shadow Smoothness: Defines how smooth the transition between edges.
+- AO: (Ambient Occlusion in Built In Lit) changes how much default shadows are in effect.
+
+Notes:
+- There are two Shaders one for URP/HDRP and one for Built In renderer
+- The Unlit variant of Built In and HDRP doesn't support shadows but looks more like regular toon shaders.
+- The Lit variant of Built In and HDRP supports default shadows and has a hack way to negate the objects own shadow and only this one supports additional lights. 
+- The URP Unlit looks good and supports shadows
+
+Try to keep the second edge below the first one to have a correct look
+
+Tutorial of making:
+https://www.youtube.com/watch?v=T8TCW7Vlh58

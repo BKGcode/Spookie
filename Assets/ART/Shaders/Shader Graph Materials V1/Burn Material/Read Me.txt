@@ -1,0 +1,40 @@
+## Overview
+The Burn Shader is designed to create a burnt or charred effect on a material in Unity. This shader 
+can simulate the appearance of an object that has been partially burned, showing different textures 
+and colors for the burned and unburned areas.
+
+### Surface Inputs
+#### Texture
+- Texture Tint: Tints the main texture of the material.
+- Texture: Assign the main texture of the material here.
+
+#### Normal
+- Normal: Assign a normal map to add detailed surface texture and definition.
+- Normal Power: Adjusts the intensity of the normal map. A value of 1 means full strength, while 0 
+  means no effect.
+- Tiling n Offset: Adjusts the scale (X, Y) and position (Z, W) of the normal map texture.
+
+#### Burn Properties
+- Burn Tint: Tints the burned areas of the material.
+- Burn Texture: Assign a texture for the burned areas.
+- Burn Normal: Assign a normal map for the burned areas.
+- Burn Normal Power: Adjusts the intensity of the burn normal map.
+- Burn Tiling n Offset: Adjusts the scale (X, Y) and position (Z, W) of the burn texture.
+
+#### Additional Parameters
+- Lerp: Controls the interpolation between the burned and unburned areas.
+- Only Black Areas: When enabled, only show unburned texture.
+- Noise Scale: Adjusts the scale of the noise pattern that determines the burned areas.
+- With Edge: When enabled, adds an edge effect to the burned areas.
+- Edge Thickness: Controls the thickness of the edge effect around the burned areas.
+- Edge Color: Defines the color of the edge effect.
+- Smoothness: Determines how smooth or rough the surface appears. Higher values result in a shinier, 
+  more reflective surface.
+
+## Tips
+- Experiment with different Noise Scale values to achieve varied burned patterns.
+- Use high-quality normal maps to enhance the surface detail.
+- Adjust the Lerp and Edge Thickness values to fine-tune the transition between burned and unburned areas.
+
+By following these instructions, you can effectively utilize the Burn Shader in Unity to create 
+stunning, realistic materials for your projects.
