@@ -1,10 +1,10 @@
-using System; // Asegúrate de agregar esta línea para usar "Action".
+using System; // Import necesario para usar Action
 using UnityEngine;
 
 public class TimerSystem : MonoBehaviour
 {
-    public static event Action<float> OnTimerTick;  // Notifica el tiempo restante.
-    public static event Action OnTimerComplete;    // Notifica el fin del temporizador.
+    public static event Action<float> OnTimerTick;  // Evento para notificar el tiempo restante
+    public static event Action OnTimerComplete;    // Evento para notificar la finalización del temporizador
 
     private bool isRunning;
     private float remainingTime;
@@ -46,7 +46,7 @@ public class TimerSystem : MonoBehaviour
             isRunning = false;
             remainingTime = 0f;
 
-            // Otorgar recompensas al finalizar
+            // Otorgar recompensas al finalizar el temporizador
             if (FindObjectOfType<GameStateManager>().GetCurrentState() == GameState.Working)
             {
                 FindObjectOfType<GamificationSystem>().EarnXP(workXPRate);

@@ -5,7 +5,8 @@ public enum GameState
     Configuring,
     Working,
     Break,
-    Paused
+    Paused,
+    Summary
 }
 
 public class GameStateManager : MonoBehaviour

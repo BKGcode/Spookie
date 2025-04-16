@@ -5,6 +5,10 @@ public class DataPersistenceSystem : MonoBehaviour
     private const string XPKey = "XP";
     private const string LevelKey = "Level";
     private const string CurrencyKey = "Currency";
+    private const string SelectedStageKey = "SelectedStage";
+    private const string SelectedVehicleKey = "SelectedVehicle";
+
+    public CustomizationSystem customizationSystem;
 
     private GamificationSystem gamificationSystem;
 
@@ -13,6 +17,7 @@ public class DataPersistenceSystem : MonoBehaviour
         gamificationSystem = FindObjectOfType<GamificationSystem>();
 
         LoadProgress();
+        LoadCustomization();
     }
 
     public void SaveProgress()
@@ -32,5 +37,23 @@ public class DataPersistenceSystem : MonoBehaviour
         gamificationSystem.currentCurrency = PlayerPrefs.GetInt(CurrencyKey, 0);
 
         Debug.Log("Player progress loaded.");
+    }
+
+    public void SaveCustomization(int stageID, int vehicleID)
+    {
+        PlayerPrefs.SetInt(SelectedStageKey, stageID);
+        PlayerPrefs.SetInt(SelectedVehicleKey, vehicleID);
+        PlayerPrefs.Save();
+        Debug.Log("Customization saved.");
+    }
+
+    public void LoadCustomization()
+    {
+        int stageID = PlayerPrefs.GetInt(SelectedStageKey, 0);
+        int vehicleID = PlayerPrefs.GetInt(SelectedVehicleKey, 0);
+
+        customizationSystem.SelectStage(stageID);
+        customizationSystem.SelectVehicle(vehicleID);
+        Debug.Log("Customization loaded.");
     }
 }
