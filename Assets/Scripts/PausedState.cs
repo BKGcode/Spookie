@@ -1,10 +1,21 @@
 using UnityEngine;
-
-public class PausedState : MonoBehaviour
+public class PausedState : IGameState
 {
-    public void ResumeGame()
+    private readonly GameStateManager _manager;
+
+    public PausedState(GameStateManager manager) => _manager = manager;
+
+    public void OnEnter()
     {
-        FindObjectOfType<GameStateManager>().ChangeState(GameState.Working);
-        Debug.Log("Game resumed.");
+        Debug.Log("[PausedState] Enter");
+        // Pause TimerSystem, show Pause UI
+    }
+
+    public void OnUpdate() { }
+
+    public void OnExit()
+    {
+        Debug.Log("[PausedState] Exit");
+        // Resume or handle resume via state change
     }
 }
