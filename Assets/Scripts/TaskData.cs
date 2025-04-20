@@ -7,14 +7,13 @@ public class TaskData
     public string title;
     public int iconIndex;
     public bool isCompleted;
-    public bool isSelected; // Transient state, not typically saved/loaded unless needed
+    public bool isSelected;
 
     public TaskState state = TaskState.Stopped;
     public float elapsedTime = 0f;
-    public float breakDuration = 0f; // Total duration set for the current break
-    public float breakElapsedTime = 0f; // Time elapsed in the current break
+    public float breakDuration = 0f;
+    public float breakElapsedTime = 0f;
 
-    // Constructor
     public TaskData(string taskTitle, int taskIconIndex = 0)
     {
         title = taskTitle;
@@ -27,7 +26,8 @@ public class TaskData
         breakElapsedTime = 0f;
     }
 
-    // Default constructor for serialization
     public TaskData() { }
 }
 
+// Remember to have TaskState defined, e.g.:
+// public enum TaskState { Stopped, Running, Paused, OnBreak }

@@ -74,13 +74,12 @@ public class TaskTimerManager : MonoBehaviour
                     }
                     else
                     {
-                         taskChangedThisFrame = true;
+                        taskChangedThisFrame = true;
                     }
                     break;
 
                 case TaskState.Stopped:
                 case TaskState.Paused:
-                    // No time accumulation needed, but state might change externally
                     break;
             }
 
@@ -94,9 +93,8 @@ public class TaskTimerManager : MonoBehaviour
 
     private void HandleTaskListChanged()
     {
-         if (!_isInitialized) return;
-         // Optional: Could reset timers or validate states if needed upon list changes
-         Debug.Log("[TaskTimerManager] Task list changed, state consistency check (optional).");
+        if (!_isInitialized) return;
+        Debug.Log("[TaskTimerManager] Task list changed, state consistency check (optional).");
     }
 
     private bool IsValidIndex(int index)
@@ -114,10 +112,10 @@ public class TaskTimerManager : MonoBehaviour
         if (!IsValidIndex(index)) return;
 
         TaskData task = taskSystem.Tasks[index];
-        if (task.state == TaskState.Stopped || task.state == TaskState.Paused)
+        if (task.state == TaskState.Stopped || task.state == TaskState.Paused || task.state == TaskState.OnBreak)
         {
             task.state = TaskState.Running;
-            task.breakElapsedTime = 0; // Ensure break time is reset if resuming from pause after break ended implicitly
+            task.breakElapsedTime = 0;
             Debug.Log($"[TaskTimerManager] Starting/Resuming timer for task {index}.");
             OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
         }
@@ -138,18 +136,18 @@ public class TaskTimerManager : MonoBehaviour
             Debug.Log($"[TaskTimerManager] Pausing timer for task {index}.");
             OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
         }
-         else
+        else
         {
             Debug.LogWarning($"[TaskTimerManager] RequestPauseTimer called for task {index} but it was in state {task.state}.");
         }
     }
 
-     public void RequestStartBreak(int index, float durationSeconds)
+    public void RequestStartBreak(int index, float durationSeconds)
     {
         if (!IsValidIndex(index)) return;
 
         TaskData task = taskSystem.Tasks[index];
-         if (task.state == TaskState.Running)
+        if (task.state == TaskState.Running || task.state == TaskState.Paused)
         {
             task.state = TaskState.OnBreak;
             task.breakDuration = durationSeconds;
@@ -165,17 +163,17 @@ public class TaskTimerManager : MonoBehaviour
 
     public void RequestStopBreakAndResume(int index)
     {
-         if (!IsValidIndex(index)) return;
+        if (!IsValidIndex(index)) return;
 
         TaskData task = taskSystem.Tasks[index];
         if (task.state == TaskState.OnBreak)
         {
-            task.state = TaskState.Paused; // Go back to Paused state, not Running directly
-            task.breakElapsedTime = 0; // Reset break timer
-            Debug.Log($"[TaskTimerManager] Stopping break and pausing task {index}.");
+            task.state = TaskState.Running;
+            task.breakElapsedTime = 0;
+            Debug.Log($"[TaskTimerManager] Stopping break and resuming task {index}.");
             OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
         }
-         else
+        else
         {
             Debug.LogWarning($"[TaskTimerManager] RequestStopBreakAndResume called for task {index} but it was in state {task.state}.");
         }
@@ -194,4 +192,3 @@ public class TaskTimerManager : MonoBehaviour
         OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
     }
 }
-
