@@ -1,112 +1,233 @@
-// FILE: TaskListUI.cs
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using System; // Needed for Action<int>
 
-/// <summary>
-/// Manages UI for both task lists (management and active). Handles interactions.
-/// </summary>
 public class TaskListUI : MonoBehaviour
 {
     [Header("System References")]
-    [SerializeField] TaskSystem taskSystem;
-    [SerializeField] TaskTimerManager taskTimerManager;
-    // [SerializeField] TaskIconSO taskIconSO; // Reference kept if needed for icon selection UI later
+    [SerializeField] private TaskSystem taskSystem;
+    [SerializeField] private TaskTimerManager taskTimerManager;
+    [SerializeField] private TaskIconSO taskIconSO;
 
-    [Header("Left List (Management)")]
-    [SerializeField] Transform leftListContentParent;
-    [SerializeField] GameObject taskItemMinimalPrefab; // Requires TaskItemMinimal script
-    [SerializeField] TMP_InputField taskInputField;
-    [SerializeField] Button addTaskButton;
+    [Header("UI References")]
+    [SerializeField] private GameObject taskItemMinimalPrefab;
+    [SerializeField] private GameObject taskItemActivePrefab;
+    [SerializeField] private Transform taskListContent;
+    [SerializeField] private Transform activeTaskListContent;
+    [SerializeField] private TMP_InputField addTaskInputField;
+    [SerializeField] private Button addTaskButton;
 
-    [Header("Right List (Active Timers)")]
-    [SerializeField] Transform rightListContentParent;
-    [SerializeField] GameObject taskItemActivePrefab; // Requires TaskItemActive script (prev. TaskItemUI)
+    private List<GameObject> _taskItemObjects = new List<GameObject>();
+    private List<GameObject> _activeTaskItemObjects = new List<GameObject>();
+    private Dictionary<int, TaskItemActive> _activeTaskUIMap = new Dictionary<int, TaskItemActive>();
 
     void Start()
     {
-        // Basic validation
-        if (!taskSystem || !taskTimerManager || !leftListContentParent || !rightListContentParent || !taskItemMinimalPrefab || !taskItemActivePrefab || !taskInputField || !addTaskButton)
+        bool referencesValid = taskSystem != null && taskTimerManager != null && taskIconSO != null &&
+                               taskItemMinimalPrefab != null && taskItemActivePrefab != null && taskListContent != null &&
+                               activeTaskListContent != null && addTaskInputField != null && addTaskButton != null;
+
+        if (!referencesValid)
         {
-            Debug.LogError("[TaskListUI] Missing references in Inspector!");
+            Debug.LogError("[TaskListUI] Missing one or more references in the Inspector! Disabling script.", this);
             enabled = false;
             return;
         }
 
         taskSystem.OnTaskListChanged += RefreshUI;
+        taskTimerManager.OnTaskTimerTick += HandleTaskTimerTick;
         addTaskButton.onClick.AddListener(HandleAddTask);
-        RefreshUI(); // Initial population
+
+        RefreshUI();
+        Debug.Log("[TaskListUI] Started and Initialized.");
     }
 
     void OnDestroy()
     {
-        if (taskSystem != null) taskSystem.OnTaskListChanged -= RefreshUI;
+        if (taskSystem != null)
+        {
+            taskSystem.OnTaskListChanged -= RefreshUI;
+        }
+        if (taskTimerManager != null)
+        {
+            taskTimerManager.OnTaskTimerTick -= HandleTaskTimerTick;
+        }
+        if (addTaskButton != null)
+        {
+            addTaskButton.onClick.RemoveListener(HandleAddTask);
+        }
+        Debug.Log("[TaskListUI] Destroyed, unsubscribed from events.");
     }
 
     private void RefreshUI()
     {
-        // Clear lists
-        foreach (Transform child in leftListContentParent) Destroy(child.gameObject);
-        foreach (Transform child in rightListContentParent) Destroy(child.gameObject);
+        if (taskSystem == null) return;
+        Debug.Log("[TaskListUI] Refreshing UI...");
+
+        foreach (GameObject item in _taskItemObjects) Destroy(item);
+        _taskItemObjects.Clear();
+        foreach (GameObject item in _activeTaskItemObjects) Destroy(item);
+        _activeTaskItemObjects.Clear();
+        _activeTaskUIMap.Clear();
 
         IReadOnlyList<TaskData> tasks = taskSystem.Tasks;
+        Debug.Log($"[TaskListUI] Populating UI with {tasks.Count} tasks.");
 
         for (int i = 0; i < tasks.Count; i++)
         {
-            TaskData taskData = tasks[i];
-            int currentIndex = i; // Capture for lambdas/delegates
+            TaskData task = tasks[i];
+            int currentIndex = i;
 
-            // --- Left List Item ---
-            GameObject minGO = Instantiate(taskItemMinimalPrefab, leftListContentParent);
-            var minUI = minGO.GetComponent<TaskItemMinimal>(); // Script must exist
-            if (minUI != null)
+            if (task.isSelected)
             {
-                 minUI.SetupMinimal(currentIndex, taskData, HandleDeleteTask, HandleToggleSelectTask);
-                 minUI.SetSelectedVisual(taskData.isSelected); // Update visual based on selection
-            }
-             else Debug.LogError($"[TaskListUI] Prefab '{taskItemMinimalPrefab.name}' missing TaskItemMinimal script!");
-
-
-            // --- Right List Item (if selected) ---
-            if (taskData.isSelected)
-            {
-                GameObject actGO = Instantiate(taskItemActivePrefab, rightListContentParent);
-                var actUI = actGO.GetComponent<TaskItemActive>(); // Script must exist (maybe rename TaskItemUI)
-                if (actUI != null)
+                GameObject activeItemGO = Instantiate(taskItemActivePrefab, activeTaskListContent);
+                TaskItemActive activeUI = activeItemGO.GetComponent<TaskItemActive>();
+                if (activeUI != null)
                 {
-                    actUI.SetupActive(currentIndex, taskData, HandleToggleTimer, HandleResetTimer, HandleCloseActiveTask);
+                    activeUI.SetupActive(
+                        currentIndex,
+                        task,
+                        HandleStartTaskRequest,
+                        HandlePauseTaskRequest,
+                        HandleBreakTaskRequest,
+                        HandleResetTaskRequest,
+                        HandleCloseActiveTaskRequest,
+                        HandleStopBreakAndResumeRequest
+                    );
+                    _activeTaskItemObjects.Add(activeItemGO);
+                    _activeTaskUIMap[currentIndex] = activeUI;
                 }
-                else Debug.LogError($"[TaskListUI] Prefab '{taskItemActivePrefab.name}' missing TaskItemActive script!");
+                else
+                {
+                    Debug.LogError($"[TaskListUI] Prefab '{taskItemActivePrefab.name}' is missing TaskItemActive script!", activeItemGO);
+                    Destroy(activeItemGO);
+                }
+            }
+            else
+            {
+                GameObject itemGO = Instantiate(taskItemMinimalPrefab, taskListContent);
+                TaskItemMinimal itemUI = itemGO.GetComponent<TaskItemMinimal>();
+                if (itemUI != null)
+                {
+                    itemUI.SetupMinimal(
+                        currentIndex,
+                        task,
+                        HandleDeleteTaskRequest,
+                        HandleSelectTaskRequest,
+                        HandleToggleCompleteRequest
+                    );
+                    _taskItemObjects.Add(itemGO);
+                }
+                else
+                {
+                     Debug.LogError($"[TaskListUI] Prefab '{taskItemMinimalPrefab.name}' is missing TaskItemMinimal script!", itemGO);
+                     Destroy(itemGO);
+                }
             }
         }
-         Debug.Log($"[TaskListUI] UI Refreshed.");
+        Debug.Log("[TaskListUI] UI Refresh complete.");
     }
+
 
     private void HandleAddTask()
     {
-        string title = taskInputField.text;
-        if (!string.IsNullOrWhiteSpace(title))
+        if (taskSystem != null && addTaskInputField != null && !string.IsNullOrWhiteSpace(addTaskInputField.text))
         {
-            taskSystem.AddTask(title); // Using default icon index 0
-            taskInputField.text = "";
+            int randomIconIndex = -1;
+
+            if (taskIconSO != null && taskIconSO.icons != null && taskIconSO.icons.Length > 0)
+            {
+                randomIconIndex = Random.Range(0, taskIconSO.icons.Length);
+                Debug.Log($"[TaskListUI] Assigning random icon index: {randomIconIndex} for new task '{addTaskInputField.text}'.");
+            }
+            else
+            {
+                Debug.LogWarning("[TaskListUI] TaskIconSO not assigned or has no icons. Using default index.");
+                randomIconIndex = (taskIconSO != null && taskIconSO.icons != null && taskIconSO.icons.Length > 0) ? 0 : -1;
+            }
+
+            taskSystem.AddTask(addTaskInputField.text, randomIconIndex);
+
+            addTaskInputField.text = "";
         }
-        // RefreshUI called by event
+        else
+        {
+            if(taskSystem == null) Debug.LogError("[TaskListUI] TaskSystem reference is missing!");
+            if(addTaskInputField == null) Debug.LogError("[TaskListUI] AddTaskInputField reference is missing!");
+            if(addTaskInputField != null && string.IsNullOrWhiteSpace(addTaskInputField.text)) Debug.LogWarning("[TaskListUI] Task input field is empty.");
+        }
     }
 
-    // --- Callbacks Passed to Task Items ---
+    private void HandleDeleteTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling delete request for index: {index}");
+        taskSystem?.RemoveTask(index);
+    }
 
-    private void HandleDeleteTask(int index) => taskSystem.RemoveTask(index);
-    private void HandleToggleSelectTask(int index) => taskSystem.SetTaskSelected(index, !taskSystem.Tasks[index].isSelected);
-    private void HandleCloseActiveTask(int index) => taskSystem.SetTaskSelected(index, false); // Deselect
-    private void HandleToggleTimer(int index) => taskTimerManager.ToggleTaskTimer(index);
-    private void HandleResetTimer(int index) => taskTimerManager.ResetTaskTimer(index);
+    private void HandleSelectTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling select request for index: {index}");
+        taskSystem?.SetTaskSelected(index, true);
+    }
+
+    private void HandleToggleCompleteRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling toggle complete request for index: {index}");
+        taskSystem?.ToggleTaskCompleted(index);
+    }
+
+    private void HandleStartTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling start timer request for index: {index}");
+        taskTimerManager?.RequestStartTimer(index);
+    }
+
+    private void HandlePauseTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling pause timer request for index: {index}");
+        taskTimerManager?.RequestPauseTimer(index);
+    }
+
+    private void HandleBreakTaskRequest(int index, float durationInSeconds)
+    {
+        Debug.Log($"[TaskListUI] Handling break request for index: {index} (Duration: {durationInSeconds}s)");
+        taskTimerManager?.RequestStartBreak(index, durationInSeconds);
+    }
+
+    private void HandleResetTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling reset timer request for index: {index}");
+        taskTimerManager?.RequestResetTimer(index);
+    }
+
+    private void HandleCloseActiveTaskRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling close active task request for index: {index}");
+        taskSystem?.SetTaskSelected(index, false);
+    }
+
+    private void HandleStopBreakAndResumeRequest(int index)
+    {
+        Debug.Log($"[TaskListUI] Handling stop break and resume request for index: {index}");
+        taskTimerManager?.RequestStopBreakAndResume(index);
+    }
+
+    private void HandleTaskTimerTick(int taskIndex, TaskState state, float elapsedTime, float breakElapsedTime)
+    {
+        if (_activeTaskUIMap.TryGetValue(taskIndex, out TaskItemActive activeUI))
+        {
+            if (activeUI != null)
+            {
+                activeUI.UpdateState(state, elapsedTime, breakElapsedTime);
+            }
+            else
+            {
+                 _activeTaskUIMap.Remove(taskIndex);
+                 Debug.LogWarning($"[TaskListUI] Found destroyed TaskItemActive in map for index {taskIndex}. Removing entry.");
+            }
+        }
+    }
 }
-
-// --- REQUIRED HELPER SCRIPTS (ensure these exist) ---
-
-// Needs: TaskItemMinimal.cs (We will create this next)
-// Needs: TaskItemActive.cs (We will modify/rename TaskItemUI for this later)
 
 

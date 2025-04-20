@@ -1,115 +1,197 @@
-// FILE: TaskTimerManager.cs
 using UnityEngine;
-using System.Collections.Generic; // Needed for IReadOnlyList
+using System;
+using System.Collections.Generic;
 
-/// <summary>
-/// Manages the time tracking for individual tasks.
-/// It reads task data from TaskSystem and updates elapsed time.
-/// It receives commands (Toggle, Reset) and forwards them to TaskSystem.
-/// </summary>
+public enum TaskState
+{
+    Stopped,
+    Running,
+    Paused,
+    OnBreak
+}
+
 public class TaskTimerManager : MonoBehaviour
 {
-    [Header("References")]
-    [Tooltip("Reference to the TaskSystem to access task data and request changes.")]
-    public TaskSystem taskSystem; // Assign this in the Unity Inspector
+    [Header("System References")]
+    [SerializeField] private TaskSystem taskSystem;
 
-    // We need a small interval to avoid saving excessively often if timers update rapidly.
-    private const float SAVE_INTERVAL = 2.0f; // Save accumulated time every 2 seconds
-    private float _timeSinceLastSave = 0f;
+    public event Action<int, TaskState, float, float> OnTaskTimerTick;
+
+    private bool _isInitialized = false;
+
+    void Start()
+    {
+        if (taskSystem == null)
+        {
+            Debug.LogError("[TaskTimerManager] TaskSystem reference not set in the inspector! Disabling script.", this);
+            enabled = false;
+            return;
+        }
+        taskSystem.OnTaskListChanged += HandleTaskListChanged;
+        _isInitialized = true;
+        Debug.Log("[TaskTimerManager] Initialized.");
+    }
+
+    void OnDestroy()
+    {
+        if (taskSystem != null)
+        {
+            taskSystem.OnTaskListChanged -= HandleTaskListChanged;
+        }
+        Debug.Log("[TaskTimerManager] Destroyed.");
+    }
 
     void Update()
     {
-        // Ensure TaskSystem is assigned before proceeding
-        if (taskSystem == null)
-        {
-            // Log error only once to avoid spamming the console
-            if (Time.frameCount % 100 == 0) // Log roughly every few seconds if still null
-            {
-               Debug.LogError("[TaskTimerManager] TaskSystem reference is not set in the Inspector!");
-            }
-            return; // Stop execution if TaskSystem is missing
-        }
+        if (!_isInitialized || taskSystem == null) return;
 
-        // Get the current list of tasks (read-only is fine for iteration)
         IReadOnlyList<TaskData> tasks = taskSystem.Tasks;
-        bool timeUpdated = false;
+        bool changed = false;
 
-        // Iterate through all tasks to update timers
         for (int i = 0; i < tasks.Count; i++)
         {
-            // Check if the timer for THIS specific task should be running
-            if (tasks[i].isTimerRunning)
+            TaskData task = tasks[i];
+            if (task == null) continue;
+
+            float deltaTime = Time.deltaTime;
+            bool taskChangedThisFrame = false;
+
+            switch (task.state)
             {
-                // Increment the elapsed time for this task.
-                // We can modify the field directly because TaskData is a class (reference type).
-                tasks[i].elapsedTime += Time.deltaTime;
-                timeUpdated = true; // Mark that some time was updated this frame
+                case TaskState.Running:
+                    task.elapsedTime += deltaTime;
+                    taskChangedThisFrame = true;
+                    break;
+
+                case TaskState.OnBreak:
+                    task.breakElapsedTime += deltaTime;
+                    if (task.breakElapsedTime >= task.breakDuration)
+                    {
+                        task.state = TaskState.Paused;
+                        task.breakElapsedTime = 0;
+                        Debug.Log($"[TaskTimerManager] Break finished for task {i}. Task paused.");
+                        taskChangedThisFrame = true;
+                    }
+                    else
+                    {
+                         taskChangedThisFrame = true;
+                    }
+                    break;
+
+                case TaskState.Stopped:
+                case TaskState.Paused:
+                    // No time accumulation needed, but state might change externally
+                    break;
+            }
+
+            if (taskChangedThisFrame)
+            {
+                OnTaskTimerTick?.Invoke(i, task.state, task.elapsedTime, task.breakElapsedTime);
+                changed = true;
             }
         }
+    }
 
-        // --- Save accumulated time periodically ---
-        // If any timer was updated, accumulate time towards the next save
-        if (timeUpdated)
+    private void HandleTaskListChanged()
+    {
+         if (!_isInitialized) return;
+         // Optional: Could reset timers or validate states if needed upon list changes
+         Debug.Log("[TaskTimerManager] Task list changed, state consistency check (optional).");
+    }
+
+    private bool IsValidIndex(int index)
+    {
+        if (taskSystem == null || index < 0 || index >= taskSystem.Tasks.Count)
         {
-             _timeSinceLastSave += Time.deltaTime;
+            Debug.LogError($"[TaskTimerManager] Invalid task index requested: {index}");
+            return false;
         }
+        return true;
+    }
 
-        // If enough time has passed since the last save, and time was updated, save now.
-        // Also save if time was *not* updated this frame but might have been updated previously and needs saving.
-        if (_timeSinceLastSave >= SAVE_INTERVAL && timeUpdated)
+    public void RequestStartTimer(int index)
+    {
+        if (!IsValidIndex(index)) return;
+
+        TaskData task = taskSystem.Tasks[index];
+        if (task.state == TaskState.Stopped || task.state == TaskState.Paused)
         {
-             // We don't call SaveTasks directly. The modification happens above.
-             // We trigger save here to persist the accumulated time periodically.
-             taskSystem.SaveTasks(); // Ask TaskSystem to persist all current data
-             _timeSinceLastSave = 0f; // Reset save timer
-             // Optionally: Trigger UI refresh less frequently if needed, but SaveTasks() in TaskSystem
-             // currently doesn't trigger OnTaskListChanged unless data is modified *by its methods*.
-             // If real-time UI update during ticking is needed, we'll need Option B events later.
+            task.state = TaskState.Running;
+            task.breakElapsedTime = 0; // Ensure break time is reset if resuming from pause after break ended implicitly
+            Debug.Log($"[TaskTimerManager] Starting/Resuming timer for task {index}.");
+            OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
+        }
+        else
+        {
+            Debug.LogWarning($"[TaskTimerManager] RequestStartTimer called for task {index} but it was in state {task.state}.");
         }
     }
 
-    // --- Public Methods Called by TaskListUI (or other systems) ---
-
-    /// <summary>
-    /// Toggles the running state (Start/Pause) of a specific task's timer.
-    /// Delegates the action to TaskSystem.
-    /// </summary>
-    public void ToggleTaskTimer(int taskIndex)
+    public void RequestPauseTimer(int index)
     {
-        if (taskSystem == null) return; // Safety check
+        if (!IsValidIndex(index)) return;
 
-        // Check index validity (TaskSystem methods also check, but good practice here too)
-         if (taskIndex < 0 || taskIndex >= taskSystem.Tasks.Count)
-         {
-            Debug.LogWarning($"[TaskTimerManager] ToggleTaskTimer: Invalid task index {taskIndex}");
-            return;
-         }
-
-        // Find the current state and ask TaskSystem to set the opposite state
-        bool currentRunningState = taskSystem.Tasks[taskIndex].isTimerRunning;
-        taskSystem.SetTaskTimerRunning(taskIndex, !currentRunningState);
-
-        // TaskSystem.SetTaskTimerRunning handles logging, saving, and invoking OnTaskListChanged
+        TaskData task = taskSystem.Tasks[index];
+        if (task.state == TaskState.Running)
+        {
+            task.state = TaskState.Paused;
+            Debug.Log($"[TaskTimerManager] Pausing timer for task {index}.");
+            OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
+        }
+         else
+        {
+            Debug.LogWarning($"[TaskTimerManager] RequestPauseTimer called for task {index} but it was in state {task.state}.");
+        }
     }
 
-    /// <summary>
-    /// Resets the elapsed time of a specific task's timer to zero and stops it.
-    /// Delegates the action to TaskSystem.
-    /// </summary>
-    public void ResetTaskTimer(int taskIndex)
+     public void RequestStartBreak(int index, float durationSeconds)
     {
-        if (taskSystem == null) return; // Safety check
+        if (!IsValidIndex(index)) return;
 
-         if (taskIndex < 0 || taskIndex >= taskSystem.Tasks.Count)
-         {
-             Debug.LogWarning($"[TaskTimerManager] ResetTaskTimer: Invalid task index {taskIndex}");
-            return;
-         }
+        TaskData task = taskSystem.Tasks[index];
+         if (task.state == TaskState.Running)
+        {
+            task.state = TaskState.OnBreak;
+            task.breakDuration = durationSeconds;
+            task.breakElapsedTime = 0f;
+            Debug.Log($"[TaskTimerManager] Starting break for task {index} (Duration: {durationSeconds}s).");
+            OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
+        }
+        else
+        {
+            Debug.LogWarning($"[TaskTimerManager] RequestStartBreak called for task {index} but it was in state {task.state}.");
+        }
+    }
 
-        // Ask TaskSystem to stop the timer AND reset the elapsed time
-        taskSystem.SetTaskTimerRunning(taskIndex, false); // Ensure timer is stopped
-        taskSystem.ResetTaskElapsedTime(taskIndex);       // Reset the time counter
+    public void RequestStopBreakAndResume(int index)
+    {
+         if (!IsValidIndex(index)) return;
 
-         // TaskSystem methods handle logging, saving, and invoking OnTaskListChanged
+        TaskData task = taskSystem.Tasks[index];
+        if (task.state == TaskState.OnBreak)
+        {
+            task.state = TaskState.Paused; // Go back to Paused state, not Running directly
+            task.breakElapsedTime = 0; // Reset break timer
+            Debug.Log($"[TaskTimerManager] Stopping break and pausing task {index}.");
+            OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
+        }
+         else
+        {
+            Debug.LogWarning($"[TaskTimerManager] RequestStopBreakAndResume called for task {index} but it was in state {task.state}.");
+        }
+    }
+
+    public void RequestResetTimer(int index)
+    {
+        if (!IsValidIndex(index)) return;
+
+        TaskData task = taskSystem.Tasks[index];
+        task.state = TaskState.Stopped;
+        task.elapsedTime = 0f;
+        task.breakElapsedTime = 0f;
+        task.breakDuration = 0f;
+        Debug.Log($"[TaskTimerManager] Resetting timer for task {index}.");
+        OnTaskTimerTick?.Invoke(index, task.state, task.elapsedTime, task.breakElapsedTime);
     }
 }
+

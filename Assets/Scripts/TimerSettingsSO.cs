@@ -1,8 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// ScriptableObject to store timer configuration and limits.
-/// </summary>
 [CreateAssetMenu(fileName = "TimerSettingsSO", menuName = "Configs/TimerSettingsSO")]
 public class TimerSettingsSO : ScriptableObject
 {
