@@ -13,68 +13,131 @@ public class TaskItemMinimal : MonoBehaviour
     [SerializeField] private Image background;
     [SerializeField] private Toggle completedToggle;
 
+    [Header("Data References")]
+    [SerializeField] private TaskIconSO taskIconSet;
+
     [Header("Visuals")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color selectedColor = new Color(0.8f, 0.9f, 1f);
     [SerializeField] private Color completedTextColor = Color.grey;
-    [SerializeField] private Color normalTextColor = Color.white;
+    [SerializeField] private Color normalTextColor = Color.black;
 
-    private int _taskIndex;
+    public event Action<int> DeleteRequested;
+    public event Action<int> SelectRequested;
+    public event Action<int> ToggleCompleteRequested;
+
+    private int _taskIndex = -1;
     private TaskData _taskData;
-    private Action<int> _onDeleteCallback;
-    private Action<int> _onSelectCallback;
-    private Action<int> _onToggleCompleteCallback;
-
     private bool _isInitialized = false;
 
-    public void SetupMinimal(
-        int index,
-        TaskData data,
-        Action<int> onDelete,
-        Action<int> onSelect,
-        Action<int> onToggleComplete
-        )
+    public void SetupMinimal(int index, TaskData data)
     {
         _taskIndex = index;
         _taskData = data;
-        _onDeleteCallback = onDelete;
-        _onSelectCallback = onSelect;
-        _onToggleCompleteCallback = onToggleComplete;
 
-        if (titleText == null || deleteButton == null || selectAreaButton == null || background == null || completedToggle == null)
+        if (!ValidateReferences())
         {
-            Debug.LogError($"[TaskItemMinimal] Missing UI references on {gameObject.name} for task '{data?.title ?? "UNKNOWN"}'!");
+            Debug.LogError($"[TaskItemMinimal:{_taskIndex}] Missing one or more UI references on {gameObject.name}! Disabling item.", this);
             _isInitialized = false;
             gameObject.SetActive(false);
             return;
         }
-        if (iconImage == null)
+        if (_taskData == null)
         {
+            Debug.LogError($"[TaskItemMinimal:{_taskIndex}] SetupMinimal called with null TaskData on {gameObject.name}! Disabling item.", this);
+            _isInitialized = false;
+            gameObject.SetActive(false);
+            return;
         }
 
         titleText.text = _taskData.title;
         completedToggle.SetIsOnWithoutNotify(_taskData.isCompleted);
-
-        if (iconImage) iconImage.enabled = false;
-
+        SetupIcon();
         deleteButton.onClick.RemoveAllListeners();
         selectAreaButton.onClick.RemoveAllListeners();
         completedToggle.onValueChanged.RemoveAllListeners();
-
         deleteButton.onClick.AddListener(HandleDeleteClick);
         selectAreaButton.onClick.AddListener(HandleSelectClick);
         completedToggle.onValueChanged.AddListener(HandleToggleComplete);
-
         _isInitialized = true;
-
-        SetSelectedVisual(_taskData.isSelected);
-        UpdateCompletionVisuals(_taskData.isCompleted);
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] Initialized for task '{_taskData.title}'.");
+        UpdateVisualState();
     }
 
-    public void SetSelectedVisual(bool isSelected)
+    private bool ValidateReferences()
     {
-        if (!_isInitialized || background == null) return;
-        background.color = isSelected ? selectedColor : normalColor;
+        bool valid = true;
+        if (titleText == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] titleText is not assigned!", this); valid = false; }
+        if (iconImage == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] iconImage is not assigned!", this); valid = false; }
+        if (deleteButton == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] deleteButton is not assigned!", this); valid = false; }
+        if (selectAreaButton == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] selectAreaButton is not assigned!", this); valid = false; }
+        if (background == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] background is not assigned!", this); valid = false; }
+        if (completedToggle == null) { Debug.LogError($"[TaskItemMinimal:{_taskIndex}] completedToggle is not assigned!", this); valid = false; }
+        return valid;
+    }
+
+    private void SetupIcon()
+    {
+        if (iconImage == null) return;
+        if (taskIconSet == null)
+        {
+            iconImage.enabled = false;
+            return;
+        }
+        Sprite taskIcon = taskIconSet.GetIconByIndex(_taskData.iconIndex);
+        iconImage.sprite = taskIcon;
+        iconImage.enabled = (taskIcon != null);
+    }
+
+    public void UpdateData(TaskData data)
+    {
+        if (!_isInitialized || data == null || data == _taskData)
+        {
+            return;
+        }
+        _taskData = data;
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] Updating data for task '{_taskData.title}'.");
+        titleText.text = _taskData.title;
+        completedToggle.SetIsOnWithoutNotify(_taskData.isCompleted);
+        SetupIcon();
+        UpdateVisualState();
+    }
+
+    private void UpdateVisualState()
+    {
+        if (!_isInitialized) return;
+        if (background != null)
+        {
+            background.color = _taskData.isSelected ? selectedColor : normalColor;
+        }
+        if (titleText != null)
+        {
+            bool isCompleted = _taskData.isCompleted;
+            titleText.color = isCompleted ? completedTextColor : normalTextColor;
+            titleText.fontStyle = isCompleted ? FontStyles.Strikethrough : FontStyles.Normal;
+        }
+    }
+
+    private void HandleDeleteClick()
+    {
+        if (!_isInitialized) return;
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] Delete button clicked. Raising DeleteRequested event.");
+        DeleteRequested?.Invoke(_taskIndex);
+    }
+
+    private void HandleSelectClick()
+    {
+        if (!_isInitialized) return;
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] Select area clicked. Raising SelectRequested event.");
+        SelectRequested?.Invoke(_taskIndex);
+    }
+
+    private void HandleToggleComplete(bool isOn)
+    {
+        if (!_isInitialized) return;
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] Toggle changed by user to {isOn}. Raising ToggleCompleteRequested event.");
+        UpdateCompletionVisuals(isOn);
+        ToggleCompleteRequested?.Invoke(_taskIndex);
     }
 
     private void UpdateCompletionVisuals(bool isCompleted)
@@ -84,30 +147,14 @@ public class TaskItemMinimal : MonoBehaviour
         titleText.fontStyle = isCompleted ? FontStyles.Strikethrough : FontStyles.Normal;
     }
 
-    private void HandleDeleteClick()
-    {
-        if (!_isInitialized) return;
-        _onDeleteCallback?.Invoke(_taskIndex);
-    }
-
-    private void HandleSelectClick()
-    {
-        if (!_isInitialized) return;
-        _onSelectCallback?.Invoke(_taskIndex);
-    }
-
-    private void HandleToggleComplete(bool isOn)
-    {
-        if (!_isInitialized) return;
-        _onToggleCompleteCallback?.Invoke(_taskIndex);
-        UpdateCompletionVisuals(isOn);
-    }
-
     private void OnDestroy()
     {
+        Debug.Log($"[TaskItemMinimal:{_taskIndex}] OnDestroy called for '{_taskData?.title ?? "Unknown"}'. Cleaning up listeners.");
         if (deleteButton != null) deleteButton.onClick.RemoveAllListeners();
         if (selectAreaButton != null) selectAreaButton.onClick.RemoveAllListeners();
         if (completedToggle != null) completedToggle.onValueChanged.RemoveAllListeners();
+        DeleteRequested = null;
+        SelectRequested = null;
+        ToggleCompleteRequested = null;
     }
 }
-

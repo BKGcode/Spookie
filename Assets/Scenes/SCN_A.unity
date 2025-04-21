@@ -4191,6 +4191,8 @@ GameObject:
   - component: {fileID: 8514493862624822580}
   - component: {fileID: 182387856841489413}
   - component: {fileID: 3612201164987378704}
+  - component: {fileID: 8617871453130193434}
+  - component: {fileID: 8617871453130193433}
   m_Layer: 5
   m_Name: PFB_TaskMain
   m_TagString: Untagged
@@ -5570,24 +5572,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de8dca59be681ef4487cc84858549565, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  titleText: {fileID: 7169945232117492624}
-  timeText: {fileID: 2450052734263281478}
-  startResumeButton: {fileID: 0}
-  buttonBackground: {fileID: 0}
-  buttonIcon: {fileID: 0}
-  pauseButton: {fileID: 0}
-  pauseIconImage: {fileID: 0}
-  resetButton: {fileID: 3661776507220449862}
-  breakButton: {fileID: 0}
-  closeButton: {fileID: 4469558202686202504}
-  breakDurationInputField: {fileID: 0}
-  playIcon: {fileID: 21300000, guid: 97114192ab1e24ff196d73df862d3825, type: 3}
-  pauseIcon: {fileID: 21300000, guid: acc6e549d4f5c47be9f38cfb260cd7e9, type: 3}
-  breakIcon: {fileID: 0}
-  playStateColor: {r: 0, g: 1, b: 0, a: 1}
-  pauseStateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  breakStateColor: {r: 0, g: 1, b: 1, a: 1}
-  normalTimeColor: {r: 1, g: 1, b: 1, a: 1}
+  taskItemUI: {fileID: 0}
+  taskIconSet: {fileID: 0}
 --- !u!114 &8617871453130193432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5632,6 +5618,50 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8617871453130193433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4441986585343543321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d587bd31c43f784aae1d772c4ca9704, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 0}
+  timeText: {fileID: 0}
+  taskIconImage: {fileID: 0}
+  buttonBackground: {fileID: 0}
+  buttonIcon: {fileID: 0}
+  breakDurationInputField: {fileID: 0}
+  canvasGroup: {fileID: 0}
+  startResumeButton: {fileID: 0}
+  pauseButton: {fileID: 0}
+  resetButton: {fileID: 0}
+  breakButton: {fileID: 0}
+  closeButton: {fileID: 0}
+  playIcon: {fileID: 0}
+  pauseIcon: {fileID: 0}
+  breakIcon: {fileID: 0}
+  playStateColor: {r: 0, g: 1, b: 0, a: 1}
+  pauseStateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  breakStateColor: {r: 0, g: 1, b: 1, a: 1}
+  normalTimeColor: {r: 1, g: 1, b: 1, a: 1}
+  stoppedStateColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+--- !u!225 &8617871453130193434
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4441986585343543321}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8774672187052280606
 GameObject:
   m_ObjectHideFlags: 0
