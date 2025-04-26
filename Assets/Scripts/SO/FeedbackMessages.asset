@@ -24,19 +24,19 @@ MonoBehaviour:
     message: "Tarea a\xF1adida correctamente."
     isPermanent: 0
   - key: Feedback_TaskReadyToStart
-    message: Tarea lista para iniciar.
+    message: Tarea lista para empezar.
     isPermanent: 1
   - key: Feedback_MaxTasksReached
     message: "L\xEDmite m\xE1ximo de tareas activas alcanzado."
     isPermanent: 1
   - key: Feedback_TaskStarted
-    message: Tarea iniciada.
+    message: "\xA1Tarea iniciada!"
     isPermanent: 1
   - key: Feedback_TaskPaused
-    message: Tarea pausada.
+    message: Tarea en pausa.
     isPermanent: 1
   - key: Feedback_TaskReset
-    message: Temporizador de la tarea reiniciado.
+    message: Progreso de la tarea reiniciado.
     isPermanent: 0
   - key: Feedback_BreakStarted
     message: Descanso iniciado.
@@ -45,16 +45,18 @@ MonoBehaviour:
     message: "\xA1Tarea completada!"
     isPermanent: 0
   - key: Feedback_TimerFinished
-    message: "\xA1Tiempo de la tarea finalizado!"
+    message: "\xA1Tiempo de tarea finalizado! Tarea en pausa."
     isPermanent: 1
   - key: Feedback_BreakFinished
-    message: Descanso finalizado.
+    message: "\xA1Descanso finalizado! Tarea en pausa."
     isPermanent: 1
   - key: Confirm_Reset
-    message: "\xBFReiniciar el temporizador de esta tarea?"
+    message: "\xBFSeguro que quieres reiniciar el progreso de esta tarea? Se perder\xE1
+      el tiempo acumulado."
     isPermanent: 0
   - key: Confirm_Delete
-    message: "\xBFEliminar esta tarea permanentemente?"
+    message: "\xBFSeguro que quieres eliminar esta tarea permanentemente? Esta acci\xF3n
+      no se puede deshacer."
     isPermanent: 0
   - key: Button_Start
     message: Iniciar
@@ -62,3 +64,33 @@ MonoBehaviour:
   - key: Button_Pause
     message: Pausar
     isPermanent: 1
+  - key: Feedback_BreakInterrupted
+    message: Descanso interrumpido. Tarea reanudada.
+    isPermanent: 0
+  - key: History_PanelTitle
+    message: Historial de Tareas
+    isPermanent: 0
+  - key: History_Empty
+    message: "A\xFAn no hay tareas completadas en el historial."
+    isPermanent: 0
+  - key: Button_Close
+    message: "Cerrar // (Usado en TaskHistoryUI para el bot\xF3n de cerrar panel)"
+    isPermanent: 0
+  - key: // Button_Reset
+    message: Resetear
+    isPermanent: 0
+  - key: // Button_Complete
+    message: Completar
+    isPermanent: 0
+  - key: // Button_Delete
+    message: Eliminar
+    isPermanent: 0
+  - key: // Button_Break10
+    message: Descanso 10m
+    isPermanent: 0
+  - key: // Button_Break30
+    message: Descanso 30m
+    isPermanent: 0
+  - key: // Button_Break60
+    message: Descanso 60m
+    isPermanent: 0
