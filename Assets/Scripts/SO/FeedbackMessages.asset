@@ -12,32 +12,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fb0c0031718164459112e29313f2232, type: 3}
   m_Name: FeedbackMessages
   m_EditorClassIdentifier: 
+  defaultMessageDuration: 3
   messages:
-  - key: Confirm_Reset
-    message: "\xBFSeguro que quieres reiniciar esta tarea? Se perder\xE1 el progreso."
-  - key: Confirm_Delete
-    message: "\xBFSeguro que quieres eliminar esta tarea permanentemente?"
+  - key: Feedback_TitleRequired
+    message: "Se requiere un t\xEDtulo para la tarea."
+    isPermanent: 0
+  - key: Feedback_TimeRequired
+    message: "Se requiere especificar una duraci\xF3n (horas o minutos)."
+    isPermanent: 0
+  - key: Feedback_TaskAdded
+    message: "Tarea a\xF1adida correctamente."
+    isPermanent: 0
   - key: Feedback_TaskReadyToStart
-    message: Tarea lista para empezar.
+    message: Tarea lista para iniciar.
+    isPermanent: 1
   - key: Feedback_MaxTasksReached
-    message: "L\xEDmite de tareas activas alcanzado. Pausa o cierra otra tarea."
+    message: "L\xEDmite m\xE1ximo de tareas activas alcanzado."
+    isPermanent: 1
   - key: Feedback_TaskStarted
-    message: "\xA1Tiempo terminado!"
+    message: Tarea iniciada.
+    isPermanent: 1
+  - key: Feedback_TaskPaused
+    message: Tarea pausada.
+    isPermanent: 1
+  - key: Feedback_TaskReset
+    message: Temporizador de la tarea reiniciado.
+    isPermanent: 0
+  - key: Feedback_BreakStarted
+    message: Descanso iniciado.
+    isPermanent: 1
+  - key: Feedback_TaskCompleted
+    message: "\xA1Tarea completada!"
+    isPermanent: 0
+  - key: Feedback_TimerFinished
+    message: "\xA1Tiempo de la tarea finalizado!"
+    isPermanent: 1
   - key: Feedback_BreakFinished
-    message: "\xA1Descanso terminado!"
-  - key: Feedback_TaskStopped
-    message: Tarea guardada en la lista.
-  - key: Feedback_TaskPaused
-    message: Tarea eliminada.
-  - key: Feedback_TaskPaused
-    message: Debes cerrar la tarea antes de eliminarla.
-  - key: Feedback_TitleRequired
-    message: "Por favor, introduce un t\xEDtulo para la tarea."
-  - key: Feedback_TimeRequired
-    message: Debes asignar tiempo (horas o minutos) a la tarea.
-  - key: Feedback_TitleRequired
-    message: "Por favor, introduce un t\xEDtulo para la tarea."
-  - key: Feedback_TimeRequired
-    message: "Debes asignar tiempo (horas o minutos) a la tarea.\t"
-  - key: Feedback_TimeRequired
-    message: "\xA1Tarea a\xF1adida a la lista!"
+    message: Descanso finalizado.
+    isPermanent: 1
+  - key: Confirm_Reset
+    message: "\xBFReiniciar el temporizador de esta tarea?"
+    isPermanent: 0
+  - key: Confirm_Delete
+    message: "\xBFEliminar esta tarea permanentemente?"
+    isPermanent: 0
+  - key: Button_Start
+    message: Iniciar
+    isPermanent: 1
+  - key: Button_Pause
+    message: Pausar
+    isPermanent: 1

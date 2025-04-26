@@ -16,7 +16,8 @@ public class ActiveTasksUI : MonoBehaviour
     // Dictionary to keep track of instantiated items (Task ID -> UI Component)
     private Dictionary<string, ActiveTaskItemUI> instantiatedItems = new Dictionary<string, ActiveTaskItemUI>();
 
-    void Start()
+    // Changed from Start to OnEnable for robust event subscription
+    void OnEnable()
     {
         if (!ValidateReferences())
         {
@@ -32,7 +33,8 @@ public class ActiveTasksUI : MonoBehaviour
         RefreshActiveTaskList();
     }
 
-    void OnDestroy()
+    // Changed from OnDestroy to OnDisable
+    void OnDisable()
     {
         // Unsubscribe
         if (taskManager != null)

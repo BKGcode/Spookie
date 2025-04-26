@@ -11,6 +11,7 @@ public class TaskData
     public float remainingTime = 0f;// Current time left for the countdown (in seconds)
     public float elapsedTime = 0f;  // Accumulated time spent in Active state (for stats/history)
     public float breakTime = 0f;    // Accumulated time spent in Break state (for stats/history)
+    public float remainingBreakTime = 0f; // Current time left for the break countdown (in seconds)
 
     public TaskState state = TaskState.Pending; // Current state of the task
 
@@ -24,6 +25,7 @@ public class TaskData
         remainingTime = totalSeconds; // Start with the full assigned time
         elapsedTime = 0f;
         breakTime = 0f;
+        remainingBreakTime = 0f; // Initialize
         state = TaskState.Pending; // Default state for new tasks
     }
 
@@ -31,6 +33,7 @@ public class TaskData
     public TaskData()
     {
         id = Guid.NewGuid().ToString();
+        remainingBreakTime = 0f; // Initialize
         state = TaskState.Pending;
     }
 }

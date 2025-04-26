@@ -1681,11 +1681,16 @@ MonoBehaviour:
   titleText: {fileID: 8867317781438241997}
   timerText: {fileID: 4219763186519453723}
   feedbackText: {fileID: 6856349699061068260}
+  normalTimerColor: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 1}
+  breakTimerColor: {r: 0.015686274, g: 0.6277853, b: 1, a: 1}
+  startButtonColor: {r: 0, g: 0.9490196, b: 0.49803922, a: 1}
+  pauseButtonColor: {r: 0.9843137, g: 0.31764707, b: 0.32941177, a: 1}
   startPauseButton: {fileID: 604840870718209122}
   startPauseButtonText: {fileID: 7581613244956257651}
   resetButton: {fileID: 3053150193705889051}
   completeButton: {fileID: 5401224093456246474}
   closeButton: {fileID: 2776687118329877973}
+  deleteButton: {fileID: 7119527895733409954}
   break10MinButton: {fileID: 4264331645930544771}
   break30MinButton: {fileID: 5080105051563385675}
   break60MinButton: {fileID: 8667702056455614741}
@@ -2324,8 +2329,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2342,13 +2347,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17.05
+  m_fontSize: 15.65
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 6
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 4096
   m_textAlignment: 65535

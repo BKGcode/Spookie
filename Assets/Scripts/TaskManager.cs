@@ -56,6 +56,7 @@ public class TaskManager : MonoBehaviour
                 {
                     currentBreaks[taskId] -= deltaTime;
                     task.breakTime += deltaTime; // Accumulate total break time
+                    task.remainingBreakTime = Mathf.Max(0f, currentBreaks[taskId]);
 
                     if (currentBreaks[taskId] <= 0f)
                     {
@@ -219,6 +220,7 @@ public class TaskManager : MonoBehaviour
         task.remainingTime = task.assignedTime;
         task.elapsedTime = 0f;
         task.breakTime = 0f;
+        task.remainingBreakTime = 0f;
 
         // Stop break timer if it was running
         if (task.state == TaskState.Break)
@@ -260,6 +262,7 @@ public class TaskManager : MonoBehaviour
 
             task.state = TaskState.Break;
             currentBreaks[taskId] = breakDurationSeconds; // Start break timer
+            task.remainingBreakTime = breakDurationSeconds;
             Debug.Log($"Break Started for Task: {task.title} ({breakDurationSeconds}s)");
             OnTaskListUpdated?.Invoke();
             OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_BreakStarted");
@@ -320,17 +323,17 @@ public class TaskManager : MonoBehaviour
          TaskData task = FindTaskById(taskId);
          if (task == null) return;
 
-         // Can delete Pending or Stopped tasks
-         if (task.state == TaskState.Pending || task.state == TaskState.Stopped)
+         // Can delete tasks from any state except Completed
+         if (task.state != TaskState.Completed)
          {
             // Request confirmation from the UI before proceeding
             OnConfirmationRequired?.Invoke(taskId, "Confirm_Delete", () => ActuallyDeleteTask(taskId));
          }
          else
          {
-            Debug.LogWarning($"Task {task.title} cannot be deleted from state {task.state}.");
-            // Optionally, provide feedback that it needs to be closed first?
-            // OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_CloseTaskBeforeDelete");
+             Debug.LogWarning($"Task {task.title} cannot be deleted from state {task.state}.");
+             // Optionally, provide feedback that it needs to be closed first?
+             // OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_CloseTaskBeforeDelete");
          }
     }
 
@@ -338,8 +341,14 @@ public class TaskManager : MonoBehaviour
     private void ActuallyDeleteTask(string taskId)
     {
         TaskData taskToRemove = FindTaskById(taskId);
-        if (taskToRemove != null && (taskToRemove.state == TaskState.Pending || taskToRemove.state == TaskState.Stopped))
+        if (taskToRemove != null)
         {
+            // Clean up break timer if necessary before deleting
+            if (taskToRemove.state == TaskState.Break)
+            {
+                 StopBreakTimer(taskId);
+            }
+
             allTasks.Remove(taskToRemove);
             Debug.Log($"Task Deleted: {taskToRemove.title}");
             OnTaskListUpdated?.Invoke();
@@ -374,6 +383,17 @@ public class TaskManager : MonoBehaviour
         {
             allTasks = loadedTasks;
             Debug.Log($"Loaded {allTasks.Count} tasks.");
+
+            // --- Ensure no task starts as Active after loading ---
+            foreach (TaskData task in allTasks)
+            {
+                if (task.state == TaskState.Active)
+                {
+                    task.state = TaskState.Paused;
+                    Debug.Log($"Task '{task.title}' loaded as Active, setting to Paused.");
+                }
+            }
+            // -----------------------------------------------------
         }
 
         // Reset runtime state that isn't saved/loaded
@@ -414,6 +434,11 @@ public class TaskManager : MonoBehaviour
         if (currentBreaks.ContainsKey(taskId))
         {
             currentBreaks.Remove(taskId);
+            TaskData task = FindTaskById(taskId);
+            if (task != null)
+            {
+                 task.remainingBreakTime = 0f;
+            }
         }
     }
 

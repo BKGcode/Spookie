@@ -16,12 +16,21 @@ public class ActiveTaskItemUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI feedbackText; // For messages like "Max tasks reached", "Break Finished", etc.
 
+    [Header("Timer Colors")]
+    [SerializeField] private Color normalTimerColor = Color.white; // Color por defecto para el temporizador normal
+    [SerializeField] private Color breakTimerColor = Color.yellow; // Color por defecto para el temporizador de descanso
+
+    [Header("Button Colors")]
+    [SerializeField] private Color startButtonColor = Color.green; // Color para el botón cuando muestra "Start"
+    [SerializeField] private Color pauseButtonColor = Color.red; // Color para el botón cuando muestra "Pause"
+
     [Header("Buttons")]
     [SerializeField] private Button startPauseButton;
     [SerializeField] private TextMeshProUGUI startPauseButtonText; // Text on the Start/Pause button
     [SerializeField] private Button resetButton;
     [SerializeField] private Button completeButton;
     [SerializeField] private Button closeButton; // The 'X' button
+    [SerializeField] private Button deleteButton; // New Delete button
 
     [Header("Break Duration Buttons")]
     [SerializeField] private Button break10MinButton;
@@ -31,10 +40,23 @@ public class ActiveTaskItemUI : MonoBehaviour
     // Runtime Data
     private string currentTaskId;
     private TaskData currentTaskData; // Cache the data for updates
+    private Image startPauseButtonImage; // Cache the Image component for color tinting
 
     // Constants for button text (better to get from FeedbackMessagesSO later)
-    private const string START_TEXT = "Start";
-    private const string PAUSE_TEXT = "Pause";
+    // REMOVED private const string START_TEXT = "Start";
+    // REMOVED private const string PAUSE_TEXT = "Pause";
+
+    void Awake() // Changed from Start to Awake for image caching
+    {
+        // Cache the button image component immediately
+        if (startPauseButton != null)
+        {
+            startPauseButtonImage = startPauseButton.GetComponent<Image>();
+            if (startPauseButtonImage == null) {
+                 Debug.LogWarning($"[{gameObject.name}] Start/Pause Button does not have an Image component for tinting.", this);
+            }
+        }
+    }
 
     void Start()
     {
@@ -43,11 +65,21 @@ public class ActiveTaskItemUI : MonoBehaviour
         resetButton.onClick.AddListener(HandleResetClick);
         completeButton.onClick.AddListener(HandleCompleteClick);
         closeButton.onClick.AddListener(HandleCloseClick);
+        if (deleteButton != null) deleteButton.onClick.AddListener(HandleDeleteClick);
 
         // Add listeners for break duration buttons
         if (break10MinButton) break10MinButton.onClick.AddListener(() => HandleBreakDurationSelected(10 * 60));
         if (break30MinButton) break30MinButton.onClick.AddListener(() => HandleBreakDurationSelected(30 * 60));
         if (break60MinButton) break60MinButton.onClick.AddListener(() => HandleBreakDurationSelected(60 * 60));
+
+        // Cache the button image component - MOVED TO AWAKE
+        // if (startPauseButton != null)
+        // {
+        //     startPauseButtonImage = startPauseButton.GetComponent<Image>();
+        //     if (startPauseButtonImage == null) {
+        //          Debug.LogWarning($"[{gameObject.name}] Start/Pause Button does not have an Image component for tinting.", this);
+        //     }
+        // }
     }
 
     public void Setup(TaskData taskData, TaskManager manager, IconSetSO icons, FeedbackMessagesSO messages)
@@ -94,15 +126,35 @@ public class ActiveTaskItemUI : MonoBehaviour
     {
         if (feedbackText != null && feedbackMessages != null)
         {
-            feedbackText.text = feedbackMessages.GetMessage(messageKey);
-            feedbackText.gameObject.SetActive(true);
-            // Optional: Auto-clear feedback after a delay
-             Invoke(nameof(ClearFeedback), 3f);
+            FeedbackMessage messageInfo = feedbackMessages.GetMessageInfo(messageKey);
+
+            if (messageInfo != null)
+            {
+                feedbackText.text = messageInfo.message;
+                feedbackText.gameObject.SetActive(true);
+
+                // Cancel any previous auto-clear invoke
+                CancelInvoke(nameof(ClearFeedback));
+
+                // If message is not permanent, schedule auto-clear
+                if (!messageInfo.isPermanent)
+                {
+                    Invoke(nameof(ClearFeedback), feedbackMessages.defaultMessageDuration);
+                }
+            }
+            else
+            {
+                 // Key not found, clear feedback area
+                 ClearFeedback();
+            }
         }
     }
 
      public void ClearFeedback()
      {
+        // Stop potentially pending Invoke calls to clear if we clear manually
+        CancelInvoke(nameof(ClearFeedback));
+
         if (feedbackText != null)
         {
              feedbackText.text = "";
@@ -130,13 +182,32 @@ public class ActiveTaskItemUI : MonoBehaviour
     {
         if (timerText != null)
         {
-            if (remainingSeconds < 0) remainingSeconds = 0;
-            TimeSpan timeSpan = TimeSpan.FromSeconds(remainingSeconds);
+            float timeToShow;
+            Color colorToUse;
+
+            // Determine which time and color to use based on state
+            if (currentTaskData != null && currentTaskData.state == TaskState.Break)
+            {
+                timeToShow = currentTaskData.remainingBreakTime;
+                colorToUse = breakTimerColor;
+            }
+            else
+            {
+                // Default to remaining task time for Active, Paused, etc.
+                timeToShow = remainingSeconds; // Use the passed remainingSeconds (which comes from taskData.remainingTime)
+                colorToUse = normalTimerColor;
+            }
+
+            if (timeToShow < 0) timeToShow = 0;
+            TimeSpan timeSpan = TimeSpan.FromSeconds(timeToShow);
             // Format as HH:MM:SS
             timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}",
                                             (int)timeSpan.TotalHours,
                                             timeSpan.Minutes,
                                             timeSpan.Seconds);
+
+            // Apply the chosen color
+            timerText.color = colorToUse;
         }
     }
 
@@ -146,16 +217,26 @@ public class ActiveTaskItemUI : MonoBehaviour
         bool isActive = currentState == TaskState.Active;
         bool isBreak = currentState == TaskState.Break;
         bool isFinished = currentState == TaskState.Completed;
+        // Condition for enabling break buttons: Active or Paused, and not Finished.
         bool canStartBreak = (isActive || isPaused) && !isFinished;
 
         // Start/Pause Button
         startPauseButton.interactable = (isActive || isPaused || isBreak) && !isFinished;
-        startPauseButtonText.text = (isActive || isBreak) ? PAUSE_TEXT : START_TEXT;
+        // Text: Show Pause only if Active, otherwise Start (for Paused and Break states)
+        if (startPauseButtonText != null && feedbackMessages != null)
+        {
+             startPauseButtonText.text = isActive ? feedbackMessages.GetMessage("Button_Pause", "Pause") : feedbackMessages.GetMessage("Button_Start", "Start");
+        }
+        // Color: Tint based on whether it shows Start or Pause
+        if (startPauseButtonImage != null)
+        {
+             startPauseButtonImage.color = isActive ? pauseButtonColor : startButtonColor;
+        }
 
         // Reset Button
         resetButton.interactable = !isFinished;
 
-        // Break Duration Buttons
+        // Break Duration Buttons (Enabled only when Active or Paused)
         if (break10MinButton) break10MinButton.interactable = canStartBreak;
         if (break30MinButton) break30MinButton.interactable = canStartBreak;
         if (break60MinButton) break60MinButton.interactable = canStartBreak;
@@ -165,6 +246,9 @@ public class ActiveTaskItemUI : MonoBehaviour
 
         // Close Button
         closeButton.interactable = !isFinished;
+
+        // Delete Button (Enable if not finished)
+        if (deleteButton != null) deleteButton.interactable = !isFinished;
     }
 
 
@@ -213,6 +297,14 @@ public class ActiveTaskItemUI : MonoBehaviour
         taskManager.ReturnTaskToPendingList(currentTaskId);
     }
 
+    // New handler for the delete button
+    private void HandleDeleteClick()
+    {
+        if (taskManager == null) return;
+        Debug.Log($"ActiveTaskItemUI: Delete requested for task {currentTaskId}");
+        taskManager.RequestDeleteTask(currentTaskId);
+    }
+
     // Optional: Clean up listeners if the object is destroyed/pooled
     // void OnDestroy() { ... remove listeners ... }
 }
@@ -222,4 +314,4 @@ public class ActiveTaskItemUI : MonoBehaviour
 // RelatedScripts: ActiveTasksUI (instantiates, updates, provides refs), TaskManager (receives calls), IconSetSO, FeedbackMessagesSO
 // UsesSO: IconSetSO, FeedbackMessagesSO
 // ReceivesFrom: ActiveTasksUI (Setup, UpdateTaskData, ShowFeedback calls), User (button clicks)
-// SendsTo: TaskManager (ActivateTask, PauseTask, InterruptBreakAndResume, RequestResetTask, StartBreak, MarkTaskAsCompleted, ReturnTaskToPendingList)
+// SendsTo: TaskManager (ActivateTask, PauseTask, InterruptBreakAndResume, RequestResetTask, StartBreak, MarkTaskAsCompleted, ReturnTaskToPendingList, RequestDeleteTask)

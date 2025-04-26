@@ -112,9 +112,38 @@ public class AddTaskPanel : MonoBehaviour
     {
         if (feedbackText != null)
         {
-            feedbackText.gameObject.SetActive(true);
-            // Get message from SO using the key
-            feedbackText.text = feedbackMessages != null ? feedbackMessages.GetMessage(messageKey, messageKey) : messageKey;
+            // Ensure we have the SO reference
+            if (feedbackMessages == null) {
+                 Debug.LogError($"[{gameObject.name}] Feedback Messages SO not assigned! Cannot show feedback.", this);
+                 feedbackText.text = messageKey; // Show key as fallback
+                 feedbackText.gameObject.SetActive(true);
+                 return;
+            }
+
+            FeedbackMessage messageInfo = feedbackMessages.GetMessageInfo(messageKey);
+
+            if (messageInfo != null)
+            {
+                feedbackText.text = messageInfo.message;
+                feedbackText.gameObject.SetActive(true);
+
+                // Cancel any previous auto-clear invoke
+                CancelInvoke(nameof(ClearFeedback));
+
+                // If message is not permanent, schedule auto-clear
+                if (!messageInfo.isPermanent)
+                {
+                    Invoke(nameof(ClearFeedback), feedbackMessages.defaultMessageDuration);
+                }
+            }
+            else
+            {
+                // Key not found, use key as text and schedule clear
+                feedbackText.text = messageKey; // Show key as fallback
+                feedbackText.gameObject.SetActive(true);
+                CancelInvoke(nameof(ClearFeedback));
+                Invoke(nameof(ClearFeedback), feedbackMessages.defaultMessageDuration);
+            }
         }
         // Keep the debug log for development
         Debug.Log($"AddTaskPanel Feedback: {messageKey}");
@@ -122,6 +151,9 @@ public class AddTaskPanel : MonoBehaviour
 
     private void ClearFeedback()
     {
+        // Stop potentially pending Invoke calls to clear if we clear manually
+        CancelInvoke(nameof(ClearFeedback));
+
         if (feedbackText != null)
         {
             feedbackText.text = "";
