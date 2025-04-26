@@ -31,32 +31,34 @@ public class TaskSystem : MonoBehaviour
             {
                 task.state = TaskState.Paused;
                 needsSave = true;
+                Debug.Log($"[TaskSystem] Pausing task '{task.title}' due to application quit.");
             }
         }
         if (needsSave)
         {
-             // Save implicitly if tasks were paused on quit
              SaveTasks();
         }
-        // Alternatively, always save on quit if desired, uncomment below
-        // SaveTasks();
     }
 
     public void AddTask(string title, int iconIndex = 0)
     {
-        if (string.IsNullOrWhiteSpace(title)) return;
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            Debug.LogWarning("[TaskSystem] AddTask called with empty or whitespace title. Aborting.");
+            return;
+        }
 
         if (taskIconSO == null || taskIconSO.icons == null || iconIndex < 0 || iconIndex >= taskIconSO.icons.Length)
         {
-             Debug.LogWarning($"[TaskSystem] Invalid icon index ({iconIndex}) or TaskIconSO missing/empty. Defaulting to index 0.");
-             iconIndex = (taskIconSO != null && taskIconSO.icons != null && taskIconSO.icons.Length > 0) ? 0 : -1; // Use -1 if no icons exist at all
+             Debug.LogWarning($"[TaskSystem] Invalid icon index ({iconIndex}) or TaskIconSO missing/empty. Defaulting icon index.");
+             iconIndex = (taskIconSO != null && taskIconSO.icons != null && taskIconSO.icons.Length > 0) ? 0 : -1;
         }
 
         TaskData newTask = new TaskData(title, iconIndex);
         _tasks.Add(newTask);
-        Debug.Log($"[TaskSystem] Added task '{title}' with icon index {iconIndex}.");
+        Debug.Log($"[TaskSystem] Added task '{title}' (Index: {_tasks.Count - 1}) with icon index {iconIndex}.");
         OnTaskListChanged?.Invoke();
-        SaveTasks(); // Save after adding
+        SaveTasks();
     }
 
     public void RemoveTask(int index)
@@ -66,7 +68,7 @@ public class TaskSystem : MonoBehaviour
             Debug.Log($"[TaskSystem] Removing task at index {index}: '{_tasks[index].title}'.");
             _tasks.RemoveAt(index);
             OnTaskListChanged?.Invoke();
-            SaveTasks(); // Save after removing
+            SaveTasks();
         }
          else
         {
@@ -79,19 +81,14 @@ public class TaskSystem : MonoBehaviour
         if (index >= 0 && index < _tasks.Count)
         {
             _tasks[index].isCompleted = !_tasks[index].isCompleted;
-            Debug.Log($"[TaskSystem] Toggled completed status for task {index} to {_tasks[index].isCompleted}.");
+            Debug.Log($"[TaskSystem] Toggled completed status for task '{_tasks[index].title}' (Index: {index}) to {_tasks[index].isCompleted}.");
 
             if (_tasks[index].isCompleted && _tasks[index].state != TaskState.Stopped)
             {
-                 // Option: Reset timer when task is marked complete?
-                 // _tasks[index].state = TaskState.Stopped;
-                 // _tasks[index].elapsedTime = 0f;
-                 // _tasks[index].breakElapsedTime = 0f;
-                 // _tasks[index].breakDuration = 0f;
-                 // Debug.Log($"[TaskSystem] Also stopping timer for completed task {index}.");
             }
+
             OnTaskListChanged?.Invoke();
-            SaveTasks(); // Save after toggling completion
+            SaveTasks();
         }
         else
         {
@@ -99,33 +96,76 @@ public class TaskSystem : MonoBehaviour
         }
     }
 
-    // Note: Start/Pause/Break/Reset methods are now primarily handled by TaskTimerManager requesting changes.
-    // TaskSystem now focuses on managing the list and persistence.
-    // The timer-related methods below might be redundant if TaskTimerManager directly modifies TaskData state.
-    // However, keeping them allows TaskSystem to potentially enforce rules or trigger saves.
+    public void SetTaskCompleted(int index, bool completed)
+    {
+        if (index >= 0 && index < _tasks.Count)
+        {
+            if (_tasks[index].isCompleted == completed) return;
 
-    // Consider if these methods are still needed or if TaskTimerManager should own state changes entirely.
-    // If TaskTimerManager modifies the TaskData directly, these might become unnecessary.
-    // For now, they are kept but might need adjustment based on final architecture choice.
+            _tasks[index].isCompleted = completed;
+            Debug.Log($"[TaskSystem] Set completed status for task '{_tasks[index].title}' (Index: {index}) to {completed}.");
 
-    public void UpdateTaskStateFromManager(int index, TaskState newState, float elapsed, float breakElapsed)
+            if (_tasks[index].isCompleted && _tasks[index].state != TaskState.Stopped)
+            {
+            }
+
+            OnTaskListChanged?.Invoke();
+            SaveTasks();
+        }
+        else
+        {
+            Debug.LogWarning($"[TaskSystem] Attempted to set complete status at invalid index: {index}");
+        }
+    }
+
+    public void UpdateTaskStateFromManager(int index, TaskState newState, float elapsed, float breakElapsed, float breakDuration)
     {
          if (index >= 0 && index < _tasks.Count)
          {
              TaskData task = _tasks[index];
-             bool changed = task.state != newState || !Mathf.Approximately(task.elapsedTime, elapsed) || !Mathf.Approximately(task.breakElapsedTime, breakElapsed);
+             bool stateChanged = task.state != newState;
+             bool timeChanged = !Mathf.Approximately(task.elapsedTime, elapsed) ||
+                                !Mathf.Approximately(task.breakElapsedTime, breakElapsed) ||
+                                !Mathf.Approximately(task.breakDuration, breakDuration);
 
              task.state = newState;
              task.elapsedTime = elapsed;
-             task.breakElapsedTime = breakElapsed; // Ensure break time is also updated if necessary
+             task.breakElapsedTime = breakElapsed;
+             task.breakDuration = breakDuration;
 
-             if(changed)
+             if(stateChanged || timeChanged)
              {
-                // We don't invoke OnTaskListChanged here typically, as the TimerManager tick likely triggered the UI update.
-                // However, we might want to save periodically or based on state changes.
-                // SaveTasks(); // Consider saving on significant state changes? Might be too frequent.
              }
          }
+         else
+         {
+              Debug.LogWarning($"[TaskSystem] Attempted UpdateTaskStateFromManager at invalid index: {index}");
+         }
+    }
+
+    public void ResetTaskTimerState(int index, bool triggerSave = true)
+    {
+        if (index >= 0 && index < _tasks.Count)
+        {
+             TaskData task = _tasks[index];
+             bool changed = task.state != TaskState.Stopped || task.elapsedTime > 0f || task.breakElapsedTime > 0f || task.breakDuration > 0f;
+
+             task.state = TaskState.Stopped;
+             task.elapsedTime = 0f;
+             task.breakElapsedTime = 0f;
+             task.breakDuration = 0f;
+
+             if (changed)
+             {
+                 Debug.Log($"[TaskSystem] Reset timer state for task '{task.title}' (Index: {index}).");
+                 OnTaskListChanged?.Invoke();
+                 if (triggerSave) SaveTasks();
+             }
+        }
+         else
+        {
+             Debug.LogWarning($"[TaskSystem] Attempted ResetTaskTimerState at invalid index: {index}");
+        }
     }
 
 
@@ -135,10 +175,9 @@ public class TaskSystem : MonoBehaviour
         {
              if(_tasks[index].isSelected != selected)
              {
-                _tasks[index].isSelected = selected;
-                Debug.Log($"[TaskSystem] Set selected status for task {index} to {selected}.");
-                OnTaskListChanged?.Invoke();
-                // No save needed for selection state as it's transient UI state
+                 _tasks[index].isSelected = selected;
+                 Debug.Log($"[TaskSystem] Set selected status for task '{_tasks[index].title}' (Index: {index}) to {selected}.");
+                 OnTaskListChanged?.Invoke();
              }
         }
          else
@@ -154,7 +193,6 @@ public class TaskSystem : MonoBehaviour
         try
         {
             File.WriteAllText(_savePath, json);
-            Debug.Log($"[TaskSystem] Tasks saved successfully to '{_savePath}'.");
         }
         catch (Exception e)
         {
@@ -173,19 +211,22 @@ public class TaskSystem : MonoBehaviour
 
                 if (loadedData != null && loadedData.tasks != null)
                 {
-                     _tasks = loadedData.tasks;
-                     Debug.Log($"[TaskSystem] Tasks loaded successfully from '{_savePath}'. {_tasks.Count} tasks found.");
+                    _tasks = loadedData.tasks;
+                    Debug.Log($"[TaskSystem] Tasks loaded successfully from '{_savePath}'. {_tasks.Count} tasks found.");
 
-                     // Reset transient states on load
-                     foreach (var task in _tasks) {
-                         task.isSelected = false; // Selection is not saved/loaded
-                         // Ensure tasks that were running or on break are paused on load
-                         if (task.state == TaskState.Running || task.state == TaskState.OnBreak)
-                         {
-                             task.state = TaskState.Paused;
-                             Debug.Log($"[TaskSystem] Task '{task.title}' was active on last save, setting state to Paused.");
-                         }
-                     }
+                    bool listModified = false;
+                    foreach (var task in _tasks)
+                    {
+                        task.isSelected = false;
+
+                        if (task.state == TaskState.Running || task.state == TaskState.OnBreak)
+                        {
+                            task.state = TaskState.Paused;
+                            listModified = true;
+                            Debug.Log($"[TaskSystem] Task '{task.title}' was active on last save, setting state to Paused.");
+                        }
+                    }
+                    if(listModified) SaveTasks();
                 }
                 else
                 {
@@ -204,15 +245,21 @@ public class TaskSystem : MonoBehaviour
              Debug.Log($"[TaskSystem] Save file not found at '{_savePath}'. Initializing empty task list.");
             _tasks = new List<TaskData>();
         }
-        // Invoke regardless of load success to update UI with loaded or empty list
         OnTaskListChanged?.Invoke();
     }
 }
 
-// Helper class for JSON serialization
 [Serializable]
 public class TaskSaveData
 {
     public List<TaskData> tasks;
 }
+
+
+// --- Summary Block ---
+// ScriptRole: Manages the list of TaskData, handles persistence (saving/loading to JSON), and provides methods to add, remove, and modify task properties like completion status.
+// RelatedScripts: TaskData, TaskListUI, TaskTimerManager, TaskItemMinimal, TaskState
+// UsesSO: TaskIconSO (for validation during AddTask)
+// SendsTo: TaskListUI, TaskTimerManager (via OnTaskListChanged event)
+// ReceivesFrom: TaskListUI (requests to Add, Remove, ToggleComplete, SetSelected), TaskTimerManager (requests to SetComplete, updates via UpdateTaskStateFromManager)
 
