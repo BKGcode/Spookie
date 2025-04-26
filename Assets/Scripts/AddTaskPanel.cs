@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events; // Needed for UnityEvent
 
 public class AddTaskPanel : MonoBehaviour
 {
+    // Event triggered when the user confirms adding a new task
+    // Parameters: title (string), iconIndex (int), totalSeconds (float)
+    public UnityEvent<string, int, float> OnNewTaskRequested;
+
     [Header("System References")]
-    [SerializeField] private TaskManager taskManager;
-    // We might need the IconSetSO directly if we implement icon selection here
-    // [SerializeField] private IconSetSO iconSet;
+    [SerializeField] private FeedbackMessagesSO feedbackMessages; // Reference to message definitions
 
     [Header("UI References (Assign in Inspector)")]
     [SerializeField] private TMP_InputField titleInputField;
@@ -17,6 +20,14 @@ public class AddTaskPanel : MonoBehaviour
     // [SerializeField] private IconSelectorUI iconSelector;
     [SerializeField] private Button addTaskButton;
     [SerializeField] private TextMeshProUGUI feedbackText; // Optional feedback area
+
+    // --- Reference removed ---
+    // [Header("System References")]
+    // [SerializeField] private TaskManager taskManager;
+
+    // We might need the IconSetSO directly if we implement icon selection here
+    // [SerializeField] private IconSetSO iconSet;
+
 
     void Start()
     {
@@ -32,12 +43,17 @@ public class AddTaskPanel : MonoBehaviour
 
     private bool ValidateReferences()
     {
-        if (taskManager == null) { Debug.LogError($"[{gameObject.name}] Task Manager reference not set!", this); return false; }
+        // Removed TaskManager validation
+        // if (taskManager == null) { Debug.LogError($"[{gameObject.name}] Task Manager reference not set!", this); return false; }
         if (titleInputField == null) { Debug.LogError($"[{gameObject.name}] Title Input Field not assigned!", this); return false; }
         if (hoursSelector == null) { Debug.LogError($"[{gameObject.name}] Hours Selector not assigned!", this); return false; }
         if (minutesSelector == null) { Debug.LogError($"[{gameObject.name}] Minutes Selector not assigned!", this); return false; }
         if (addTaskButton == null) { Debug.LogError($"[{gameObject.name}] Add Task Button not assigned!", this); return false; }
         // feedbackText is optional
+
+        // Validate FeedbackMessagesSO reference
+        if (feedbackMessages == null) { Debug.LogError($"[{gameObject.name}] Feedback Messages SO not assigned!", this); return false; }
+
         return true;
     }
 
@@ -78,8 +94,8 @@ public class AddTaskPanel : MonoBehaviour
         //     iconIndex = Random.Range(0, iconSet.taskIcons.Count);
         // }
 
-        // --- Call TaskManager ---
-        taskManager.AddNewTask(title, iconIndex, totalSeconds);
+        // --- Invoke Event ---
+        OnNewTaskRequested?.Invoke(title, iconIndex, totalSeconds);
 
         // --- Reset UI ---
         titleInputField.text = "";
@@ -97,9 +113,11 @@ public class AddTaskPanel : MonoBehaviour
         if (feedbackText != null)
         {
             feedbackText.gameObject.SetActive(true);
-            feedbackText.text = GetLocalizedText(messageKey); // Use placeholder localization
+            // Get message from SO using the key
+            feedbackText.text = feedbackMessages != null ? feedbackMessages.GetMessage(messageKey, messageKey) : messageKey;
         }
-        Debug.Log($"AddTaskPanel Feedback: {messageKey}"); // Log for debugging
+        // Keep the debug log for development
+        Debug.Log($"AddTaskPanel Feedback: {messageKey}");
     }
 
     private void ClearFeedback()
@@ -111,16 +129,16 @@ public class AddTaskPanel : MonoBehaviour
         }
     }
 
-    // Placeholder for localization
-    private string GetLocalizedText(string key)
-    {
-        return key.Replace("Feedback_", "").Replace("_", " ");
-    }
+    // Placeholder for localization - REMOVED
+    // private string GetLocalizedText(string key)
+    // {
+    //     return key.Replace("Feedback_", "").Replace("_", " ");
+    // }
 }
 
 // --- Summary Block ---
-// ScriptRole: Manages the UI panel for creating new tasks, including title input and time selection using ValueSelectorUI components. Calls TaskManager to add the new task.
-// RelatedScripts: TaskManager (receives AddNewTask call), ValueSelectorUI (provides selected time values)
-// UsesSO: None directly (potentially IconSetSO if icon selection is added)
-// ReceivesFrom: User (button clicks, input field entry)
-// SendsTo: TaskManager (AddNewTask)
+// ScriptRole: Manages the UI panel for creating new tasks. Uses ValueSelectorUI for time, validates input, and invokes OnNewTaskRequested event.
+// RelatedScripts: ValueSelectorUI, TaskManager (listens to event), FeedbackMessagesSO (provides UI text)
+// UsesSO: FeedbackMessagesSO
+// ReceivesFrom: User (input/clicks)
+// SendsTo: TaskManager (via OnNewTaskRequested event)

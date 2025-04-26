@@ -23,6 +23,8 @@ public class TaskManager : MonoBehaviour
     // --- Events ---
     // Called whenever the task list changes (add, remove, state change affecting lists)
     public UnityEvent OnTaskListUpdated;
+    // Called when a task needs external confirmation (Task ID, Confirmation Type Key, Action On Confirm)
+    public UnityEvent<string, string, UnityAction> OnConfirmationRequired; // Example: (taskId, "Confirm_Reset", () => ActuallyResetTask(taskId))
     // Called when a task needs to display specific feedback (Task ID, Message Key/Text)
     public UnityEvent<string, string> OnTaskFeedbackRequested;
     // Called when a task timer reaches zero (Task ID)
@@ -89,33 +91,60 @@ public class TaskManager : MonoBehaviour
 
     public void AddNewTask(string title, int iconIndex, float assignedSeconds)
     {
+        // New tasks start as Pending, ready for the left list
         TaskData newTask = new TaskData(title, iconIndex, assignedSeconds);
         allTasks.Add(newTask);
-        Debug.Log($"Task Added: {title} ({newTask.id})");
+        Debug.Log($"Task Added: {title} ({newTask.id}) - State: {newTask.state}");
         OnTaskListUpdated?.Invoke();
     }
+
+    // Called by UI when a Pending/Stopped task is selected from the left list
+    public void PrepareTaskForActivation(string taskId)
+    {
+        TaskData task = FindTaskById(taskId);
+        if (task == null) return;
+
+        // Only Pending or Stopped tasks can be prepared
+        if (task.state == TaskState.Pending || task.state == TaskState.Stopped)
+        {
+            // Move to Paused state, ready to appear in the right list
+            task.state = TaskState.Paused;
+            Debug.Log($"Task Prepared for Activation: {task.title} - State: {TaskState.Paused}");
+            OnTaskListUpdated?.Invoke();
+            OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskReadyToStart"); // Notify UI
+        }
+        else
+        {
+             Debug.LogWarning($"Task {task.title} cannot be prepared from state {task.state}.");
+        }
+    }
+
+    // --- Active Task Controls (Right List) ---
 
     public void ActivateTask(string taskId)
     {
         TaskData task = FindTaskById(taskId);
-        if (task == null)
+        if (task == null) return;
+
+        // Can only activate if Paused or resuming from Break
+        if (task.state != TaskState.Paused && task.state != TaskState.Break)
         {
-            Debug.LogError($"ActivateTask: Task with ID {taskId} not found.");
+            Debug.LogWarning($"Cannot activate task {task.title} from state {task.state}.");
             return;
         }
-
-        if (task.state == TaskState.Active) return; // Already active
 
         // Check limit BEFORE activating
         int currentActiveCount = allTasks.Count(t => t.state == TaskState.Active || t.state == TaskState.Break);
-        if (currentActiveCount >= maxActiveTasks)
+        // If the task was in break, it was already counting towards the limit.
+        // If it was Paused, check if adding it exceeds the limit.
+        if (task.state == TaskState.Paused && currentActiveCount >= maxActiveTasks)
         {
             Debug.LogWarning($"Cannot activate task {task.title}. Max active task limit ({maxActiveTasks}) reached.");
-            OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_MaxTasksReached"); // Use a key for localization later
+            OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_MaxTasksReached");
             return;
         }
 
-        // If it was in break, stop the break first
+        // If it was in break, stop the break timer
         if (task.state == TaskState.Break)
         {
             StopBreakTimer(task.id);
@@ -130,13 +159,14 @@ public class TaskManager : MonoBehaviour
     public void PauseTask(string taskId)
     {
          TaskData task = FindTaskById(taskId);
-        if (task == null)
+        if (task == null) return;
+
+        // Can only pause Active tasks
+        if (task.state != TaskState.Active)
         {
-            Debug.LogError($"PauseTask: Task with ID {taskId} not found.");
+            Debug.LogWarning($"Cannot pause task {task.title} from state {task.state}.");
             return;
         }
-
-        if (task.state != TaskState.Active) return; // Can only pause active tasks
 
         task.state = TaskState.Paused;
         Debug.Log($"Task Paused: {task.title}");
@@ -144,16 +174,13 @@ public class TaskManager : MonoBehaviour
         OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskPaused");
     }
 
-     public void StopTask(string taskId) // "Park" the task
+     // Renamed from StopTask - Called by UI when 'X' (Close) is clicked on an active task item
+    public void ReturnTaskToPendingList(string taskId)
     {
          TaskData task = FindTaskById(taskId);
-        if (task == null)
-        {
-            Debug.LogError($"StopTask: Task with ID {taskId} not found.");
-            return;
-        }
+         if (task == null) return;
 
-         // Only stop tasks that are currently active, paused, or in break
+         // Can return tasks that are Active, Paused, or in Break
          if (task.state == TaskState.Active || task.state == TaskState.Paused || task.state == TaskState.Break)
         {
             // If it was in break, stop the break timer
@@ -162,15 +189,49 @@ public class TaskManager : MonoBehaviour
                  StopBreakTimer(task.id);
             }
 
-            task.state = TaskState.Stopped;
-            Debug.Log($"Task Stopped (Parked): {task.title}");
+            task.state = TaskState.Stopped; // Mark as 'parked' for the left list
+            Debug.Log($"Task Returned to Pending List: {task.title} - State: {TaskState.Stopped}");
             OnTaskListUpdated?.Invoke();
-            OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskStopped");
+            // OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskStopped"); // Optional feedback?
         }
          else
         {
-             Debug.LogWarning($"Task {task.title} cannot be stopped from state {task.state}.");
+             Debug.LogWarning($"Task {task.title} cannot be returned to pending list from state {task.state}.");
         }
+    }
+
+    public void RequestResetTask(string taskId) // Renamed from ResetTaskTimer
+    {
+        TaskData task = FindTaskById(taskId);
+        if (task == null) return;
+
+        // Request confirmation from the UI before proceeding
+        OnConfirmationRequired?.Invoke(taskId, "Confirm_Reset", () => ActuallyResetTask(taskId));
+    }
+
+    // Internal method called after UI confirmation
+    private void ActuallyResetTask(string taskId)
+    {
+        TaskData task = FindTaskById(taskId);
+        if (task == null) return;
+
+        // Reset times
+        task.remainingTime = task.assignedTime;
+        task.elapsedTime = 0f;
+        task.breakTime = 0f;
+
+        // Stop break timer if it was running
+        if (task.state == TaskState.Break)
+        {
+            StopBreakTimer(taskId);
+        }
+
+        // Set state to Paused, ready in the right list
+        task.state = TaskState.Paused;
+
+        Debug.Log($"Task Reset: {task.title} - State: {TaskState.Paused}");
+        OnTaskListUpdated?.Invoke();
+        OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskReset");
     }
 
     public void StartBreak(string taskId, float breakDurationSeconds)
@@ -209,7 +270,7 @@ public class TaskManager : MonoBehaviour
         }
     }
 
-     // Manually stopping the break timer (e.g., by pressing Start/Pause again)
+     // Called by UI when Start/Pause is pressed WHILE in break
     public void InterruptBreakAndResume(string taskId)
     {
         TaskData task = FindTaskById(taskId);
@@ -219,9 +280,8 @@ public class TaskManager : MonoBehaviour
         {
             StopBreakTimer(task.id);
             // Immediately activate it again
-            ActivateTask(taskId); // ActivateTask handles state change and feedback
+            ActivateTask(taskId); // ActivateTask handles state change, limit check, and feedback
              Debug.Log($"Break Interrupted & Resumed for Task: {task.title}");
-             // No need to call OnTaskListUpdated here, ActivateTask does it.
         }
     }
 
@@ -245,8 +305,7 @@ public class TaskManager : MonoBehaviour
 
             OnTaskCompleted?.Invoke(task); // Notify economy system etc.
 
-            // Remove from active list logic (or handle in UI filtering)
-            // For now, just update state and let UI decide filtering
+            // Task state is Completed, UI filtering will handle removing it from lists
              OnTaskListUpdated?.Invoke();
              OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskCompleted");
 
@@ -254,56 +313,57 @@ public class TaskManager : MonoBehaviour
         }
     }
 
-     public void ResetTaskTimer(string taskId)
+    // --- Deletion --- (Called from Left List UI)
+
+    public void RequestDeleteTask(string taskId)
     {
-        TaskData task = FindTaskById(taskId);
-        if (task == null) return;
+         TaskData task = FindTaskById(taskId);
+         if (task == null) return;
 
-        // Can reset from any state except maybe 'Completed' itself?
-        // Resetting puts it back to 'Stopped' state in the left panel.
-        if (task.state != TaskState.Completed)
+         // Can delete Pending or Stopped tasks
+         if (task.state == TaskState.Pending || task.state == TaskState.Stopped)
+         {
+            // Request confirmation from the UI before proceeding
+            OnConfirmationRequired?.Invoke(taskId, "Confirm_Delete", () => ActuallyDeleteTask(taskId));
+         }
+         else
+         {
+            Debug.LogWarning($"Task {task.title} cannot be deleted from state {task.state}.");
+            // Optionally, provide feedback that it needs to be closed first?
+            // OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_CloseTaskBeforeDelete");
+         }
+    }
+
+     // Internal method called after UI confirmation
+    private void ActuallyDeleteTask(string taskId)
+    {
+        TaskData taskToRemove = FindTaskById(taskId);
+        if (taskToRemove != null && (taskToRemove.state == TaskState.Pending || taskToRemove.state == TaskState.Stopped))
         {
-            // If it was in break, stop the break timer
-            if (task.state == TaskState.Break)
-            {
-                 StopBreakTimer(task.id);
-            }
-
-            task.state = TaskState.Stopped; // Back to parked state
-            task.remainingTime = task.assignedTime; // Restore full time
-            task.elapsedTime = 0f; // Reset accumulated time
-            task.breakTime = 0f;   // Reset accumulated break time
-            Debug.Log($"Task Timer Reset: {task.title}");
+            allTasks.Remove(taskToRemove);
+            Debug.Log($"Task Deleted: {taskToRemove.title}");
             OnTaskListUpdated?.Invoke();
-            OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskReset");
+            // Optionally send feedback about deletion?
+            // OnTaskFeedbackRequested?.Invoke(taskId, "Feedback_TaskDeleted");
+        }
+        else
+        {
+            Debug.LogError($"Failed to delete task {taskId}. Task not found or in invalid state.");
         }
     }
 
 
-    // --- Public Accessors ---
-    public Sprite GetIconByIndex(int index)
+    // --- Utility & Internal Handlers ---
+
+    private TaskData FindTaskById(string taskId)
     {
-        if (iconSet == null || iconSet.taskIcons == null || index < 0 || index >= iconSet.taskIcons.Count)
-        {
-            // Debug.LogWarning("Invalid icon index or IconSet not assigned.");
-            return null; // Return null or a default sprite
-        }
-        return iconSet.taskIcons[index];
+        return allTasks.FirstOrDefault(task => task.id == taskId);
     }
 
     // --- Save/Load Integration ---
 
-    public List<TaskData> GetTasksForSaving()
-    {
-        // Return a copy to prevent external modification? For JSON utility, direct list might be fine.
-        // Consider filtering out 'Completed' tasks if they are handled separately in history.
-        // For now, save all non-completed tasks.
-        return allTasks.Where(t => t.state != TaskState.Completed).ToList();
-        // Or simply return allTasks if Completed tasks should also be saved
-        // return new List<TaskData>(allTasks);
-    }
-
-    public void LoadTasks(List<TaskData> loadedTasks)
+    // Called by SaveLoadManager to replace the current task list
+    public void SetAllTasks(List<TaskData> loadedTasks)
     {
         if (loadedTasks == null)
         {
@@ -316,58 +376,37 @@ public class TaskManager : MonoBehaviour
             Debug.Log($"Loaded {allTasks.Count} tasks.");
         }
 
-        // Reset runtime state that isn't saved
+        // Reset runtime state that isn't saved/loaded
         currentBreaks.Clear();
 
-        // It's crucial that the UI is updated after loading.
-        // SaveLoadManager should call ForceTaskListUpdateNotification() after this.
-    }
-
-    // Used by SaveLoadManager to trigger UI refresh after loading data
-    public void ForceTaskListUpdateNotification()
-    {
-         Debug.Log("ForceTaskListUpdateNotification called.");
-         OnTaskListUpdated?.Invoke();
-    }
-
-
-    // --- Private Helpers ---
-
-    private TaskData FindTaskById(string taskId)
-    {
-        return allTasks.FirstOrDefault(task => task.id == taskId);
+        // Trigger UI update AFTER data is loaded
+        // SaveLoadManager should call OnTaskListUpdated.Invoke() after this, or we do it here.
+        // Let's do it here for simplicity, assuming SaveLoadManager calls this last.
+        OnTaskListUpdated?.Invoke();
+        Debug.Log("Task list updated after loading.");
     }
 
      private void HandleTimerFinished(TaskData task)
     {
-        // Prevent finishing multiple times if Update runs again before state change
-        if (task.state != TaskState.Active) return;
-
-        task.remainingTime = 0f; // Clamp to zero
-        task.state = TaskState.Paused; // Temporarily pause to stop timer logic
-        Debug.Log($"Task Timer Finished: {task.title}");
-
-        OnTaskTimerFinished?.Invoke(task.id);
-        // The UI listening to OnTaskTimerFinished will handle showing options (Reset/Create New)
-        // For now, we pause it. The user action will then either Reset or Complete it.
-        OnTaskListUpdated?.Invoke(); // Update UI to reflect paused state maybe
+        task.remainingTime = 0f;
+        task.state = TaskState.Paused; // Go to Paused state when timer finishes
+        Debug.Log($"Timer Finished for Task: {task.title}");
+        OnTaskTimerFinished?.Invoke(task.id); // Notify UI/Sound
+        OnTaskListUpdated?.Invoke();
+        OnTaskFeedbackRequested?.Invoke(task.id, "Feedback_TimerFinished"); // Notify timer is done
     }
 
      private void HandleBreakFinished(TaskData task)
     {
-         // State should be Break, remove from active break tracking
-         StopBreakTimer(task.id);
+        // Stop the break timer tracking
+        StopBreakTimer(task.id);
 
-         // Determine state to return to (was it Active or Paused before break?)
-         // This simple implementation defaults to Paused. A more robust solution
-         // might store the pre-break state. For now, returning to Paused is safe.
-         // Edit: Let's try returning to Active, as pausing requires explicit action
-         task.state = TaskState.Active; // Or could be TaskState.Paused
-         Debug.Log($"Break Finished for Task: {task.title}. Returning to Active.");
-
-         OnTaskBreakFinished?.Invoke(task.id);
-         OnTaskListUpdated?.Invoke();
-         OnTaskFeedbackRequested?.Invoke(task.id, "Feedback_BreakFinished");
+        // Task timer finished, go back to Paused state
+        task.state = TaskState.Paused;
+        Debug.Log($"Break Finished for Task: {task.title}");
+        OnTaskBreakFinished?.Invoke(task.id); // Notify UI/Sound
+        OnTaskListUpdated?.Invoke();
+        OnTaskFeedbackRequested?.Invoke(task.id, "Feedback_BreakFinished"); // Notify break is done
     }
 
     private void StopBreakTimer(string taskId)
@@ -381,8 +420,8 @@ public class TaskManager : MonoBehaviour
 }
 
 // --- Summary Block ---
-// ScriptRole: Central manager for creating, updating, and managing the state and timers of all tasks. Handles task limits and break logic. Notifies UI via events.
-// RelatedScripts: TaskData, TaskState, IconSetSO, TaskListUI (listens to OnTaskListUpdated), TaskItemUI (calls methods, listens to feedback/finish events), SaveLoadManager (saves/loads allTasks list)
-// UsesSO: IconSetSO
-// ReceivesFrom: UI elements (TaskItemUI, AddTaskUI) triggering public methods.
-// SendsTo: UI elements (via UnityEvents OnTaskListUpdated, OnTaskFeedbackRequested, OnTaskTimerFinished, OnTaskBreakFinished), EconomyManager (via OnTaskCompleted)
+// ScriptRole: Manages the lifecycle and state transitions of all tasks. Handles timers, breaks, and communicates changes via UnityEvents.
+// RelatedScripts: TaskData, TaskState, AddTaskPanel (via event), TaskListUI, ActiveTasksUI, ConfirmationPanelUI (via events), EconomyManager (listens for OnTaskCompleted), SaveLoadManager
+// UsesSO: IconSetSO (for icons), potentially FeedbackMessagesSO (indirectly via feedback keys)
+// ReceivesFrom: AddTaskPanel (OnNewTaskRequested), TaskListUI (PrepareTaskForActivation, RequestDeleteTask), ActiveTasksUI (ActivateTask, PauseTask, ReturnTaskToPendingList, RequestResetTask, StartBreak, InterruptBreakAndResume, MarkTaskAsCompleted), ConfirmationPanelUI (triggers actions like ActuallyResetTask, ActuallyDeleteTask)
+// SendsTo: TaskListUI, ActiveTasksUI (via OnTaskListUpdated), ConfirmationPanelUI (via OnConfirmationRequired), Feedback systems (via OnTaskFeedbackRequested, OnTaskTimerFinished, OnTaskBreakFinished), EconomyManager (via OnTaskCompleted)

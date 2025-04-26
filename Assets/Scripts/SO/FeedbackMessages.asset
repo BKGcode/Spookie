@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb0c0031718164459112e29313f2232, type: 3}
+  m_Name: FeedbackMessages
+  m_EditorClassIdentifier: 
+  messages:
+  - key: Confirm_Reset
+    message: "\xBFSeguro que quieres reiniciar esta tarea? Se perder\xE1 el progreso."
+  - key: Confirm_Delete
+    message: "\xBFSeguro que quieres eliminar esta tarea permanentemente?"
+  - key: Feedback_TaskReadyToStart
+    message: Tarea lista para empezar.
+  - key: Feedback_MaxTasksReached
+    message: "L\xEDmite de tareas activas alcanzado. Pausa o cierra otra tarea."
+  - key: Feedback_TaskStarted
+    message: "\xA1Tiempo terminado!"
+  - key: Feedback_BreakFinished
+    message: "\xA1Descanso terminado!"
+  - key: Feedback_TaskStopped
+    message: Tarea guardada en la lista.
+  - key: Feedback_TaskPaused
+    message: Tarea eliminada.
+  - key: Feedback_TaskPaused
+    message: Debes cerrar la tarea antes de eliminarla.
+  - key: Feedback_TitleRequired
+    message: "Por favor, introduce un t\xEDtulo para la tarea."
+  - key: Feedback_TimeRequired
+    message: Debes asignar tiempo (horas o minutos) a la tarea.
+  - key: Feedback_TitleRequired
+    message: "Por favor, introduce un t\xEDtulo para la tarea."
+  - key: Feedback_TimeRequired
+    message: "Debes asignar tiempo (horas o minutos) a la tarea.\t"
+  - key: Feedback_TimeRequired
+    message: "\xA1Tarea a\xF1adida a la lista!"

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.IO; // Needed for File operations
 using System.Collections; // Needed for IEnumerator (Coroutine)
 using System.Collections.Generic; // Needed for List<>
+using System.Linq; // Needed for ToList() extension method
 
 public class SaveLoadManager : MonoBehaviour
 {
@@ -91,7 +92,7 @@ public class SaveLoadManager : MonoBehaviour
 
             // 2. Populate data from managers
             // Important: Get a *copy* or ensure the manager returns data suitable for saving
-            data.tasks = taskManager.GetTasksForSaving();
+            data.tasks = taskManager.GetAllTasks().ToList();
             // data.coins = economyManager.GetCurrentCoins(); // Example
             // data.plots = farmingManager.GetPlotsForSaving(); // Example
 
@@ -140,14 +141,18 @@ public class SaveLoadManager : MonoBehaviour
             }
 
             // 3. Apply loaded data to managers
-            taskManager.LoadTasks(data.tasks);
+            if (data.tasks != null) // Ensure we have tasks to load
+            {
+                taskManager.SetAllTasks(data.tasks);
+                // Note: SetAllTasks now invokes OnTaskListUpdated internally
+            }
             // economyManager.LoadCoins(data.coins); // Example
             // farmingManager.LoadPlots(data.plots); // Example
 
             Debug.Log("Game loaded successfully.");
 
             // Crucially, after loading, trigger UI updates
-            taskManager.ForceTaskListUpdateNotification(); // Need to add this method to TaskManager
+            // taskManager.ForceTaskListUpdateNotification(); // No longer needed, SetAllTasks handles the update via OnTaskListUpdated
         }
         catch (System.Exception e)
         {

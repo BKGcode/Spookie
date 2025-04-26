@@ -156,10 +156,10 @@ RectTransform:
   - {fileID: 4443477207164508715}
   m_Father: {fileID: 8298992642606662749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.3445, y: -40.234077}
-  m_SizeDelta: {x: 100, y: 26.82272}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8088544527016178310
 CanvasRenderer:
@@ -693,10 +693,10 @@ RectTransform:
   - {fileID: 1006508198687077433}
   m_Father: {fileID: 8298992642606662749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.3445, y: -13.41136}
-  m_SizeDelta: {x: 100, y: 26.82272}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &284899815438115039
 CanvasRenderer:
@@ -973,10 +973,10 @@ RectTransform:
   - {fileID: 9209773314730553040}
   m_Father: {fileID: 8298992642606662749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.3445, y: -67.0568}
-  m_SizeDelta: {x: 100, y: 26.82272}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8734905482290480937
 CanvasRenderer:
@@ -1094,10 +1094,10 @@ RectTransform:
   - {fileID: 3894441515258159623}
   m_Father: {fileID: 8298992642606662749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.3445, y: -120.70224}
-  m_SizeDelta: {x: 100, y: 26.82272}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5259045582540694215
 CanvasRenderer:
@@ -1408,7 +1408,7 @@ GameObject:
   - component: {fileID: 3075629154019629901}
   - component: {fileID: 2653383377559843547}
   - component: {fileID: 1651287816875897213}
-  - component: {fileID: 5653581002894015152}
+  - component: {fileID: 539829404552760029}
   m_Layer: 5
   m_Name: PFB_TaskActive
   m_TagString: Untagged
@@ -1662,7 +1662,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &5653581002894015152
+--- !u!114 &539829404552760029
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1671,22 +1671,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 2678184899978739524}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a57977b7013ee2147a908384db435585, type: 3}
+  m_Script: {fileID: 11500000, guid: 493c4b13bc93be247874c522e30054c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  taskManager: {fileID: 0}
+  iconSet: {fileID: 11400000, guid: ca7ebdce881b4ae4daff18ce812adec7, type: 2}
+  feedbackMessages: {fileID: 11400000, guid: 9538fdcb6fc140b4dbf79a27322eca4e, type: 2}
   iconImage: {fileID: 3659445356270807964}
   titleText: {fileID: 8867317781438241997}
   timerText: {fileID: 4219763186519453723}
   feedbackText: {fileID: 6856349699061068260}
-  mainActionButton: {fileID: 604840870718209122}
-  mainActionButtonText: {fileID: 7581613244956257651}
-  stopButton: {fileID: 604840870718209122}
-  completeButton: {fileID: 5401224093456246474}
+  startPauseButton: {fileID: 604840870718209122}
+  startPauseButtonText: {fileID: 7581613244956257651}
   resetButton: {fileID: 3053150193705889051}
-  break10mButton: {fileID: 4264331645930544771}
-  break30mButton: {fileID: 5080105051563385675}
-  break1hButton: {fileID: 8667702056455614741}
-  deleteButton: {fileID: 7119527895733409954}
+  completeButton: {fileID: 5401224093456246474}
+  closeButton: {fileID: 2776687118329877973}
+  break10MinButton: {fileID: 4264331645930544771}
+  break30MinButton: {fileID: 5080105051563385675}
+  break60MinButton: {fileID: 8667702056455614741}
 --- !u!1 &3179211666250044894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3273,10 +3275,10 @@ RectTransform:
   - {fileID: 2699479382726208204}
   m_Father: {fileID: 8298992642606662749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.3445, y: -93.87952}
-  m_SizeDelta: {x: 100, y: 26.82272}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6083243161417321544
 CanvasRenderer:
