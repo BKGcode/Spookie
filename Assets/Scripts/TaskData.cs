@@ -1,4 +1,5 @@
 using System; // Needed for [Serializable] and Guid
+using UnityEngine;
 
 [Serializable]
 public class TaskData
@@ -15,6 +16,21 @@ public class TaskData
 
     public TaskState state = TaskState.Pending; // Current state of the task
 
+    public float initialDurationSeconds; // Duración estimada inicial
+    public DateTime creationTime; // Para ordenar si es necesario
+
+    // --- Campos para el temporizador de descanso ---
+    public float initialBreakDurationSeconds;
+
+    // --- Nuevos campos para el historial ---
+    public bool isCompleted = false; // Para filtrar fácilmente
+    public DateTime completionTime; // Cuándo se marcó como completada
+    public float completionDurationSeconds; // Tiempo activo total invertido (sin descansos)
+    public float totalDurationSeconds; // Tiempo total desde el primer inicio hasta la finalización (incluye descansos)
+    public DateTime firstStartTime; // Para calcular el tiempo total transcurrido
+    public float totalActiveTimeAccumulatedSeconds; // Acumulador del tiempo activo
+    public float totalBreakTimeAccumulatedSeconds; // Acumulador del tiempo de descanso
+
     // Constructor for creating a new task
     public TaskData(string newTitle, int newIconIndex, float totalSeconds)
     {
@@ -27,6 +43,18 @@ public class TaskData
         breakTime = 0f;
         remainingBreakTime = 0f; // Initialize
         state = TaskState.Pending; // Default state for new tasks
+        initialDurationSeconds = totalSeconds;
+        creationTime = DateTime.UtcNow;
+        isCompleted = false; // Asegurar estado inicial
+
+        // Inicializar otros campos
+        initialBreakDurationSeconds = 0;
+        completionTime = default;
+        completionDurationSeconds = 0;
+        totalDurationSeconds = 0;
+        firstStartTime = default;
+        totalActiveTimeAccumulatedSeconds = 0;
+        totalBreakTimeAccumulatedSeconds = 0;
     }
 
     // Default constructor might be needed for serialization frameworks
@@ -35,10 +63,20 @@ public class TaskData
         id = Guid.NewGuid().ToString();
         remainingBreakTime = 0f; // Initialize
         state = TaskState.Pending;
+        initialDurationSeconds = 0f;
+        creationTime = DateTime.UtcNow;
+        isCompleted = false;
+        initialBreakDurationSeconds = 0f;
+        completionTime = default;
+        completionDurationSeconds = 0f;
+        totalDurationSeconds = 0f;
+        firstStartTime = default;
+        totalActiveTimeAccumulatedSeconds = 0f;
+        totalBreakTimeAccumulatedSeconds = 0f;
     }
 }
 
 // --- Summary Block ---
-// ScriptRole: Holds all runtime and persistent data for a single task, including timing, state, and identifiers.
-// RelatedScripts: TaskManager (manages lists of TaskData), TaskState (defines states), IconSetSO (referenced by iconIndex), SaveLoadManager (saves/loads TaskData)
+// ScriptRole: Holds all runtime and persistent data for a single task, including timing, state, identifiers, and completion details for history.
+// RelatedScripts: TaskManager, TaskState, IconSetSO, SaveLoadManager, GameData, TaskHistoryUI
 // UsesSO: Indirectly via iconIndex referencing an IconSetSO 

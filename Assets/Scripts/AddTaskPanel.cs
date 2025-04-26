@@ -11,6 +11,7 @@ public class AddTaskPanel : MonoBehaviour
 
     [Header("System References")]
     [SerializeField] private FeedbackMessagesSO feedbackMessages; // Reference to message definitions
+    [SerializeField] private IconSetSO iconSet; // Reference to the icon definitions
 
     [Header("UI References (Assign in Inspector)")]
     [SerializeField] private TMP_InputField titleInputField;
@@ -53,6 +54,8 @@ public class AddTaskPanel : MonoBehaviour
 
         // Validate FeedbackMessagesSO reference
         if (feedbackMessages == null) { Debug.LogError($"[{gameObject.name}] Feedback Messages SO not assigned!", this); return false; }
+        // Validate IconSetSO reference
+        if (iconSet == null) { Debug.LogError($"[{gameObject.name}] Icon Set SO not assigned!", this); return false; }
 
         return true;
     }
@@ -88,7 +91,8 @@ public class AddTaskPanel : MonoBehaviour
 
         // --- Icon Selection (Simple version: use default/random) ---
         // TODO: Implement proper icon selection if needed. Using index 0 for now.
-        int iconIndex = 0;
+        int iconIndex = iconSet.GetRandomIconIndex(); // Get random icon using the cycle logic
+
         // Or use a random index if IconSetSO is referenced and available
         // if (iconSet != null && iconSet.taskIcons.Count > 0) {
         //     iconIndex = Random.Range(0, iconSet.taskIcons.Count);
@@ -171,6 +175,6 @@ public class AddTaskPanel : MonoBehaviour
 // --- Summary Block ---
 // ScriptRole: Manages the UI panel for creating new tasks. Uses ValueSelectorUI for time, validates input, and invokes OnNewTaskRequested event.
 // RelatedScripts: ValueSelectorUI, TaskManager (listens to event), FeedbackMessagesSO (provides UI text)
-// UsesSO: FeedbackMessagesSO
+// UsesSO: FeedbackMessagesSO, IconSetSO
 // ReceivesFrom: User (input/clicks)
 // SendsTo: TaskManager (via OnNewTaskRequested event)

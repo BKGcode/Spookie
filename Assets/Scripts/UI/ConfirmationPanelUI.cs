@@ -101,6 +101,25 @@ public class ConfirmationPanelUI : MonoBehaviour
         panelRoot.SetActive(false);
         currentConfirmAction = null; // Clear the stored action
     }
+
+    // Check for keyboard shortcuts when the panel is active
+    void Update()
+    {
+        // Only process input if the panel is visible
+        if (panelRoot != null && panelRoot.activeSelf)
+        {
+            // Confirm with Enter/Return
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                HandleConfirm();
+            }
+            // Cancel with Escape
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                HandleCancel();
+            }
+        }
+    }
 }
 
 // --- Summary Block ---
