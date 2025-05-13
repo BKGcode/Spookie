@@ -29,8 +29,10 @@ public class FarmingManager : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("FarmingManager: Awake_Start");
         InitializePlots();
         InitializeUnlockedCrops();
+        Debug.Log("FarmingManager: Awake_End");
     }
 
     void Update()
@@ -40,6 +42,7 @@ public class FarmingManager : MonoBehaviour
 
     private void InitializePlots()
     {
+        Debug.Log("FarmingManager: InitializePlots_Start");
         plots.Clear();
         foreach (var plotData in initialPlots)
         {
@@ -63,10 +66,12 @@ public class FarmingManager : MonoBehaviour
             }
         }
          Debug.Log($"FarmingManager: Inicializadas {plots.Count} parcelas.");
+         Debug.Log("FarmingManager: InitializePlots_End");
     }
 
      private void InitializeUnlockedCrops()
     {
+        Debug.Log("FarmingManager: InitializeUnlockedCrops_Start");
         unlockedCrops.Clear();
         foreach (var crop in allPossibleCrops)
         {
@@ -76,6 +81,7 @@ public class FarmingManager : MonoBehaviour
                  Debug.Log($"FarmingManager: Cultivo inicial desbloqueado: {crop.name}");
             }
         }
+        Debug.Log("FarmingManager: InitializeUnlockedCrops_End");
     }
 
     private void CheckCropGrowth()
@@ -101,7 +107,7 @@ public class FarmingManager : MonoBehaviour
 
     private void HarvestCrop(int plotId)
     {
-        if (plots.TryGetValue(plotId, out PlotData plot) && plot.assignedCropSO != null)
+        if (plots.TryGetValue(plotId, out PlotData plot) && plot.assignedCropSO != null && plot.IsReadyToHarvest())
         {
             CropSO harvestedCrop = plot.assignedCropSO;
             int reward = harvestedCrop.RewardValue;
@@ -114,6 +120,14 @@ public class FarmingManager : MonoBehaviour
             // 2. TEMPORAL: Vaciar la parcela inmediatamente hasta tener HarvestFeedbackController
             // En el futuro, esto lo llamaría el HarvestFeedbackController cuando terminen los efectos.
             MarkPlotAsEmpty(plotId);
+        }
+        else if(plot.assignedCropSO != null && !plot.IsReadyToHarvest())
+        {
+            // No es un error, solo aún no está listo. No requiere log a menos que sea para debug intensivo.
+        }
+        else
+        {
+             Debug.LogWarning($"FarmingManager: Intento de cosechar parcela {plotId} vacía o no lista.");
         }
     }
 
@@ -131,7 +145,7 @@ public class FarmingManager : MonoBehaviour
         {
              ExitPlantingMode();
         }
-        else
+        else if (crop != null && !unlockedCrops.Contains(crop))
         {
              Debug.LogWarning($"FarmingManager: Intento de seleccionar cultivo no desbloqueado: {crop.name}");
         }
@@ -199,6 +213,10 @@ public class FarmingManager : MonoBehaviour
                 Debug.Log($"FarmingManager: Parcela {plotId} vaciada.");
             }
          }
+         else
+         {
+            Debug.LogWarning($"FarmingManager: Intento de vaciar parcela con ID inválido: {plotId}");
+         }
     }
 
 
@@ -216,20 +234,41 @@ public class FarmingManager : MonoBehaviour
             return true;
             // Faltaría restar monedas del jugador
         }
+        if(plot != null && plot.isUnlocked)
+        {
+            Debug.Log($"FarmingManager: Parcela {plotId} ya está desbloqueada.");
+        }
+        else
+        {
+            Debug.LogWarning($"FarmingManager: Intento de desbloquear parcela con ID inválido: {plotId}");
+        }
         return false;
     }
 
     public bool UnlockCrop(CropSO crop)
     {
-        if (crop != null && !unlockedCrops.Contains(crop))
+        if (crop == null)
         {
-             // Aquí iría la lógica de verificar si el jugador tiene suficientes monedas
-             // Por ahora, simplemente desbloqueamos
+            Debug.LogWarning($"FarmingManager: Intento de desbloquear un CropSO nulo.");
+            return false;
+        }
+        if (!allPossibleCrops.Contains(crop))
+        {
+            Debug.LogWarning($"FarmingManager: Intento de desbloquear CropSO '{crop.name}' que no está en la lista 'allPossibleCrops'.");
+            return false;
+        }
+
+        if (!unlockedCrops.Contains(crop))
+        {
+            // Aquí iría la lógica de verificar si el jugador tiene suficientes monedas/condiciones
             unlockedCrops.Add(crop);
             OnCropUnlocked?.Invoke(crop);
-             Debug.Log($"FarmingManager: Cultivo {crop.name} desbloqueado.");
-             return true;
-             // Faltaría restar monedas del jugador
+            Debug.Log($"FarmingManager: Cultivo {crop.name} desbloqueado.");
+            return true;
+        }
+        else
+        {
+            Debug.Log($"FarmingManager: Cultivo {crop.name} ya está desbloqueado.");
         }
         return false;
     }
@@ -238,18 +277,22 @@ public class FarmingManager : MonoBehaviour
 
     public PlotData GetPlotData(int plotId)
     {
-        plots.TryGetValue(plotId, out PlotData plot);
-        return plot; // Devuelve null si no se encuentra
+        if (plots.TryGetValue(plotId, out PlotData plot))
+        {
+            return plot;
+        }
+        Debug.LogWarning($"FarmingManager: No se encontró PlotData para el ID: {plotId}.");
+        return null; 
     }
 
     public List<PlotData> GetAllPlotData()
     {
-        return plots.Values.ToList(); // Devolvemos una copia para evitar modificaciones externas
+        return new List<PlotData>(plots.Values); // Devolvemos una nueva lista para proteger la original
     }
 
      public List<CropSO> GetUnlockedCrops()
     {
-        return unlockedCrops.ToList(); // Devolvemos una copia
+        return new List<CropSO>(unlockedCrops); // Devolvemos una nueva lista
     }
 
       public CropSO GetSelectedCropForPlanting()

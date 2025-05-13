@@ -3,27 +3,28 @@ using UnityEngine;
 [System.Serializable]
 public class PlotData
 {
-    [Tooltip("Identificador único de la parcela")]
-    public int plotId; // Hacemos públicos los campos para facilitar la serialización y el acceso desde FarmingManager
+    [Tooltip("Identificador único de la parcela.")]
+    public int plotId;
 
-    [Tooltip("¿Está esta parcela desbloqueada por el jugador?")]
+    [Tooltip("Indica si esta parcela está desbloqueada por el jugador.")]
     public bool isUnlocked;
 
-    [Tooltip("Coste en monedas para desbloquear esta parcela (si isUnlocked es false)")]
+    [Tooltip("Coste en monedas para desbloquear esta parcela (si isUnlocked es false).")]
     public int purchaseCost;
 
-    [Tooltip("Cultivo asignado a esta parcela (null si está vacía)")]
+    [Tooltip("ScriptableObject del cultivo asignado a esta parcela (null si está vacía).")]
     public CropSO assignedCropSO;
 
-    [Tooltip("Momento (Time.time) en que se inició el crecimiento del cultivo actual")]
-    public float growthStartTime;
+    [Tooltip("Momento (usando Time.time) en que se inició el crecimiento del cultivo actual.")]
+    public float growthStartTime; // En segundos
 
-    [Tooltip("Duración total en MINUTOS requerida para el crecimiento del cultivo actual (puede diferir del baseGrowthTime del CropSO por modificadores)")]
+    [Tooltip("Duración total en MINUTOS requerida para el crecimiento del cultivo actual (podría incluir modificadores).")]
     public float currentGrowthDurationMinutes;
 
-    // Constructor opcional para inicialización si es necesario
     public PlotData(int id, bool unlocked, int cost)
     {
+        // No es necesario un Debug.Log aquí ya que esta clase es principalmente un contenedor de datos
+        // y se instanciará frecuentemente.
         plotId = id;
         isUnlocked = unlocked;
         purchaseCost = cost;
@@ -32,27 +33,52 @@ public class PlotData
         currentGrowthDurationMinutes = 0f;
     }
 
-    // Método helper para saber si la parcela está lista (simplifica lógica en FarmingManager)
     public bool IsReadyToHarvest()
     {
         if (!isUnlocked || assignedCropSO == null || currentGrowthDurationMinutes <= 0)
         {
             return false;
         }
-
-        float elapsedMinutes = (Time.time - growthStartTime) / 60.0f;
-        return elapsedMinutes >= currentGrowthDurationMinutes;
+        // growthStartTime está en segundos, currentGrowthDurationMinutes está en minutos
+        float elapsedSeconds = Time.time - growthStartTime;
+        float requiredSeconds = currentGrowthDurationMinutes * 60.0f;
+        return elapsedSeconds >= requiredSeconds;
+    }
+    
+    public float GetRemainingGrowthTimeSeconds()
+    {
+        if (!isUnlocked || assignedCropSO == null || currentGrowthDurationMinutes <= 0 || growthStartTime <= 0)
+        {
+            return 0f;
+        }
+        float requiredSeconds = currentGrowthDurationMinutes * 60.0f;
+        float elapsedSeconds = Time.time - growthStartTime;
+        return Mathf.Max(0f, requiredSeconds - elapsedSeconds);
     }
 
-    // Método para limpiar la parcela después de cosechar o al inicializar
+    public float GetNormalizedProgress()
+    {
+        if (!isUnlocked || assignedCropSO == null || currentGrowthDurationMinutes <= 0 || growthStartTime <= 0)
+        {
+            return 0f;
+        }
+        float requiredSeconds = currentGrowthDurationMinutes * 60.0f;
+        float elapsedSeconds = Time.time - growthStartTime;
+        return Mathf.Clamp01(elapsedSeconds / requiredSeconds);
+    }
+
     public void ClearPlot()
     {
+        // Debug.Log($"PlotData ({plotId}): Limpiando parcela."); // Podría ser útil para debug
         assignedCropSO = null;
         growthStartTime = 0f;
         currentGrowthDurationMinutes = 0f;
     }
 }
 
-// ScriptRole: Almacena el estado dinámico de una única parcela de cultivo.
-// RelatedScripts: FarmingManager, PlotUI
-// UsesSO: CropSO 
+// ScriptRole: Stores the dynamic state of a single farm plot. It's a data container class.
+// Dependencies: None
+// HandlesEvents: None
+// TriggersEvents: None
+// UsesSO: CropSO (as a data field 'assignedCropSO')
+// NeedsSetup: Fields are typically set by FarmingManager or initial data. 
