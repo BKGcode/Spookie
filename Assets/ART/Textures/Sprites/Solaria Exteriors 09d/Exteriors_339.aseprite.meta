@@ -8,7 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
-  importerVersion: 1
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -84,6 +84,8 @@ ScriptedImporter:
     generateAnimationClips: 1
     addSortingGroup: 1
     addShadowCasters: 0
+    generateIndividualEvents: 1
+    generateSpriteAtlas: 1
   asepriteImporterSettings:
     fileImportMode: 0
     importHiddenLayers: 0
@@ -97,6 +99,8 @@ ScriptedImporter:
     generateAnimationClips: 1
     addSortingGroup: 1
     addShadowCasters: 0
+    generateIndividualEvents: 1
+    generateSpriteAtlas: 1
   importFileNodeState: 1
   platformSettingsDirtyTick: 638824695560112759
   textureAssetName: 
@@ -145,8 +149,14 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 4, y: 4}
   spriteSheetImportData: []
+  tileSetImportData: []
   asepriteLayers:
   - layerIndex: 0
+    uuid:
+      value0: 3421191867
+      value1: 0
+      value2: 0
+      value3: 0
     guid: -873775429
     name: Exteriors_339
     layerFlags: 0
@@ -163,7 +173,5718 @@ ScriptedImporter:
         height: 703
       spriteId: 620dd4054ec43a7489ed154fc435e833
     linkedCells: []
+    tileCells: []
+    tileSetIndex: 0
     parentIndex: -1
+  tileSets:
+  - id: 0
+    name: Tileset_0
+    tileSize:
+      x: 16
+      y: 16
+    tiles:
+    - tileId: 1
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_1
+      spriteId: fbefcfee9aef9f84ca0f1f45c6be0e5f
+    - tileId: 2
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_2
+      spriteId: 5c7ed938547599c43a7cb56e639d0fda
+    - tileId: 3
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_3
+      spriteId: 65aa0541822da5f469ea41e7dbee345e
+    - tileId: 4
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_4
+      spriteId: a0ea4179450049843b179ec1d54ad89d
+    - tileId: 5
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_5
+      spriteId: 6ac1c6eb81f8230468157835240fa97d
+    - tileId: 6
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_6
+      spriteId: 34b68ecbee0374b41adaaae492e34b86
+    - tileId: 7
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_7
+      spriteId: 3f7e88db6ef295a45a2fb3c59d748602
+    - tileId: 8
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_8
+      spriteId: 3ad9f520fa0d27c4d8acc4668a46b2ee
+    - tileId: 9
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_9
+      spriteId: 6ea3e3876c8adcd44b706bc2c20fe8e2
+    - tileId: 10
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_10
+      spriteId: 9e41e2716af50fe4baa5ebb89f7dd1ea
+    - tileId: 11
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_11
+      spriteId: a1df82cc4924f6847aa2fe4ce4a89e31
+    - tileId: 12
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_12
+      spriteId: 588f80e3c26fa39458d77293613c6eb6
+    - tileId: 13
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_13
+      spriteId: 11366103d7cc7974485f6f65fd9b6014
+    - tileId: 14
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_14
+      spriteId: 8ec79afd8a9e2cd448f98fef1788ad5f
+    - tileId: 15
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_15
+      spriteId: b8480cf7b9f78d54aabbb729132f1c65
+    - tileId: 16
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_16
+      spriteId: 4f3d4ef7d4f38cc40bc4b07d902523ed
+    - tileId: 17
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_17
+      spriteId: 4fd139621c8bb534e934eff281771424
+    - tileId: 18
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_18
+      spriteId: eb9c6557fcbaed044abae641167a4b94
+    - tileId: 19
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_19
+      spriteId: ae5441ad7ddcbd44a8e2e461aa7ee896
+    - tileId: 20
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_20
+      spriteId: a176c06e41be3d944a4a5a7b2eabb644
+    - tileId: 21
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_21
+      spriteId: a546272d3234c9241a8dd51af2ea2b8d
+    - tileId: 22
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_22
+      spriteId: 611227b3e0564b74c852d0caf1da46a0
+    - tileId: 23
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_23
+      spriteId: a770158f69093df4f88db48b5cc530af
+    - tileId: 24
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_24
+      spriteId: 0e80f04929293f346a438d83cce4a08f
+    - tileId: 25
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_25
+      spriteId: 49835154626c50e4bb60bb383a00c724
+    - tileId: 26
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_26
+      spriteId: 0ec9d0461c0f45c41b8cff993e2498a9
+    - tileId: 27
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_27
+      spriteId: 21d9b4f8a1930294b95314ce7cceef92
+    - tileId: 28
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_28
+      spriteId: 10ac720815cdb794d897131ea130d752
+    - tileId: 29
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_29
+      spriteId: 686a7a726083f9441bf6e308e0546989
+    - tileId: 30
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_30
+      spriteId: 720b92b4871467b4199bdf63d7824c93
+    - tileId: 31
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_31
+      spriteId: 960aa552b413a4249bf4c513d6950ffd
+    - tileId: 32
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_32
+      spriteId: f239bdd027dce744aa37b88201928d8f
+    - tileId: 33
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_33
+      spriteId: 188b4faf78dbb614b9fb0d5f4f0a18ad
+    - tileId: 34
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_34
+      spriteId: 9a8cae09b62569a4aad9051183dbfe8c
+    - tileId: 35
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_35
+      spriteId: 8eb480e92e4bc744bb5a2a6f76aeae9f
+    - tileId: 36
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_36
+      spriteId: 10ee063b4a2c43144a4337eafaa1a368
+    - tileId: 37
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_37
+      spriteId: d6c50c069ba41274b819741551b3b270
+    - tileId: 38
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_38
+      spriteId: a7f63ef5f9dcbf54e85a568a471d9b40
+    - tileId: 39
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_39
+      spriteId: 397b7258432ab2844944a612cef44598
+    - tileId: 40
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_40
+      spriteId: 31a318da54b1b024ba608c5fc3ee3e6a
+    - tileId: 41
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_41
+      spriteId: 3d34be6f25aa1f94c85b2384ab627ad5
+    - tileId: 42
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_42
+      spriteId: 4dc213d066cbe004fa9211986a48877e
+    - tileId: 43
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_43
+      spriteId: e3d1a4c869438024d867674e7e5716b7
+    - tileId: 44
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_44
+      spriteId: 32bb30654e6271240a64bb5498e033cc
+    - tileId: 45
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_45
+      spriteId: 2194b719d7c209347906028a87c5c556
+    - tileId: 46
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_46
+      spriteId: e54edd1be37d2114fbbcf58274b0d82d
+    - tileId: 47
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_47
+      spriteId: 673d9ec5307945f40ba7b158656c229b
+    - tileId: 48
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_48
+      spriteId: 34aa8957507c345468cd10760ddef3cd
+    - tileId: 49
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_49
+      spriteId: 8b977614976c4a14d88e2c0e29ee0fa3
+    - tileId: 50
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_50
+      spriteId: 290cec49b53d31a4fa2262df5b0b2d1e
+    - tileId: 51
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_51
+      spriteId: 630acd6469a8ec048afd0857f425456c
+    - tileId: 52
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_52
+      spriteId: 71849dc56f3e15f4db7b2230bf3b10de
+    - tileId: 53
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_53
+      spriteId: 4aa436d50b3f5464598b56c4159f6fd2
+    - tileId: 54
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_54
+      spriteId: b080bff1cbe078d4cb491a9ddc2b1acd
+    - tileId: 55
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_55
+      spriteId: 186c11d79e205fe45825e13b2cd28ed5
+    - tileId: 56
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_56
+      spriteId: 21ceb8d38f209654287a9eca47a57432
+    - tileId: 57
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_57
+      spriteId: 1d6ad97beeb549a41a21a99d1f583ef2
+    - tileId: 58
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_58
+      spriteId: df649bbb0de5cfd46b0dc93b097930a0
+    - tileId: 59
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_59
+      spriteId: aca2d872d990edf4ba639b621bb2fa09
+    - tileId: 60
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_60
+      spriteId: f42f8b8cbd766d24983595aaa841142e
+    - tileId: 61
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_61
+      spriteId: ff842ec3a8f760848863426ea32a1dea
+    - tileId: 62
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_62
+      spriteId: 76df29b0ce37c4a4fb6d5427d51397ee
+    - tileId: 63
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_63
+      spriteId: 3e8d186d1d5a504459d52974190d0170
+    - tileId: 64
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_64
+      spriteId: b2c56b836362b044bbf7ce52dab4a9e0
+    - tileId: 65
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_65
+      spriteId: 80e6c82f6c30ca94eb8eccdd4c52b102
+    - tileId: 66
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_66
+      spriteId: f6af52a0fd4e76c43adc24db6fe9b891
+    - tileId: 67
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_67
+      spriteId: 7c0bda18f0a4d7e4596640c99b3e5970
+    - tileId: 68
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_68
+      spriteId: 834dba38945e90d4e8637abfc2419f71
+    - tileId: 69
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_69
+      spriteId: b45b94075bbb22a4bb76ff7597278155
+    - tileId: 70
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_70
+      spriteId: f11ab03dcc9370d4ea7611ff8cfce172
+    - tileId: 71
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_71
+      spriteId: 3e546be768e9a5f48a07668e955bb8f1
+    - tileId: 72
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_72
+      spriteId: cf605ad25d6b20a47bab48bba181b9e7
+    - tileId: 73
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_73
+      spriteId: e672395049c4f3e43ae973fd21605497
+    - tileId: 74
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_74
+      spriteId: fa53a66a817e2514b8e55c24d0a4a027
+    - tileId: 75
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_75
+      spriteId: e6bc56bbba09a724b818314ca4c2e3f2
+    - tileId: 76
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_76
+      spriteId: 49859e22c892ca44a80e0d40401c2ed0
+    - tileId: 77
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_77
+      spriteId: dfffc08cd5a34d2449439671b93f2e66
+    - tileId: 78
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_78
+      spriteId: b56b88367fb46ae4aab2f8295fb95ba3
+    - tileId: 79
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_79
+      spriteId: cdee7672304da1049a356d6bd22ed4d8
+    - tileId: 80
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_80
+      spriteId: 822b84b7136ebfa4ab61ed6300396662
+    - tileId: 81
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_81
+      spriteId: e8d2be4f91235364385105c6190af1c5
+    - tileId: 82
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_82
+      spriteId: 6907acd6085787848b97a8a4c9abcd9b
+    - tileId: 83
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_83
+      spriteId: 25feb60031c9ddb4f96525dd8e4a3d44
+    - tileId: 84
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_84
+      spriteId: 8f1fca12ac297d04c9bb8c2a10475d45
+    - tileId: 85
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_85
+      spriteId: c4c001c568c293e41ba4380c56542e23
+    - tileId: 86
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_86
+      spriteId: 957d7bd0b661bd6489753cc9a719089c
+    - tileId: 87
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_87
+      spriteId: ac90814cf0797394496002145a3821cc
+    - tileId: 88
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_88
+      spriteId: 17b425a345e027e4991e8f8cc860271b
+    - tileId: 89
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_89
+      spriteId: 6e8f8d91f4654754d896c111b145fe3a
+    - tileId: 90
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_90
+      spriteId: 98b896f1a10a7134aacb29b394f5f9aa
+    - tileId: 91
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_91
+      spriteId: 93ac8c57a39421041838a54c4c336d0e
+    - tileId: 92
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_92
+      spriteId: 7ac13f3377ef91545a88ab7c2a735b1a
+    - tileId: 93
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_93
+      spriteId: cc5f8689cf071d44c8dca3fbc89a9bf3
+    - tileId: 94
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_94
+      spriteId: 9d44be53d614aa147975c8e8592fc143
+    - tileId: 95
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_95
+      spriteId: 2b4c6409ba34d724c90694dcde59b34d
+    - tileId: 96
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_96
+      spriteId: a533a1124238ed1448ca9c2eacfe937d
+    - tileId: 97
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_97
+      spriteId: 08c81cd9626056f4d86b5cfc554fc614
+    - tileId: 98
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_98
+      spriteId: 5fe343222d71d4644ba33b7a65ed16f7
+    - tileId: 99
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_99
+      spriteId: 92e0c9aebb17ac64aaecc41a1ed2cf68
+    - tileId: 100
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_100
+      spriteId: 5509ade79608c764aac08e9ebf1553e4
+    - tileId: 101
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_101
+      spriteId: fc76b5f41b57e71488f3c14026a09fdc
+    - tileId: 102
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_102
+      spriteId: 4dbb372750cce3a41a452a0d5da9a034
+    - tileId: 103
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_103
+      spriteId: eb14f4a7f7a204f46899830051b7a0c3
+    - tileId: 104
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_104
+      spriteId: 6dc8c28c6d1593e4f85a1fcd95f0d244
+    - tileId: 105
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_105
+      spriteId: 1801200ee348e654f84dd4b18b926d3f
+    - tileId: 106
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_106
+      spriteId: 2fd433a6261dcf8488ac93e613c801fc
+    - tileId: 107
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_107
+      spriteId: ba3568247023c7e44bbeae72a23ed172
+    - tileId: 108
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_108
+      spriteId: 9aac99be025e3944eb008e7e37b631d1
+    - tileId: 109
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_109
+      spriteId: 74bab69159afc814cac89d90dccd7703
+    - tileId: 110
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_110
+      spriteId: 862295ba0c1c1f644b0fcce42c61a8cf
+    - tileId: 111
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_111
+      spriteId: c6869acf0e0f25145ab0536729866132
+    - tileId: 112
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_112
+      spriteId: e748cbbe1d95b424889520dd31f09e39
+    - tileId: 113
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_113
+      spriteId: fae431f3bf606854bb2d9e8bca29cc0c
+    - tileId: 114
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_114
+      spriteId: 8b0de2a4e34f97948830c01015064a8a
+    - tileId: 115
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_115
+      spriteId: fcdb701996feb254bb6f3dfd69a6d339
+    - tileId: 116
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_116
+      spriteId: 044110a5365a81b42bbe4cd20b3dd456
+    - tileId: 117
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_117
+      spriteId: a831561669d1d7b4e9317d9edd0cfc7c
+    - tileId: 118
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_118
+      spriteId: 4214151e8f5cfff49b112dad38689145
+    - tileId: 119
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_119
+      spriteId: 2467b9f86a4066f468cb3374f358f772
+    - tileId: 120
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_120
+      spriteId: d07714352af88e04183c9f9a867e9ff6
+    - tileId: 121
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_121
+      spriteId: 17a9afebfe8f7ca4ab087a31fef718b4
+    - tileId: 122
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_122
+      spriteId: dc1633a1d35f4ca40b70316cad29d7de
+    - tileId: 123
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_123
+      spriteId: 8b8b7f19136280845a9a2bd40b927a59
+    - tileId: 124
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_124
+      spriteId: 4d782b47c6603d84c81e79cd7e4f3904
+    - tileId: 125
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_125
+      spriteId: 9b7065beaff477a45b1d067a0ea9eb76
+    - tileId: 126
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_126
+      spriteId: 4e15eb695697bb74a825ac5bf4a1f6b5
+    - tileId: 127
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_127
+      spriteId: da8c53ae623712c44acc5b1603003aaa
+    - tileId: 128
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_128
+      spriteId: 906c5930b13c1354981f316f517cb3c5
+    - tileId: 129
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_129
+      spriteId: 3533d12b973c3e541a4c7a508eed5fee
+    - tileId: 130
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_130
+      spriteId: f4f9b8200a59958458074cfacdfac62f
+    - tileId: 131
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_131
+      spriteId: 1ed9bea0a8c3380448f9e0b6b2866b6c
+    - tileId: 132
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_132
+      spriteId: 3c4b8e5c285f0634b96380086f0576cb
+    - tileId: 133
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_133
+      spriteId: 817b7c4d3a2605f41888fb387a878a83
+    - tileId: 134
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_134
+      spriteId: 6b383025b37d71a41ab0dc8c177b0c16
+    - tileId: 135
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_135
+      spriteId: 5b8411d8b2ad5fa43986de2e5e4bfd7e
+    - tileId: 136
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_136
+      spriteId: ffde85a83db067545ab0fcb9d843eec1
+    - tileId: 137
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_137
+      spriteId: 4a1d460b290897f4ea1ac8a49025d71e
+    - tileId: 138
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_138
+      spriteId: 9ad7d82c104a2fa46906de134851073e
+    - tileId: 139
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_139
+      spriteId: 3688cb8d157e3c24abf5d47ea1a550d9
+    - tileId: 140
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_140
+      spriteId: 4f11d490ac173234a8895290a38a0af3
+    - tileId: 141
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_141
+      spriteId: da3adcee7bc1910468b85d5d38ca61d2
+    - tileId: 142
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_142
+      spriteId: d3b8aa11054751e44a0241be89305920
+    - tileId: 143
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_143
+      spriteId: 59337c899f5c9d1418347797fc51ac6a
+    - tileId: 144
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_144
+      spriteId: 615bbb1d383e2054295a80c1bfffbec4
+    - tileId: 145
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_145
+      spriteId: 52688c3dfd3753c4fadb8c19aee5f7ec
+    - tileId: 146
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_146
+      spriteId: 5918e6f52853f05428e005671cbc269e
+    - tileId: 147
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_147
+      spriteId: aaa451b2fb0472d4f983917067a800ec
+    - tileId: 148
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_148
+      spriteId: 84757168c30f9bc46b9bb834e917409a
+    - tileId: 149
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_149
+      spriteId: 3ba6a42fe0d520544b361aabbe531b43
+    - tileId: 150
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_150
+      spriteId: 59d224aa65aeec441a7b06ee972dca0e
+    - tileId: 151
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_151
+      spriteId: b3a77813e8895d543907d7dc83da95cc
+    - tileId: 152
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_152
+      spriteId: f28304659d149a649b45cdeb44027f6b
+    - tileId: 153
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_153
+      spriteId: c37147b4a7b7e6344b0ebc992d754428
+    - tileId: 154
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_154
+      spriteId: 329994b1cbdfce241a1d4003e36e0738
+    - tileId: 155
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_155
+      spriteId: b3d2bf273cebb6241b37fc3ee822fa64
+    - tileId: 156
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_156
+      spriteId: f1d32e1a1ccfe3c4085c12d8e3ed8428
+    - tileId: 157
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_157
+      spriteId: d38b7046c6d95ce40ab5f39d2f65c826
+    - tileId: 158
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_158
+      spriteId: b2357d092ef55a3498b501d8d1caf73b
+    - tileId: 159
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_159
+      spriteId: b4c05cb24afe0e544b499f1cd099f70c
+    - tileId: 160
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_160
+      spriteId: 6aca0b1a34634714c89b682e2496b63a
+    - tileId: 161
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_161
+      spriteId: 32337b1ad5af94149802031f41940571
+    - tileId: 162
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_162
+      spriteId: 1f324c7c04f578743a9bee7c30df4c20
+    - tileId: 163
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_163
+      spriteId: 7962182d951d98f468ad2775c61df68d
+    - tileId: 164
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_164
+      spriteId: 5a2477192d0112a4ca0f80f619035d7c
+    - tileId: 165
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_165
+      spriteId: 185aa770a98b03343836891d1f0a321c
+    - tileId: 166
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_166
+      spriteId: 24b15c35e3bd4864cba546552d9f201c
+    - tileId: 167
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_167
+      spriteId: e4e41240895730e439ccc7d93e9eec9f
+    - tileId: 168
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_168
+      spriteId: dfdca82324ceb8f44b5aa25740e65fad
+    - tileId: 169
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_169
+      spriteId: 4a4bd9842b72e794fa612260d35bdc72
+    - tileId: 170
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_170
+      spriteId: 6ff6176ab1b56f949b5a9110a1131a9e
+    - tileId: 171
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_171
+      spriteId: 7d11dc49325120247a3df5ac37edc13b
+    - tileId: 172
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_172
+      spriteId: b82772b149c5c9f49a29470b347f2a92
+    - tileId: 173
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_173
+      spriteId: 0061c566da140b541b9b546d83fd1b5e
+    - tileId: 174
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_174
+      spriteId: 4f2c84633dc1fa0438c85620de3562d8
+    - tileId: 175
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_175
+      spriteId: 0701e9a784d42ff41b2ee29dbe5b4883
+    - tileId: 176
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_176
+      spriteId: fc912850dd60b4b45bd16eaae5fef088
+    - tileId: 177
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_177
+      spriteId: eb5f3e4291013bf4c9a27cd100000119
+    - tileId: 178
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_178
+      spriteId: e580b5c29d2065841baafdc3701299af
+    - tileId: 179
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_179
+      spriteId: c182d66992f2cd644a34fdda7a754a66
+    - tileId: 180
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_180
+      spriteId: 58ede05fe1f3a744a9689df91bcb88df
+    - tileId: 181
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_181
+      spriteId: 79f8b664b81ec3b4d9eab67a0ccf9268
+    - tileId: 182
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_182
+      spriteId: b42006ef718cb0d4e849c45d8d13bf59
+    - tileId: 183
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_183
+      spriteId: c25c71277d4d7564ea798d5cfd5e58eb
+    - tileId: 184
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_184
+      spriteId: c31999df09b56004397d56e7859108a4
+    - tileId: 185
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_185
+      spriteId: 1b81442ee3936e349aea191170d593d2
+    - tileId: 186
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_186
+      spriteId: fcebfb6c65f460a409150896d8907b07
+    - tileId: 187
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_187
+      spriteId: 6be7c6649da27f0418c72717308c7821
+    - tileId: 188
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_188
+      spriteId: af2cd5e4b4ebc9e448b9218fa113bdab
+    - tileId: 189
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_189
+      spriteId: 762ad398f1700384ca8dcd525ea80855
+    - tileId: 190
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_190
+      spriteId: d68eac49ddf50044c8131cfd06cd6df6
+    - tileId: 191
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_191
+      spriteId: 6e22c9ce8a68c2645b18d1b581296b76
+    - tileId: 192
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_192
+      spriteId: 2a41314dbeb31484f8655839f6520689
+    - tileId: 193
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_193
+      spriteId: 133123ff3d2cfeb4d94db608ccfdab70
+    - tileId: 194
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_194
+      spriteId: 7b9fa860e88bf09459c52f8cd0ef9aeb
+    - tileId: 195
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_195
+      spriteId: cc20b3fe5819c444ba6b3b2b2664f242
+    - tileId: 196
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_196
+      spriteId: 6304179e29315ef4ca949207802b3e9c
+    - tileId: 197
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_197
+      spriteId: 72da9966d37c04246900180ed5c96758
+    - tileId: 198
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_198
+      spriteId: 7ea789f24b7c90049ae959252cacb87c
+    - tileId: 199
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_199
+      spriteId: fe6e7c2525b24af4d822b64318cb4270
+    - tileId: 200
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_200
+      spriteId: c756960048339a447928bcb732673431
+    - tileId: 201
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_201
+      spriteId: 0ecb1bffdc45b4f44aeabe24759d3980
+    - tileId: 202
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_202
+      spriteId: f0230799d8ee9ed408048bedc7ff8403
+    - tileId: 203
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_203
+      spriteId: fafecdca2cb9a7d49a1dfb33311e6f78
+    - tileId: 204
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_204
+      spriteId: 598bc6140c45c9348b702971c43892e8
+    - tileId: 205
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_205
+      spriteId: dee4b5cb3e0a39441b69b85677f4b2e5
+    - tileId: 206
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_206
+      spriteId: c6a2cd2a65a82aa408aaffd10e880061
+    - tileId: 207
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_207
+      spriteId: d7512e3763288f848b1a84067b01ad47
+    - tileId: 208
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_208
+      spriteId: f37a403629c7ea042bacaba433aac6ce
+    - tileId: 209
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_209
+      spriteId: 0564938e31da99747bf1224913b2bd80
+    - tileId: 210
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_210
+      spriteId: b68ce82b540e5bd4199c2ecc24cfa1a3
+    - tileId: 211
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_211
+      spriteId: d1617147f4dc6b745b560e7753b39cd6
+    - tileId: 212
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_212
+      spriteId: 880e2b24970a4d8408012bb76e99174a
+    - tileId: 213
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_213
+      spriteId: ec9c4e425c90c5544845622bf18bec9f
+    - tileId: 214
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_214
+      spriteId: 2f65de4a79ab707429d4aecbcf7d16f7
+    - tileId: 215
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_215
+      spriteId: 43430fbcd746ad34cac910f1985992be
+    - tileId: 216
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_216
+      spriteId: 0e6f15798a5b9e24693c3f2bb4b11ec6
+    - tileId: 217
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_217
+      spriteId: ea63aa8414227ef4aa66dd69ad64914b
+    - tileId: 218
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_218
+      spriteId: c63766a14f788c04782f2f05d3dfe14b
+    - tileId: 219
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_219
+      spriteId: 40332e42bcc0d4840aed122f6e2d86a0
+    - tileId: 220
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_220
+      spriteId: f21288b0a6f23384eaafb7a3137157fe
+    - tileId: 221
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_221
+      spriteId: 60d097cec6d89c347904c5f310cf9bc6
+    - tileId: 222
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_222
+      spriteId: b29817c4f78baf942aa52baf973c96c4
+    - tileId: 223
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_223
+      spriteId: 8b3e6e307a10162488df0d2e4faeff47
+    - tileId: 224
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_224
+      spriteId: e6b907260256dd343b8cd4b685c96b4b
+    - tileId: 225
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_225
+      spriteId: d6e953d24e6981b4ab80191cd0497c42
+    - tileId: 226
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_226
+      spriteId: 45ca05d0bb669164dbb4f5f348d6d498
+    - tileId: 227
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_227
+      spriteId: 34c7d16ee6e78aa44bd01e31365219aa
+    - tileId: 228
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_228
+      spriteId: 0fbbe0797487c3e44bb0339967e5e5f8
+    - tileId: 229
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_229
+      spriteId: c4aa5db3b127dc3439ade4d3003deefc
+    - tileId: 230
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_230
+      spriteId: 4340f2a5d83a84b48ae37a2f43e7fc75
+    - tileId: 231
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_231
+      spriteId: 30b5a24eb43b758418734f7c5fd0addf
+    - tileId: 232
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_232
+      spriteId: 5de07a265395487459199553f1753c5d
+    - tileId: 233
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_233
+      spriteId: 5d72c8bd07edaf4419343bec44f32dfb
+    - tileId: 234
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_234
+      spriteId: 5c1560629511abb46b5c737a0f134301
+    - tileId: 235
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_235
+      spriteId: 9aeaf14dbdc39c743b344ff1d4b18a40
+    - tileId: 236
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_236
+      spriteId: 441cecf513230ed479759ef54041f0c3
+    - tileId: 237
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_237
+      spriteId: 1d302c0ceabdb6d4d878d59b031896a0
+    - tileId: 238
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_238
+      spriteId: 8c595e778e701cc47b123db7c6f8a688
+    - tileId: 239
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_239
+      spriteId: 6b90bce4880c3b844a999f0709944184
+    - tileId: 240
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_240
+      spriteId: 250c8f32a98be534db6f6bc9decbf8aa
+    - tileId: 241
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_241
+      spriteId: 7b936aed11a34cd44b5910c321513afe
+    - tileId: 242
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_242
+      spriteId: eca15980e81c1c44bbca4ba8d2417d2e
+    - tileId: 243
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_243
+      spriteId: 84b1b8ede5abd17479b5ced2131856e4
+    - tileId: 244
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_244
+      spriteId: e4d5fad613f400e40a761b9f2bf2e1ca
+    - tileId: 245
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_245
+      spriteId: a834e5390b56c4747b2e92adca7c293e
+    - tileId: 246
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_246
+      spriteId: b99ac4e19b6d51c4488e827ff94aa5a8
+    - tileId: 247
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_247
+      spriteId: 61fe3bb346052304b94f0ecc3c4a4cd5
+    - tileId: 248
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_248
+      spriteId: adcc025138380d94580d8e159f37e116
+    - tileId: 249
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_249
+      spriteId: e98b1b473e75ac54da59bbc97fe4cdd9
+    - tileId: 250
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_250
+      spriteId: 06f90540a9d78424ba0cbd28cb775d7c
+    - tileId: 251
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_251
+      spriteId: 52ddc2eb4ef40714b8041f459c9f3d87
+    - tileId: 252
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_252
+      spriteId: 563e6894a2a4ba846961c1a200cf7639
+    - tileId: 253
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_253
+      spriteId: 04dcf0ff8bc4f5243897e3dc79f7a0ce
+    - tileId: 254
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_254
+      spriteId: fceaf222c2b8048499d83b5acb4da4c2
+    - tileId: 255
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_255
+      spriteId: 875465cd50cc9e1449ca47deeb7fe7a5
+    - tileId: 256
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_256
+      spriteId: 01f42f66d639e2341a222da54f999e80
+    - tileId: 257
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_257
+      spriteId: d672ef4cbda8f2b47b51eae054584b74
+    - tileId: 258
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_258
+      spriteId: 65937a7286b1db24e8911ae35a7c4a62
+    - tileId: 259
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_259
+      spriteId: 3b1ab9a4cb84e4c4ab2cdd440a286a0d
+    - tileId: 260
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_260
+      spriteId: 75808d042323fbb4ba9aa042c131dd1b
+    - tileId: 261
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_261
+      spriteId: ddcdccebb3bc7ed44a79d4fc203d5078
+    - tileId: 262
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_262
+      spriteId: d3bd4405831d27b4b998af953d55333b
+    - tileId: 263
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_263
+      spriteId: 19865052b49011e4f9f6913033ec484c
+    - tileId: 264
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_264
+      spriteId: 94839530501494b46b97f59012ea78f2
+    - tileId: 265
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_265
+      spriteId: 5d16ff2ccfa31db499227823bcd459e4
+    - tileId: 266
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_266
+      spriteId: bbae493c15dafff41b201ea2207e63fa
+    - tileId: 267
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_267
+      spriteId: d427f19bd66123747ac24cedd000e5d9
+    - tileId: 268
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_268
+      spriteId: b28dee53963edaf42b65c8e9aeb71565
+    - tileId: 269
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_269
+      spriteId: d6cce5103c40d9a4280821c623f6fc49
+    - tileId: 270
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_270
+      spriteId: 8b4befa90722b974692f0a9f1489f840
+    - tileId: 271
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_271
+      spriteId: 2900a70c6da05d7478eaa53c74d5da4e
+    - tileId: 272
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_272
+      spriteId: f3abf4bc824af42489f800b516e496d5
+    - tileId: 273
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_273
+      spriteId: dc773efb99a41ea4881513f2afe9be76
+    - tileId: 274
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_274
+      spriteId: 05d5f2a41714bc141b890c904ff7cd80
+    - tileId: 275
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_275
+      spriteId: d93b8146bf2ecbc4a9f439ee70fe500f
+    - tileId: 276
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_276
+      spriteId: e08268e8beb3a3641ad906a50b4d11f2
+    - tileId: 277
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_277
+      spriteId: 45b4d530c917491458e3dde4dde09ed2
+    - tileId: 278
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_278
+      spriteId: 95b0e3a88dad50b478ad1a7f7f0b4b02
+    - tileId: 279
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_279
+      spriteId: 4f1b6a31fa59a2f46b334bed14761e8a
+    - tileId: 280
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_280
+      spriteId: a2d92195fcc6e7048a76c787cc1e3286
+    - tileId: 281
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_281
+      spriteId: 106780ae7024b6a4fbe59a5825ddb377
+    - tileId: 282
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_282
+      spriteId: 80e7dd944fe79354d94b6bdc0f63a6e9
+    - tileId: 283
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_283
+      spriteId: e212c4f88e55f7749a9af428112b168e
+    - tileId: 284
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_284
+      spriteId: 214b2b6b82e2c9148a57723dbb38a5b2
+    - tileId: 285
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_285
+      spriteId: 4adf3cca6bdb5504484e73eb437dd3cf
+    - tileId: 286
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_286
+      spriteId: ea0578f4ab33a5b44a1bc2af3e80caa8
+    - tileId: 287
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_287
+      spriteId: 7c05326240334a0479918a2a3e248d5a
+    - tileId: 288
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_288
+      spriteId: bb5fe9a0ce6fad74f8958b014db24691
+    - tileId: 289
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_289
+      spriteId: 05f4e6d9ee88c864aa8399d5e9a13ba3
+    - tileId: 290
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_290
+      spriteId: d98cf6a200c78254192f5b1d0f9f638e
+    - tileId: 291
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_291
+      spriteId: 35a431e42a531714c88e2772d79a214c
+    - tileId: 292
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_292
+      spriteId: 888cf7d0bc30cd947a59b4e367b66389
+    - tileId: 293
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_293
+      spriteId: 5cb6269c209c1384da0aef816e1dc1cc
+    - tileId: 294
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_294
+      spriteId: 90fe47e2e477ad04996a4a52c801440a
+    - tileId: 295
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_295
+      spriteId: 68c106cf7862a65448a5640b8ec412ac
+    - tileId: 296
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_296
+      spriteId: 3c31f53894462e8459fe4cbecddb1387
+    - tileId: 297
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_297
+      spriteId: 43caf6a04129fd44aa9da26440049549
+    - tileId: 298
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_298
+      spriteId: fea984380cb4fe14da63a35573069903
+    - tileId: 299
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_299
+      spriteId: 2dca587bcd081084793076448c00f8d2
+    - tileId: 300
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_300
+      spriteId: 1050ee02b821a654690649a7b52612b1
+    - tileId: 301
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_301
+      spriteId: 5aa9cd1fe56057545ad30f696bcc45a6
+    - tileId: 302
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_302
+      spriteId: 03f959a3bb3d9bd4d8b4f11d18742798
+    - tileId: 303
+      size:
+        x: 16
+        y: 16
+      name: Tileset_0_303
+      spriteId: fc44dd0b3707a734bb8bc3693c699d28
+    guid: -1102077067
+  - id: 1
+    name: Tileset_1
+    tileSize:
+      x: 16
+      y: 16
+    tiles:
+    - tileId: 1
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_1
+      spriteId: 7f75e2d73e66a4048a494574e69b767e
+    - tileId: 2
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_2
+      spriteId: 1ed002646ef004248affb528fb23ea2c
+    - tileId: 3
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_3
+      spriteId: c9d02516fbfddc043b2fa9cc517083c4
+    - tileId: 4
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_4
+      spriteId: 062ed478df27c5c46b03e0b95919c002
+    - tileId: 5
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_5
+      spriteId: 17d3a86d317f9fc48b6ba351d33bdab8
+    - tileId: 6
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_6
+      spriteId: 50e965ec3b3b1e9489059273dc97071c
+    - tileId: 7
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_7
+      spriteId: 8a6a6e72ae3e5d04f9d42523c6f0894d
+    - tileId: 8
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_8
+      spriteId: 7854301bf957ab344993c2b7fd7ee90b
+    - tileId: 9
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_9
+      spriteId: 9c1186c2dbe154843b3c6be624cf8fcb
+    - tileId: 10
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_10
+      spriteId: ed133cbb5b0053f40aec4e4bcd709455
+    - tileId: 11
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_11
+      spriteId: 8a26cf2474d9cee42b3c8a68aa5ab106
+    - tileId: 12
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_12
+      spriteId: 2130152d300a6f645abd8c229a01e266
+    - tileId: 13
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_13
+      spriteId: 5dd9ae1442167c746a1416ac320f38a0
+    - tileId: 14
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_14
+      spriteId: 2dfe0c7397d9860459bbe0ebcdfce586
+    - tileId: 15
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_15
+      spriteId: 78f4b3b188575c54ea4f03d6136d58c8
+    - tileId: 16
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_16
+      spriteId: 81920e8a51735dc4abcdb1537fba4b97
+    - tileId: 17
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_17
+      spriteId: c936bfd206885ab419a830df9501f5b1
+    - tileId: 18
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_18
+      spriteId: 744655d26a506504887dabd4337a3949
+    - tileId: 19
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_19
+      spriteId: ed2d3c0512d6bb741b5e63cf3c821a38
+    - tileId: 20
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_20
+      spriteId: 1fdc9b75805e9d84290c64f14e4071c1
+    - tileId: 21
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_21
+      spriteId: d192e21c02c04304c951c06efea1d6ae
+    - tileId: 22
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_22
+      spriteId: a988ccd9a4ca74e409045dc9b5515c84
+    - tileId: 23
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_23
+      spriteId: deb0d6e82819c094b8d2ab9c17768463
+    - tileId: 24
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_24
+      spriteId: a39d2b6cf2171c74e98d8fe8e6ec8a63
+    - tileId: 25
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_25
+      spriteId: b2b7bc99a7c83214c89b6cbd5135332c
+    - tileId: 26
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_26
+      spriteId: a99fa563eaf111647958169500d561fa
+    - tileId: 27
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_27
+      spriteId: ce3d66c01f6a01646951a31674e67e2f
+    - tileId: 28
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_28
+      spriteId: c21474320c5d3b145b9ca287b7f2fb15
+    - tileId: 29
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_29
+      spriteId: 0700b2c98a109b744a1fdfaeb0e7f03b
+    - tileId: 30
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_30
+      spriteId: 7d1f1d5d9b45fe548b9b8d46033dfc72
+    - tileId: 31
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_31
+      spriteId: 39c531cdcf2402344b0be411462e9769
+    - tileId: 32
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_32
+      spriteId: 9e558ebe4e9842a44a1e58fe659c6306
+    - tileId: 33
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_33
+      spriteId: 6017c955f8d110c478addc33975fbde9
+    - tileId: 34
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_34
+      spriteId: 78c21068fdeeb7748aed6a85ff02907f
+    - tileId: 35
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_35
+      spriteId: 0bc40d2bd32b5544ebdbffee9ec22ec4
+    - tileId: 36
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_36
+      spriteId: 86f5cab48ddb26048982582737119102
+    - tileId: 37
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_37
+      spriteId: be5d941b89a74694c973e4c4e4b4d71a
+    - tileId: 38
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_38
+      spriteId: 7908365491a6d65459c6593fc3d987d3
+    - tileId: 39
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_39
+      spriteId: 00ecaf50615909947926e7e518bd512e
+    - tileId: 40
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_40
+      spriteId: 1059090952ef3f7488a10eb9c739246d
+    - tileId: 41
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_41
+      spriteId: 4f3ff6afd0a7f2e42a180525d7a7282b
+    - tileId: 42
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_42
+      spriteId: 20abb35e95a425e4f8a99ec521bdaa64
+    - tileId: 43
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_43
+      spriteId: 1eba587e5579a5a419e1c1d89ded6370
+    - tileId: 44
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_44
+      spriteId: 0883451d65f27ab4e8aabf867422f3be
+    - tileId: 45
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_45
+      spriteId: 7df587001a6336a43a0fee4efe5a1061
+    - tileId: 46
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_46
+      spriteId: 150ee83264f5b744a8a197bcd5c1ea61
+    - tileId: 47
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_47
+      spriteId: 49d40ab1c8396e24ab4b48b4f9661cbc
+    - tileId: 48
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_48
+      spriteId: 0c57ff58f8eea4547a9e7f1af5ebc1a4
+    - tileId: 49
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_49
+      spriteId: 415ae3a793d3e5f478f9f2e658f62f6e
+    - tileId: 50
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_50
+      spriteId: 9a9d68e2d25e86b4a8ebe56c5180d841
+    - tileId: 51
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_51
+      spriteId: 6452f330bb3799044beff27203371f8e
+    - tileId: 52
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_52
+      spriteId: 0f1272c0747e27a4aae3bd5419e01888
+    - tileId: 53
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_53
+      spriteId: 3e7b95aa78a26da42a4373eb4aa257c1
+    - tileId: 54
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_54
+      spriteId: aa999acb96899de4bbc50ac11ecccb0a
+    - tileId: 55
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_55
+      spriteId: ea0b8fa4f0cb8e041a787101a78e2a1a
+    - tileId: 56
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_56
+      spriteId: 5f8f9509622aeca49adb097484d5672c
+    - tileId: 57
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_57
+      spriteId: 1a6a425e231f6804180c1460ce5931bb
+    - tileId: 58
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_58
+      spriteId: fdf7547fbec0f434aaea152963246dc3
+    - tileId: 59
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_59
+      spriteId: f57302b27cd7f2a449e8a39aefc5704a
+    - tileId: 60
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_60
+      spriteId: ae3ed2e7439f8644098badb7c7d5bb88
+    - tileId: 61
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_61
+      spriteId: 1f2920f312e0f4145a7563d5266964f9
+    - tileId: 62
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_62
+      spriteId: 8f6240da5162f9a4792a6d811d456234
+    - tileId: 63
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_63
+      spriteId: b1d4becc40c8b6246956b305edadf7e6
+    - tileId: 64
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_64
+      spriteId: aa4cdf360e635524ca08ded7ff50ec9c
+    - tileId: 65
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_65
+      spriteId: 6d2235cdf4a246e48b92672c094b055b
+    - tileId: 66
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_66
+      spriteId: 1f753218273ac8f46af23ce0f697520e
+    - tileId: 67
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_67
+      spriteId: 9bd687b849678f14093320962ef80ac3
+    - tileId: 68
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_68
+      spriteId: 34b32e8138dacdd48811c7cf1d1b969a
+    - tileId: 69
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_69
+      spriteId: 8657ffe264d2317409460d695306b611
+    - tileId: 70
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_70
+      spriteId: 6b159343ead27784f982c7fa09a46e1e
+    - tileId: 71
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_71
+      spriteId: 2ca2eabd0cb3aa643be6c25bfcfd20c5
+    - tileId: 72
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_72
+      spriteId: dd37c410d15609e469db5dfcafbd8fd2
+    - tileId: 73
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_73
+      spriteId: c6f6a7f9a34316d40b14e19ab6bad7ba
+    - tileId: 74
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_74
+      spriteId: 1b76836596bb4ac4990c68e5f3747289
+    - tileId: 75
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_75
+      spriteId: 8d1ad9845bad5de48b2c82d0f65b46e6
+    - tileId: 76
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_76
+      spriteId: 6f4acee84cf9c704887765f9effe85ae
+    - tileId: 77
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_77
+      spriteId: 956dea817f676844e8b7445337d92a2e
+    - tileId: 78
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_78
+      spriteId: e0da22b3fcc48e14784b3015c09936a9
+    - tileId: 79
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_79
+      spriteId: 0c579403f888e294487d9f6e5e725f40
+    - tileId: 80
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_80
+      spriteId: 2d4e0da3a07faf344b9adceb46a2be46
+    - tileId: 81
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_81
+      spriteId: acc0020458aeb5147bf90d3e8ff0d2ec
+    - tileId: 82
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_82
+      spriteId: 5b396b95e4512f34d951c2d5c7f29ffd
+    - tileId: 83
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_83
+      spriteId: a3f6165fe79fa534a99dc88a270cf0b7
+    - tileId: 84
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_84
+      spriteId: dd6283e6370257c4f8499fe205190ca7
+    - tileId: 85
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_85
+      spriteId: c7306ee6c210e3748ac7599c8513d125
+    - tileId: 86
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_86
+      spriteId: 3ba50713998c6f841a46fe23fb6fee40
+    - tileId: 87
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_87
+      spriteId: 77042193a5a491949aa23f2484e26e1c
+    - tileId: 88
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_88
+      spriteId: aae2dd0ef94a1a243a4319ab3a23498b
+    - tileId: 89
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_89
+      spriteId: 0e4b1564ee0a61f4da61df5146716723
+    - tileId: 90
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_90
+      spriteId: fa09537a26faf3e4cb52c6e05be2124d
+    - tileId: 91
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_91
+      spriteId: 8a86854bc4925764984e0fc8ff10c534
+    - tileId: 92
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_92
+      spriteId: 5aed4147361ced9479d072e9d0dcc5e5
+    - tileId: 93
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_93
+      spriteId: c312efc2412ffeb478f56cdd51805cf6
+    - tileId: 94
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_94
+      spriteId: b4d084865c516d843b852005df29bf2f
+    - tileId: 95
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_95
+      spriteId: 4a0463a955f1bbb4ba7693378d61cd64
+    - tileId: 96
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_96
+      spriteId: d85eca142f964d641b2663dfc58486e0
+    - tileId: 97
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_97
+      spriteId: e1a7d87b8d260634c9a9f40c14ed0416
+    - tileId: 98
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_98
+      spriteId: 2d20c7caf83b92249bd7d936d7c3b6d3
+    - tileId: 99
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_99
+      spriteId: 49ff3224079f6414496d78262637af7e
+    - tileId: 100
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_100
+      spriteId: 574603489f9c78249b2cd0eca5dd5e1c
+    - tileId: 101
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_101
+      spriteId: 14a281df74243ea48b2c279b61b7c2a9
+    - tileId: 102
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_102
+      spriteId: ebb88f21eb706f14c9205deb940bcb44
+    - tileId: 103
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_103
+      spriteId: 5ef18f14bf542b64a95e2fa005069794
+    - tileId: 104
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_104
+      spriteId: 446c7a362cc38854eb5ca79ce1de162c
+    - tileId: 105
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_105
+      spriteId: 51b14849c961c3e43bc9fd32d9ddc36e
+    - tileId: 106
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_106
+      spriteId: 82518f31e910ebd4abbb727b372d0bc9
+    - tileId: 107
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_107
+      spriteId: 0724be644d5aba94fa98094ec6be8084
+    - tileId: 108
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_108
+      spriteId: 74f78a5193d0868458fd845145d790ec
+    - tileId: 109
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_109
+      spriteId: 46fa4daf4132f4f4da430cef81dc5e66
+    - tileId: 110
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_110
+      spriteId: 550aa911c16c72746ae07733f7fd3772
+    - tileId: 111
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_111
+      spriteId: 03c2df066e76382469e2b562f493e294
+    - tileId: 112
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_112
+      spriteId: aa3381da389a0b94f8897a35ceb3e2c2
+    - tileId: 113
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_113
+      spriteId: 5e0a623885bd51b4781a8afbdbe2b4e7
+    - tileId: 114
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_114
+      spriteId: 70eefbfc2e15e9546877b561a21bbe5d
+    - tileId: 115
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_115
+      spriteId: c3747718eebb4f0438b627c8ea99ba0e
+    - tileId: 116
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_116
+      spriteId: ca03576b38eca664c974b9c57961d2f0
+    - tileId: 117
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_117
+      spriteId: 51cdd3e4547f8814988fb9bc4491027b
+    - tileId: 118
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_118
+      spriteId: 62cb7bca417aa7b4495ec28ecf49343d
+    - tileId: 119
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_119
+      spriteId: 15e922001707af247a4bedfb14efe9de
+    - tileId: 120
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_120
+      spriteId: 79674a2c8ea9cd049a6929e6e230fc3a
+    - tileId: 121
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_121
+      spriteId: e305efe4dd88d5a459915294b314cd96
+    - tileId: 122
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_122
+      spriteId: 525c029fcc7c00547b9bdd91d89a2289
+    - tileId: 123
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_123
+      spriteId: f92dd2ab5ff1f56498c45e19acce2ab6
+    - tileId: 124
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_124
+      spriteId: 6f3a8eb1605de2f40a8db25f24e089ab
+    - tileId: 125
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_125
+      spriteId: 4f1dc24d378d76d47961c611d34c888a
+    - tileId: 126
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_126
+      spriteId: 85517c8677829f948b804d6ee025f6a2
+    - tileId: 127
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_127
+      spriteId: 7c2e4d4a26bacc44995f4e2ad4b3bc21
+    - tileId: 128
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_128
+      spriteId: 7d2604c5abb1a4a4ba6e0277e7a2a584
+    - tileId: 129
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_129
+      spriteId: fbab0b02ad000ae41a91963a43aa6849
+    - tileId: 130
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_130
+      spriteId: 0ed0dd3462b47c64b9a61f9c7ba39332
+    - tileId: 131
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_131
+      spriteId: 9015c4c7edbb4e541a27ce9fe1f3b72b
+    - tileId: 132
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_132
+      spriteId: 1fccd37dddfff0047a85fabe96d4c780
+    - tileId: 133
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_133
+      spriteId: 376bfcd7f75f7a441ad3d839b51af460
+    - tileId: 134
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_134
+      spriteId: 2611286dbab87524ba079cfe0ce9be47
+    - tileId: 135
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_135
+      spriteId: 533c307297d02f944bb018c304eb1566
+    - tileId: 136
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_136
+      spriteId: 3b13ce089e8575243b1409ad67ffaa41
+    - tileId: 137
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_137
+      spriteId: cc7bf2bc6eec0c94f9c8a480b07a9fa0
+    - tileId: 138
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_138
+      spriteId: 4c6cbf2e6f2555449a7b8dead28514f6
+    - tileId: 139
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_139
+      spriteId: ed85c7a00a2dff5448e6905d23db4eec
+    - tileId: 140
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_140
+      spriteId: 3d266f6605af1fe478a47d1abe1669af
+    - tileId: 141
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_141
+      spriteId: ffd36c6ee6a2df64dab70fbfeae8cadd
+    - tileId: 142
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_142
+      spriteId: 72329e1260a11c444b8db4bf520bd687
+    - tileId: 143
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_143
+      spriteId: 1a8dfb7b2d557b446aa9fade489fa5b9
+    - tileId: 144
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_144
+      spriteId: e3eadd9269bad2b429abd7fee5f86522
+    - tileId: 145
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_145
+      spriteId: 46417fa568d43f04dbf616082f961cd1
+    - tileId: 146
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_146
+      spriteId: 445da9d5dbf692f448a53e4b6dcc9597
+    - tileId: 147
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_147
+      spriteId: 3e51c40b56402b24cb808a5790a9b87c
+    - tileId: 148
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_148
+      spriteId: 7a8749200071b554e8a97a417c6d9db9
+    - tileId: 149
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_149
+      spriteId: 3fecf63ade1e3c74ba63ea0abe4b89fa
+    - tileId: 150
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_150
+      spriteId: 9f852608d446aab42bd2a632a8669ff4
+    - tileId: 151
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_151
+      spriteId: 94595a72722eb7444a804feb13c83542
+    - tileId: 152
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_152
+      spriteId: 07ece487a4eba28419317181ca88f605
+    - tileId: 153
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_153
+      spriteId: c6047d0088d700341a4b15cfcbdadb7d
+    - tileId: 154
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_154
+      spriteId: a27e419e2cda94c4ea8d9f07c893573b
+    - tileId: 155
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_155
+      spriteId: 41d94425ed87e23409dbc77f7c3493c4
+    - tileId: 156
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_156
+      spriteId: 9994250d2aefdc9468f1faee2742839f
+    - tileId: 157
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_157
+      spriteId: a30d5e8799a2ad844a9e8ab179c5d30e
+    - tileId: 158
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_158
+      spriteId: ae653e4a3b01a8e4abac2e562a099f3e
+    - tileId: 159
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_159
+      spriteId: 1bdd802df3ae7dd41ba1c35b44fe1661
+    - tileId: 160
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_160
+      spriteId: ea1ad3fc47ad5ae42acd60b12ec360e5
+    - tileId: 161
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_161
+      spriteId: 71e8cb466d1a38646b3eb916d71b71d8
+    - tileId: 162
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_162
+      spriteId: 23282d2d47bd60744ba9e8d2f1c00a67
+    - tileId: 163
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_163
+      spriteId: 18dbeaab3694999468176354b00b84ac
+    - tileId: 164
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_164
+      spriteId: 0697334ddcf0a8e449e4759a0eef1d99
+    - tileId: 165
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_165
+      spriteId: ef5da2b1819f12443ac07ad93f118703
+    - tileId: 166
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_166
+      spriteId: e7067e9ffba8e4b46acff4f971600837
+    - tileId: 167
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_167
+      spriteId: 23ef9991b4a9ab247ad30971f1fa623a
+    - tileId: 168
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_168
+      spriteId: 1f98f07bae3ed254f8c536f5478e9cf3
+    - tileId: 169
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_169
+      spriteId: c265e6b2b11c6bc458e7348a39fc89cf
+    - tileId: 170
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_170
+      spriteId: 4927c71a7f1ab4a45b2d4f67ae0645f6
+    - tileId: 171
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_171
+      spriteId: 511c5123b10786249afec854b032459e
+    - tileId: 172
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_172
+      spriteId: d06447a9ba522204a9f47a685101043a
+    - tileId: 173
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_173
+      spriteId: ed887a14a35fbb84cadb2e6938bec72c
+    - tileId: 174
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_174
+      spriteId: 9dd364ac8a265bf4dad3fecb7a0aa1ca
+    - tileId: 175
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_175
+      spriteId: 9597cf66bc7de124bb306815db49d04c
+    - tileId: 176
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_176
+      spriteId: c16cc366fc60b6e46a84e5f635323334
+    - tileId: 177
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_177
+      spriteId: dd6dff91f975e6b4590a00a6ec16eb8e
+    - tileId: 178
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_178
+      spriteId: 8ff223a3f8bff2041be073e4754bf6c0
+    - tileId: 179
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_179
+      spriteId: 6767347ecbb99ac448bfbf7a4e66ca58
+    - tileId: 180
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_180
+      spriteId: 6b7eabb1bc8ac684285a57b847c69ba7
+    - tileId: 181
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_181
+      spriteId: 81b28d618fca81e4a8df30349d5da4f1
+    - tileId: 182
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_182
+      spriteId: 117c34124c38c2b4aa1f534004b67aba
+    - tileId: 183
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_183
+      spriteId: c46299ac9a5dfa748b3ba2d0d7f3da7d
+    - tileId: 184
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_184
+      spriteId: c5b500a7b87bbfb4c843010af0a8ccf4
+    - tileId: 185
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_185
+      spriteId: 018fb942a72b7474683b3e3f5789ca47
+    - tileId: 186
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_186
+      spriteId: 5143f869efdd2b94380644b3f994f2a9
+    - tileId: 187
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_187
+      spriteId: e8f6f7bb5c6744141bab74698787f849
+    - tileId: 188
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_188
+      spriteId: e3a47b4c1095d0b4a98909d3e0488fb2
+    - tileId: 189
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_189
+      spriteId: 9f57b93561957e946b6a04b5579debac
+    - tileId: 190
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_190
+      spriteId: c58e7c365cd1adb429bbae5c9f300b78
+    - tileId: 191
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_191
+      spriteId: 4545965d7f8ae7248820a6f813eb8b1b
+    - tileId: 192
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_192
+      spriteId: f98db5fb0ee9d3c439c9be8b2d59190d
+    - tileId: 193
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_193
+      spriteId: 7f98cd45b82976e47a3c1ab3ca3c13e0
+    - tileId: 194
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_194
+      spriteId: 33d79ec2998e5ac4cac0b8347c12755f
+    - tileId: 195
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_195
+      spriteId: a3f620711cf81564c9a374d355ec2487
+    - tileId: 196
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_196
+      spriteId: 937dd4fb8bac29540b863fe47e05ce1e
+    - tileId: 197
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_197
+      spriteId: c958dbbcb65b3374ebe00e993f828646
+    - tileId: 198
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_198
+      spriteId: 00ac73d6e96b41046ac3575528130f0b
+    - tileId: 199
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_199
+      spriteId: e2133b134c73f6f47b0502878540ee48
+    - tileId: 200
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_200
+      spriteId: c9f2607b13503d04fa6cd55f830306d3
+    - tileId: 201
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_201
+      spriteId: 6e6b35bada01a2143bc6a6de539a025b
+    - tileId: 202
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_202
+      spriteId: 06f1a15c28e37be4f9127915a08dc9a3
+    - tileId: 203
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_203
+      spriteId: 2b27c5d0adb1d654eb2f69dbf725261f
+    - tileId: 204
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_204
+      spriteId: ccda50db300aacc4588f33fe7f465ff9
+    - tileId: 205
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_205
+      spriteId: e510ac708a1f3234e93fc58b46a2c459
+    - tileId: 206
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_206
+      spriteId: de1d969a9e291504daa43a82f9c6f490
+    - tileId: 207
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_207
+      spriteId: a081a34188ea74a4d9c456fa2790d931
+    - tileId: 208
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_208
+      spriteId: 9c1cfb387a4e7f649b1f8851d5d333dc
+    - tileId: 209
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_209
+      spriteId: 9cdf647238ccf8c4d97e1484593490dc
+    - tileId: 210
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_210
+      spriteId: c4309a5a366657a4bbcf1c176d058a73
+    - tileId: 211
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_211
+      spriteId: f04f19616f796b84d8635bad6354012b
+    - tileId: 212
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_212
+      spriteId: c8f4d59af6da58a459164ea0be546704
+    - tileId: 213
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_213
+      spriteId: cfae03ad48644424ebad1908365e5fce
+    - tileId: 214
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_214
+      spriteId: f6721592b6785b345a68b11d279c2138
+    - tileId: 215
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_215
+      spriteId: b67afff8a75adfb43a840f4cae2b3200
+    - tileId: 216
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_216
+      spriteId: c7f81231fa3be0b4aba542ad96b61128
+    - tileId: 217
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_217
+      spriteId: 2a2a587e7fe73554c992ed9cf297a928
+    - tileId: 218
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_218
+      spriteId: 8649d840383326d41890709be3c45fba
+    - tileId: 219
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_219
+      spriteId: 41ade71378fc53949a4542370ce887cf
+    - tileId: 220
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_220
+      spriteId: 2f9b0bc026e158547b812a16530b02f3
+    - tileId: 221
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_221
+      spriteId: ee201f25354049f4384c3e323cc201e3
+    - tileId: 222
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_222
+      spriteId: 14537e839a7e1b5428eadb70376c9e12
+    - tileId: 223
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_223
+      spriteId: c4cf5b7f7d99d3d41995fdfb4882026e
+    - tileId: 224
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_224
+      spriteId: d069ec4cf0895754fba0f45c7e2c6170
+    - tileId: 225
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_225
+      spriteId: 55b68a41a6f27f546830c8071aa9cc21
+    - tileId: 226
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_226
+      spriteId: c62a745b2efe03e4494b5f5ba4a677c2
+    - tileId: 227
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_227
+      spriteId: 5f61b6b9b8d101a42bd88b5f0bde70ff
+    - tileId: 228
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_228
+      spriteId: 8bac693364b29704781bd489eeda6b67
+    - tileId: 229
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_229
+      spriteId: 8947da47913cc554a9ea2118d406f001
+    - tileId: 230
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_230
+      spriteId: 2ced5ba95d752b14d98216a3b65d11f5
+    - tileId: 231
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_231
+      spriteId: f82828b025867ab4c847451c84fe2db9
+    - tileId: 232
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_232
+      spriteId: 683beae4af265254483197a5a951ec4e
+    - tileId: 233
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_233
+      spriteId: b4299314f7e9c064c91f8fad9b345acb
+    - tileId: 234
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_234
+      spriteId: caa72704d3f0a3c4586f04f55ca84e30
+    - tileId: 235
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_235
+      spriteId: cb129709d60ca5a47b7f3b21ed399fb7
+    - tileId: 236
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_236
+      spriteId: 3bd49830a8e68e74685aeb7f34035e87
+    - tileId: 237
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_237
+      spriteId: 18bb1f8428e48ee46bb141aba65504d7
+    - tileId: 238
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_238
+      spriteId: 3166cfc59455c084abcc916a289838c4
+    - tileId: 239
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_239
+      spriteId: fc15f439a0bc9e94484a88b3f8b6a8bc
+    - tileId: 240
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_240
+      spriteId: 7285b252c81ac2c4db024803b059cf98
+    - tileId: 241
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_241
+      spriteId: 6403ec1decf7ca144a16e0a079cccc6a
+    - tileId: 242
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_242
+      spriteId: 70edef3e5b733914897c2b73630fc31d
+    - tileId: 243
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_243
+      spriteId: 1627b167617e8904fac55d56883e33d6
+    - tileId: 244
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_244
+      spriteId: 8427b43b8789ea9478d2f26c9d4b9c2a
+    - tileId: 245
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_245
+      spriteId: 30fa9926bbd1cc948b209a05626fcff3
+    - tileId: 246
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_246
+      spriteId: 6728f0eb0507c40439369918955d9bb4
+    - tileId: 247
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_247
+      spriteId: 281ef1cee3dd49a4c8ac6ff55f1dd0a3
+    - tileId: 248
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_248
+      spriteId: 20cbf4d1d8e7a6742b8b3f57e11055d0
+    - tileId: 249
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_249
+      spriteId: b411d4c3406ac974e90b2d8de60ce97d
+    - tileId: 250
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_250
+      spriteId: 98e73794bf2d7274ca9a77157c9d0d46
+    - tileId: 251
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_251
+      spriteId: 7c6d9576d5b5b7d4998cc84b8c2033ac
+    - tileId: 252
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_252
+      spriteId: 928af2fb455f18e4596bbbbcada0d99a
+    - tileId: 253
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_253
+      spriteId: 85988bec64d41a44da14169ef5a8cbdc
+    - tileId: 254
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_254
+      spriteId: 2c17267e866913a46806edbd8e7a5b3b
+    - tileId: 255
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_255
+      spriteId: 716c4804af92d2c4a9f7ff1e9bffeaec
+    - tileId: 256
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_256
+      spriteId: b87b5ac6b8cfd5449ac480a32f1031f7
+    - tileId: 257
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_257
+      spriteId: 8e6450eb5e52cf54c95c07b827f7449a
+    - tileId: 258
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_258
+      spriteId: 03447bccf80477c4dadea8afa9dd253b
+    - tileId: 259
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_259
+      spriteId: 8399d2ea3fa6a704cba7b1f5c1355234
+    - tileId: 260
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_260
+      spriteId: ef1929f35b31d2748a08b6e05ab70966
+    - tileId: 261
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_261
+      spriteId: f76c746e4e690d64cbc49a815eca0fa0
+    - tileId: 262
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_262
+      spriteId: 5bf2ad36bc6d9154d97997df535deac9
+    - tileId: 263
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_263
+      spriteId: 38279b596c133a242bf30687a939b266
+    - tileId: 264
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_264
+      spriteId: 9fc016086778dd84abcfe8d1f230ce81
+    - tileId: 265
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_265
+      spriteId: 83a5aee712d1d12479122be0bab6b048
+    - tileId: 266
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_266
+      spriteId: a90f51d7ba4aab94183d32a5fa3bd360
+    - tileId: 267
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_267
+      spriteId: e200e6c27a2086044931b610dcaa911a
+    - tileId: 268
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_268
+      spriteId: ae1eaa2a620b66c4692a72363e69032e
+    - tileId: 269
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_269
+      spriteId: c3f1c16edfe5a174690459aef09da6d0
+    - tileId: 270
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_270
+      spriteId: 85772d242f8240e4f994e4cbae8639b2
+    - tileId: 271
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_271
+      spriteId: bb48847d248e6864c99c02518f36054f
+    - tileId: 272
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_272
+      spriteId: 76605cdb918d1464abaf8c0fe74a9427
+    - tileId: 273
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_273
+      spriteId: df60abb6e3de2e3458c1483f6bbb2df9
+    - tileId: 274
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_274
+      spriteId: 1b3f150eb9b6cfe42808d12e3ae330ce
+    - tileId: 275
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_275
+      spriteId: b4e217bf76cfe4849b9dd2d2c4c44df9
+    - tileId: 276
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_276
+      spriteId: e291f5d815baee849abd58e06d894bdd
+    - tileId: 277
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_277
+      spriteId: 0ef22b7da2350be4ba68d13a9c19d0b0
+    - tileId: 278
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_278
+      spriteId: ee69ee91ae13b964984b44c4dbc4e2e9
+    - tileId: 279
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_279
+      spriteId: e5336fdf31fadd7438984cca1ac4afc5
+    - tileId: 280
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_280
+      spriteId: 15216c4052fc5e44cb6eec5e811aeba7
+    - tileId: 281
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_281
+      spriteId: 92321061ee3df9946b086ec1ecebecba
+    - tileId: 282
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_282
+      spriteId: c5714d9ad4597134cb3d4c438c8a338f
+    - tileId: 283
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_283
+      spriteId: 1b36f0b4c05031c4b983f5a246e13380
+    - tileId: 284
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_284
+      spriteId: 9fe8e223772523c43a158c662fadf974
+    - tileId: 285
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_285
+      spriteId: 6f25913348f288f4db88c83e4d1b81d7
+    - tileId: 286
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_286
+      spriteId: 8c2b0acb5a7083b4ebb7b85511fbc673
+    - tileId: 287
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_287
+      spriteId: 061967198d27bea4f848705e329859d3
+    - tileId: 288
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_288
+      spriteId: 839ed57a0c8651c4ab8077401d4d2df1
+    - tileId: 289
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_289
+      spriteId: 35fa91d209c305944bd5391defcbd2fd
+    - tileId: 290
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_290
+      spriteId: 397e65bd0ec6157489c884e2f009e6db
+    - tileId: 291
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_291
+      spriteId: 08a5dfcc0afa688499da1a282d3ad577
+    - tileId: 292
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_292
+      spriteId: 5f84b08009b67fe408d44462a6dd3dbd
+    - tileId: 293
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_293
+      spriteId: d5f611389a373cb468bf215253faee32
+    - tileId: 294
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_294
+      spriteId: b6fa4923caa0ff74b879504432c1b070
+    - tileId: 295
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_295
+      spriteId: 72b6e2f5ad2d28749bcc187315f4f8a4
+    - tileId: 296
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_296
+      spriteId: b0c0a5b41bcac34409107f63f32adada
+    - tileId: 297
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_297
+      spriteId: bfec4863d518cd541ab4bd6de4a47ac5
+    - tileId: 298
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_298
+      spriteId: b3b98ac710175614c8c77f87e17bbbbd
+    - tileId: 299
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_299
+      spriteId: a4ef89880994f4640bb7731e18ebd1f8
+    - tileId: 300
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_300
+      spriteId: 4b976bcf56f6457458529fbd36e48f57
+    - tileId: 301
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_301
+      spriteId: 8e7c4c83faab86a4cb7fd037eabe6756
+    - tileId: 302
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_302
+      spriteId: 2ae6b49d318ca2d43bd8a8c9008d3274
+    - tileId: 303
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_303
+      spriteId: 2e685e20d9656e2458e4c29e25d716d7
+    - tileId: 304
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_304
+      spriteId: f0dcb94001f9b6a4882c2c73d8386da0
+    - tileId: 305
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_305
+      spriteId: 9e539b557fd3e8b408f5cf25434c3fd9
+    - tileId: 306
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_306
+      spriteId: b42c5f2dbfadc9d4c8573adf463fec55
+    - tileId: 307
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_307
+      spriteId: 5221f5ec5f76dbf40838eaf875f6056a
+    - tileId: 308
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_308
+      spriteId: 0a3d501c50354a347a35e5dfa6cfd38a
+    - tileId: 309
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_309
+      spriteId: 1e0ac2ed8fa3fcf4abae1a23a53282e9
+    - tileId: 310
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_310
+      spriteId: 9dcbae800fdb0644fb059b8fd4b7a495
+    - tileId: 311
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_311
+      spriteId: 6ebeae8e8fa04c040951f7ebc02c8b88
+    - tileId: 312
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_312
+      spriteId: a14eb36e2d9d05049a20deb7adb276da
+    - tileId: 313
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_313
+      spriteId: fb5e5bcf31872c74bbc52d629d4e535d
+    - tileId: 314
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_314
+      spriteId: be1cad4cc8ba15148b5f835de8d94418
+    - tileId: 315
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_315
+      spriteId: ef99256e492d81c4a80fddeb330a91ed
+    - tileId: 316
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_316
+      spriteId: 43388281db44172499f106c6817bea43
+    - tileId: 317
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_317
+      spriteId: f236597559c0719478d8a8894d9896a5
+    - tileId: 318
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_318
+      spriteId: 74808bf721fdeda4693ae67e941ae389
+    - tileId: 319
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_319
+      spriteId: de0348f8681e0844588c72a78a2d860a
+    - tileId: 320
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_320
+      spriteId: 1c61ac3eef5c9b0449b74bdd059fafaa
+    - tileId: 321
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_321
+      spriteId: b06b5e29c9a23a546bdb6c1469519a7a
+    - tileId: 322
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_322
+      spriteId: f8ca86805f305bf42b84bea8010992e3
+    - tileId: 323
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_323
+      spriteId: 58a0e6ede1138f44c985cc389fb7e345
+    - tileId: 324
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_324
+      spriteId: 00376aa08cf985346974e783741ead06
+    - tileId: 325
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_325
+      spriteId: e6abb1bb25670224394b6cf4e37a50e1
+    - tileId: 326
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_326
+      spriteId: 971c1e67876dfe5418bd7bfecaf458b0
+    - tileId: 327
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_327
+      spriteId: b41a1df1879b61a4c981cf9707b0253a
+    - tileId: 328
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_328
+      spriteId: b0bd1240090864543ba694fd8c01b5c5
+    - tileId: 329
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_329
+      spriteId: 26e1a7afea489da4480717485974cb0d
+    - tileId: 330
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_330
+      spriteId: 2b3dea25b1551b242a9c6a0d38003157
+    - tileId: 331
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_331
+      spriteId: c9e13743aedbe1f41831d01e34a068ed
+    - tileId: 332
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_332
+      spriteId: f44aee33c02e546499ea7eb73b745fa1
+    - tileId: 333
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_333
+      spriteId: 4d3f7698e264d4f4fb76b2a81043d019
+    - tileId: 334
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_334
+      spriteId: 72477994b79934e4dacbb1df7e1788aa
+    - tileId: 335
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_335
+      spriteId: 1bfd89e60b04f0744ab514f34b5a1387
+    - tileId: 336
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_336
+      spriteId: 05bf433857ff8224592aafd3d3f46e75
+    - tileId: 337
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_337
+      spriteId: b79956976f2764240a4ed618990a753f
+    - tileId: 338
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_338
+      spriteId: 24664a6dc5a3860438d61fbfcdf9a3cb
+    - tileId: 339
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_339
+      spriteId: b67aefeb117ef2f42b1c37996e8201ee
+    - tileId: 340
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_340
+      spriteId: 2af7aa69f02e4c54e9c8a7c9e9970d47
+    - tileId: 341
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_341
+      spriteId: f72177fe4a04c7e47b8fc467b47ede52
+    - tileId: 342
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_342
+      spriteId: 69a3979622747e64d8615653b520620b
+    - tileId: 343
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_343
+      spriteId: e5f425c7adf61c541b2d521b86ca18ae
+    - tileId: 344
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_344
+      spriteId: 12b3b8314f4f195449518a6814616c1e
+    - tileId: 345
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_345
+      spriteId: 5e2b5fccb867e52449b403c295abf817
+    - tileId: 346
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_346
+      spriteId: 593d243278049b148a8f244b3b4418ed
+    - tileId: 347
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_347
+      spriteId: b50215783c32d5a43a127be7d7a1c078
+    - tileId: 348
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_348
+      spriteId: 7d643b407631b9441a5f361f249cf3c3
+    - tileId: 349
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_349
+      spriteId: 718495250be7c5042ab7599facac0f50
+    - tileId: 350
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_350
+      spriteId: 690ed4b6023db634399b3fc0a91c3a44
+    - tileId: 351
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_351
+      spriteId: 3862170218146d341a8fbfe671edc4a2
+    - tileId: 352
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_352
+      spriteId: 49ece11853ef5b94983db408963b6d39
+    - tileId: 353
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_353
+      spriteId: cc5b46355a799a441b639004a4b63663
+    - tileId: 354
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_354
+      spriteId: 89da6b25f98263d468f4ed47b4ffbe3b
+    - tileId: 355
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_355
+      spriteId: d13b54296debfe2429f4e1f76a32a2f7
+    - tileId: 356
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_356
+      spriteId: db3f0acc4e122d0469082483b1dd977e
+    - tileId: 357
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_357
+      spriteId: 1adbf78f1ad5f644bb061fe085f819f3
+    - tileId: 358
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_358
+      spriteId: a16958d0573012d4f86ffbf5a7c7afc7
+    - tileId: 359
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_359
+      spriteId: 52f5940e8fe0ea24da9bf2031fd7a319
+    - tileId: 360
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_360
+      spriteId: a9ac1e460cce84643948177e2dc9e9a4
+    - tileId: 361
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_361
+      spriteId: 7b9fd51e3182b9c4f943d9ce21a7b08d
+    - tileId: 362
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_362
+      spriteId: 9aaa7e5917571084da17e4b9f45ef80b
+    - tileId: 363
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_363
+      spriteId: 75b94c54ae8d1fe43842548f4eb22e82
+    - tileId: 364
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_364
+      spriteId: 701a2f8a11aae4541985078110a7e539
+    - tileId: 365
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_365
+      spriteId: 6e8f0b97fcfbc9c4892ff6a00a04b121
+    - tileId: 366
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_366
+      spriteId: 14c14685dec418d4eb7e3f8c27c9688e
+    - tileId: 367
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_367
+      spriteId: c2050ba522a7fe64dbb2c0d74d6f0ad6
+    - tileId: 368
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_368
+      spriteId: 258b8091bf6af794096b4e585d21d497
+    - tileId: 369
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_369
+      spriteId: cc86bd6f57856b847824bf789521e1a9
+    - tileId: 370
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_370
+      spriteId: 8dd1b667eb2923546b04b4eb4ae22b9f
+    - tileId: 371
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_371
+      spriteId: 31b982d9f949b7348896b89565b34835
+    - tileId: 372
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_372
+      spriteId: 3d66e20f8128d3849ad8b7e0e63500a6
+    - tileId: 373
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_373
+      spriteId: ebbd0a6b2cb90764cb0eb9531ae90598
+    - tileId: 374
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_374
+      spriteId: f46f8180f9358534895fb3cc8f8dc126
+    - tileId: 375
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_375
+      spriteId: 53fedcb3975dba64b96dc64f6d43e552
+    - tileId: 376
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_376
+      spriteId: 63dfb0a02eb8a50439d2736f4425303b
+    - tileId: 377
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_377
+      spriteId: 72898ce16239a9e47b15ce6cf4c8a8ca
+    - tileId: 378
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_378
+      spriteId: ecfb219e4e9caed4984303b299fc6029
+    - tileId: 379
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_379
+      spriteId: a635b27cbff4f3a43aff7aad9c143f3c
+    - tileId: 380
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_380
+      spriteId: 90b33dd90cec95c4a8b1b890903c839e
+    - tileId: 381
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_381
+      spriteId: c66fdb86c580aae438751afc573efff0
+    - tileId: 382
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_382
+      spriteId: b7fdb564b5d76434f803be11c06142f6
+    - tileId: 383
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_383
+      spriteId: 2c70e867ec0bd7a4aa69ad9bb91027ac
+    - tileId: 384
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_384
+      spriteId: e2e9dbdf51b17014a839b7fa1a242d04
+    - tileId: 385
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_385
+      spriteId: ec15c79437b571a4a89daf8862aaed74
+    - tileId: 386
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_386
+      spriteId: 37c2b81f866dbd24cb364cebbc6869e1
+    - tileId: 387
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_387
+      spriteId: 696ff4cd6bd52c942bdf90956ea1e291
+    - tileId: 388
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_388
+      spriteId: af8c5d867ccc70d4a9b273d463c95fdd
+    - tileId: 389
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_389
+      spriteId: 18f88910e55c387419077eae25641fdb
+    - tileId: 390
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_390
+      spriteId: d504a3dcb3f36b847826f8e364bc7634
+    - tileId: 391
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_391
+      spriteId: c7d6a8cdb3914e54181363a555ae2419
+    - tileId: 392
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_392
+      spriteId: 103cb14c8f24fbc4eb09d19f376fd863
+    - tileId: 393
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_393
+      spriteId: 648a64c3a00f74a428baeb53e32665a9
+    - tileId: 394
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_394
+      spriteId: d7b4a10d051f28646aa516ce0178297b
+    - tileId: 395
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_395
+      spriteId: 1859a30d6afe9d7499240742b129a01a
+    - tileId: 396
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_396
+      spriteId: 4ddc900c16e4cab449534c20e4a412f4
+    - tileId: 397
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_397
+      spriteId: 108d1a7efd1933741bcb56fea2d9578f
+    - tileId: 398
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_398
+      spriteId: 0d4d7d65608709941bb967230fbd2a4a
+    - tileId: 399
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_399
+      spriteId: 83a64bdf2fe7cdc4284aaed3cc31af52
+    - tileId: 400
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_400
+      spriteId: f0dd2c9e5a797ef4eb2d9d04d3f6ae3c
+    - tileId: 401
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_401
+      spriteId: f912ebd22a9ac2c41bd1895fc9c2cfb1
+    - tileId: 402
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_402
+      spriteId: 31c0a5d64979f5f4aa730295a1b69c0b
+    - tileId: 403
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_403
+      spriteId: d3b6789fcf4664544905d29465382085
+    - tileId: 404
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_404
+      spriteId: 6d4a4de6073ccde478fe794fce2f0bf3
+    - tileId: 405
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_405
+      spriteId: 0e40358daf60c304990090a28df95cc0
+    - tileId: 406
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_406
+      spriteId: 6df79c12933c4534cb9cb0a173616308
+    - tileId: 407
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_407
+      spriteId: 986d101783231e64187812445f4647da
+    - tileId: 408
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_408
+      spriteId: 86e0ddbfad1ee9b4fa33834e85847ca4
+    - tileId: 409
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_409
+      spriteId: bde4f53730aeafd49aaa29774cc0d524
+    - tileId: 410
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_410
+      spriteId: 7897443ec18eab1438968d83b9d0c20e
+    - tileId: 411
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_411
+      spriteId: 2cec2340927bf97458087fae9605107b
+    - tileId: 412
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_412
+      spriteId: a516459fcb105634a857ceaf7f2eae4d
+    - tileId: 413
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_413
+      spriteId: a02163f4f86ccb0409f620b48391724d
+    - tileId: 414
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_414
+      spriteId: 17399fac646293f4e951d3849e25dc7e
+    - tileId: 415
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_415
+      spriteId: f603c67f67a52c242822b521e5e66f55
+    - tileId: 416
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_416
+      spriteId: 9ffe04040b51f4e4299357557ee7ae3f
+    - tileId: 417
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_417
+      spriteId: db5d4194c98d1dd43a96a1e5138ebf0b
+    - tileId: 418
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_418
+      spriteId: 2d6f80152f496e94797942474ba25e0a
+    - tileId: 419
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_419
+      spriteId: 4eeface35435c6d4dac474283c740c07
+    - tileId: 420
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_420
+      spriteId: b9c6c03a656ba954a93017db9767d815
+    - tileId: 421
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_421
+      spriteId: 605ede6a525a1124bb933ee485913e96
+    - tileId: 422
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_422
+      spriteId: 087661f975613bf4a82c3e43ffaa144b
+    - tileId: 423
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_423
+      spriteId: 03877b369a0ad114797abc292f06f100
+    - tileId: 424
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_424
+      spriteId: c4373ac8cb2234c48aec9f42c54cabcd
+    - tileId: 425
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_425
+      spriteId: 838e1553a305aa644828ef51d55efd72
+    - tileId: 426
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_426
+      spriteId: 624c9c76aaf41be4e98db6160d4a6321
+    - tileId: 427
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_427
+      spriteId: d366fd8690e38a74ea8ed4f1f45b6c8c
+    - tileId: 428
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_428
+      spriteId: 849d65e7cbd5839418634935275da452
+    - tileId: 429
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_429
+      spriteId: 95dc6fbf9fe3bdc4e8c5981782e4ae1f
+    - tileId: 430
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_430
+      spriteId: 4da272c32b01db2449128acd9b2968e4
+    - tileId: 431
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_431
+      spriteId: 33db3eff93c36f1448aaeefaf52e9224
+    - tileId: 432
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_432
+      spriteId: d1108075104c84f40ae369fdf206b38c
+    - tileId: 433
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_433
+      spriteId: e270a869491c4ee4fb207b1a0bddf5d2
+    - tileId: 434
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_434
+      spriteId: d1b14146a5611e846a9c2b5e67f46b72
+    - tileId: 435
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_435
+      spriteId: 3442624610043eb4a810604652ea7b39
+    - tileId: 436
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_436
+      spriteId: 8cb30c38dc3c8af48a83abf2e7ee7c92
+    - tileId: 437
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_437
+      spriteId: d6b834d4a899dce4491cc46c338a3ada
+    - tileId: 438
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_438
+      spriteId: b9b6906bd2b6fea4d8dd76ab3c94071f
+    - tileId: 439
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_439
+      spriteId: 8766504456535dd41ae9916b7786a965
+    - tileId: 440
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_440
+      spriteId: 4c8022e6ab11fd241a2e065fc4baac56
+    - tileId: 441
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_441
+      spriteId: 960d9775d194b04499d99f25741269d4
+    - tileId: 442
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_442
+      spriteId: 4b72214bb78419f4dafb42e95384e516
+    - tileId: 443
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_443
+      spriteId: fb4bfdd7597a9724aa0541adc99ff4f0
+    - tileId: 444
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_444
+      spriteId: d0607f552a734d6469a224f30cc3ddb3
+    - tileId: 445
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_445
+      spriteId: fb33cb5d16d4d874d81893223350fd7c
+    - tileId: 446
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_446
+      spriteId: 6d0cdfe62a358d8428d5b950c98684b9
+    - tileId: 447
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_447
+      spriteId: 569e97f7e884cbb4f883af4e1c7a75a3
+    - tileId: 448
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_448
+      spriteId: 426dd3285ca73c248b3c835c332f499d
+    - tileId: 449
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_449
+      spriteId: 6e69d1ba1bc9c5c49a6db46d1d4597ea
+    - tileId: 450
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_450
+      spriteId: cadefc6c921645e49a28067230a1491d
+    - tileId: 451
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_451
+      spriteId: 5d8c7a334953ece4da4341ff0035c7a8
+    - tileId: 452
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_452
+      spriteId: 1f3125275a8d6774cb1c2d2061e6be57
+    - tileId: 453
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_453
+      spriteId: 8b02ee79719d89e4393e5e26942cfacc
+    - tileId: 454
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_454
+      spriteId: 82c6d7692516eef4790495336783b1ca
+    - tileId: 455
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_455
+      spriteId: aa344e338350e2240bd4221299b122e3
+    - tileId: 456
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_456
+      spriteId: aacdd4111785fa944b52679a59dc2710
+    - tileId: 457
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_457
+      spriteId: 271f98f04b1d3034b9388ca77647a51e
+    - tileId: 458
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_458
+      spriteId: 7b2f07eb177dab04fbb5b9b4976df50b
+    - tileId: 459
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_459
+      spriteId: 53ad7534d9caa514596ec4e3b87d81a8
+    - tileId: 460
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_460
+      spriteId: 09241fbbfdef2a54c99594aab44f4be6
+    - tileId: 461
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_461
+      spriteId: 45b5a000f5631af4eac303a62e572058
+    - tileId: 462
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_462
+      spriteId: 23074e0ed403dea49ba06747ee4cb60d
+    - tileId: 463
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_463
+      spriteId: 902fa34ef2446c449a1ca7879f815122
+    - tileId: 464
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_464
+      spriteId: 18ed04ab2e228574b8cd5777feb6c298
+    - tileId: 465
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_465
+      spriteId: 78b05455662d50a4baabdf2bfc14423b
+    - tileId: 466
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_466
+      spriteId: a079d3b0b7bf4614fa4aa2a9a1632c0b
+    - tileId: 467
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_467
+      spriteId: 7a2b0a685b12fdf4f89ee9cc409aada6
+    - tileId: 468
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_468
+      spriteId: e27cb3a8455195e42a2c33ed31152ec6
+    - tileId: 469
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_469
+      spriteId: 9b19cffdba33add499b277e05226397e
+    - tileId: 470
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_470
+      spriteId: a8c6e65ead16fc8478df8629e3158abf
+    - tileId: 471
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_471
+      spriteId: 9a3ef7841b2266540aac9e5388f599f6
+    - tileId: 472
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_472
+      spriteId: b47d7d66de16b5442bc2e8c63d31e069
+    - tileId: 473
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_473
+      spriteId: cf9f0c89dd8c9ba4188b54d4961ea1a3
+    - tileId: 474
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_474
+      spriteId: 68a5470429efa46439ebdf21c5ec7fc5
+    - tileId: 475
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_475
+      spriteId: 0a75f226ef6394641871cda4fd236936
+    - tileId: 476
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_476
+      spriteId: b8b8eccf9f474bb4490290e7f21d94be
+    - tileId: 477
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_477
+      spriteId: 2a251c17245619d41a524be7f911c589
+    - tileId: 478
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_478
+      spriteId: a8eff38305549ef449e90ad20f5c2025
+    - tileId: 479
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_479
+      spriteId: 0a05c672ef2bc0b4a9fd1827c30fb712
+    - tileId: 480
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_480
+      spriteId: 239b2ea40bafa984ea207f341f348b37
+    - tileId: 481
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_481
+      spriteId: d390e7bc5d2f68d4eac6fab305cad3db
+    - tileId: 482
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_482
+      spriteId: e77c02230d0d9ab4babf5659112be2f2
+    - tileId: 483
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_483
+      spriteId: ae6b09c6c0c3fd449b67f1758715a1b4
+    - tileId: 484
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_484
+      spriteId: 62a1286eac5db314d818032fd19c0f0b
+    - tileId: 485
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_485
+      spriteId: d376997de5d473948b327f867fac7f54
+    - tileId: 486
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_486
+      spriteId: 7ecc841e32a8ea7478e81f2434dbe486
+    - tileId: 487
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_487
+      spriteId: 8b9ea28316f49df428a1c64ad81b1fe9
+    - tileId: 488
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_488
+      spriteId: 37e160f9372ba9c4faf2b5613cf34616
+    - tileId: 489
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_489
+      spriteId: 1a2b70a44e33da34eb286d6181dbb866
+    - tileId: 490
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_490
+      spriteId: 19b7f8c0d11963f4cb2c32ecfac5abd6
+    - tileId: 491
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_491
+      spriteId: 47673ffbbf55e6747bf1611513c815de
+    - tileId: 492
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_492
+      spriteId: 4289130abf2296540b078158c6994942
+    - tileId: 493
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_493
+      spriteId: 3a28134a16696ef4d9ed7df54ce34f6e
+    - tileId: 494
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_494
+      spriteId: a56675b9e91857f44845ccaa426ecbb7
+    - tileId: 495
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_495
+      spriteId: 44baca77bd6703a43bfa07f649f6e209
+    - tileId: 496
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_496
+      spriteId: 9399082c25ddda14487f47d7eb4d4c66
+    - tileId: 497
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_497
+      spriteId: 5421e77184582a94ab69867e2c0796b3
+    - tileId: 498
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_498
+      spriteId: 8714db089adb1a24b8c571e63d054cd1
+    - tileId: 499
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_499
+      spriteId: 6da45bf8a3d9b59439b2fbd353860af6
+    - tileId: 500
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_500
+      spriteId: 890f2254cd0982e4ca5fe86cd96a5e39
+    - tileId: 501
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_501
+      spriteId: 19f9acc708cdfea4cb0c344859a6c1ba
+    - tileId: 502
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_502
+      spriteId: 8af0e4adfdf334a4599a343b0ca70501
+    - tileId: 503
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_503
+      spriteId: 37aedf50de37b074e84676e8ddadb5e5
+    - tileId: 504
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_504
+      spriteId: 8bb7419bc041e3842a37787a5e798ed2
+    - tileId: 505
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_505
+      spriteId: 149ae0d05f427b74188f875f21fe167a
+    - tileId: 506
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_506
+      spriteId: 061ca0b12986a234f9f36f9229c4b1cf
+    - tileId: 507
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_507
+      spriteId: c4ad0b3e52666bc4d8f4b38345b792cf
+    - tileId: 508
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_508
+      spriteId: 250ba1d9ffaf2634686d55e4cfce3d47
+    - tileId: 509
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_509
+      spriteId: 3da6ad3e4dedf4e4fa77250df050b1cb
+    - tileId: 510
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_510
+      spriteId: 0b863960f45e2dc41bcd926732d10fcf
+    - tileId: 511
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_511
+      spriteId: e39985d13cc3ed14dbd430ba59058f4a
+    - tileId: 512
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_512
+      spriteId: 7966b024c368acd4a8ebf14c1df6722e
+    - tileId: 513
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_513
+      spriteId: fc71d1d3c8b9e7948b22eac86cd0abaa
+    - tileId: 514
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_514
+      spriteId: 1d3482d126c75e14d8a890238ea0fd4b
+    - tileId: 515
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_515
+      spriteId: 5c3dd5e900d9d85468906d4af25cb935
+    - tileId: 516
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_516
+      spriteId: 713db1125514f92499f454c071a483b4
+    - tileId: 517
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_517
+      spriteId: 1094e985558ee7349a3645d7c61f6644
+    - tileId: 518
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_518
+      spriteId: 6b4e694bac9afb646831548f6e2965fe
+    - tileId: 519
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_519
+      spriteId: dac381e03edeb5e40a03852ce2cac3b2
+    - tileId: 520
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_520
+      spriteId: 9a535a5f6e27d5a47be0e41c6890c691
+    - tileId: 521
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_521
+      spriteId: f26315af42756454fad83d40b7dfc465
+    - tileId: 522
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_522
+      spriteId: 4f0d1eee641c7ee45ae5f885fd0abdc4
+    - tileId: 523
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_523
+      spriteId: 6a767aa8a6a6b7a4fbac763650a9e11f
+    - tileId: 524
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_524
+      spriteId: e7b7ab77a29283140983e15183ec139a
+    - tileId: 525
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_525
+      spriteId: 101e314892abc05448eb1bb5007732cf
+    - tileId: 526
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_526
+      spriteId: 8fead169b35880a429f1a3a60a78191c
+    - tileId: 527
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_527
+      spriteId: 158d264a5de24b841b5aac226ad95fed
+    - tileId: 528
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_528
+      spriteId: 59495bf5255e56745a8788fc5ef4c1c1
+    - tileId: 529
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_529
+      spriteId: c6d143db842a2b44fa05f6341dae28a1
+    - tileId: 530
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_530
+      spriteId: 13f026acb88dc7f4a8975839244900aa
+    - tileId: 531
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_531
+      spriteId: a32c7368e14b8b1408653e7eb2ab7275
+    - tileId: 532
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_532
+      spriteId: a6c325859e411e34c996d64ff450ec1f
+    - tileId: 533
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_533
+      spriteId: 1b6778af4fe6709489f3ca9f89af99f6
+    - tileId: 534
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_534
+      spriteId: 3bbf9a99a9652134bacf24db78d2a0a0
+    - tileId: 535
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_535
+      spriteId: 61445a5c0ca517b449d79f4b701f6c87
+    - tileId: 536
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_536
+      spriteId: ba48733f8eb1ccd4bae78f0fe885d9b8
+    - tileId: 537
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_537
+      spriteId: 2d39fd515a0368d43b6e83fe224efb30
+    - tileId: 538
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_538
+      spriteId: 8ae827c44d2ce58438b24ea95d915502
+    - tileId: 539
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_539
+      spriteId: d22e8f0970639334d8c8d5bb586ef39a
+    - tileId: 540
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_540
+      spriteId: 4ebc1efdec8ccbc418807100c4a40d85
+    - tileId: 541
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_541
+      spriteId: 36744b198561ac24cb8c4a6ddab1f36c
+    - tileId: 542
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_542
+      spriteId: 4f2424123fadd314f82e17777d7d0109
+    - tileId: 543
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_543
+      spriteId: 45162f91d667a7c478e195c1074a0329
+    - tileId: 544
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_544
+      spriteId: 3a827bff6eeecb243bd18f46cea2efe7
+    - tileId: 545
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_545
+      spriteId: ae31f55de5b044443a4c91087d58bcf9
+    - tileId: 546
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_546
+      spriteId: ed923fab5fe1fa941ad6eeeffbee0f8f
+    - tileId: 547
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_547
+      spriteId: 6f62a22a9e420fd49abdb5160678b7c9
+    - tileId: 548
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_548
+      spriteId: 05902ca1a4991f946afe5eed477ea76f
+    - tileId: 549
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_549
+      spriteId: d888c66f890ccf54b878e49ae7ef1314
+    - tileId: 550
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_550
+      spriteId: 27400b612b7c51b42947adf134010480
+    - tileId: 551
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_551
+      spriteId: e9b8b49b6e3e3aa4084b9d6140305088
+    - tileId: 552
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_552
+      spriteId: a5fe22f6cdd08134181029b4e177f1ab
+    - tileId: 553
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_553
+      spriteId: 4ef7ac5b2dbfbec4bb14fa4bebb5c739
+    - tileId: 554
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_554
+      spriteId: e4d85a8f24802364a8edc4989851d221
+    - tileId: 555
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_555
+      spriteId: 9a08fc294d136104793681a0cd9ae0d9
+    - tileId: 556
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_556
+      spriteId: 19ee629b053ae3a45aa4bd050521c3d7
+    - tileId: 557
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_557
+      spriteId: 534e7ec5f2993704590bab11d56c04b7
+    - tileId: 558
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_558
+      spriteId: 15e9146b6115f3946bc45f5ad93b3237
+    - tileId: 559
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_559
+      spriteId: 13f02bc2e3d4b6843a41d9dbd5106001
+    - tileId: 560
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_560
+      spriteId: 5c4e72ade369b694e82af629b0f17b12
+    - tileId: 561
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_561
+      spriteId: 6576a6342266fce41b54718a2c6677f7
+    - tileId: 562
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_562
+      spriteId: 5d948126231e6194daf2756d5568f748
+    - tileId: 563
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_563
+      spriteId: c264802536bd56b4d88f52fa3589b3c7
+    - tileId: 564
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_564
+      spriteId: 18b9829c7992dae43b061200a17a805d
+    - tileId: 565
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_565
+      spriteId: 70a5c091f53b8034f8bb1f96cf314d6d
+    - tileId: 566
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_566
+      spriteId: aa4a76e08b78c284fb21aaa6e8ca0452
+    - tileId: 567
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_567
+      spriteId: bb5f4022b4b288a4f881c0eeb0082c4b
+    - tileId: 568
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_568
+      spriteId: be5d82376d06cdf418979b3ae0a504cb
+    - tileId: 569
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_569
+      spriteId: e26732de116bd60468230fbbe14e6e59
+    - tileId: 570
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_570
+      spriteId: 2bb969047746be340b432aaf91accd51
+    - tileId: 571
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_571
+      spriteId: a93edabbc166d8b4d80fc4a114f0cf5a
+    - tileId: 572
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_572
+      spriteId: fa2252b50af53d6409e4596de3e46aad
+    - tileId: 573
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_573
+      spriteId: a305abe29e11ce745a0db01f1f2f71bd
+    - tileId: 574
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_574
+      spriteId: 378f4890f01c9d647a41e237df40624d
+    - tileId: 575
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_575
+      spriteId: 79f9fe871c7a2234689be468e914db6b
+    - tileId: 576
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_576
+      spriteId: e9a2f2fb0dc2b954da36847c204115a6
+    - tileId: 577
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_577
+      spriteId: ac23e0b3875051d4aba5413e5c37f4a2
+    - tileId: 578
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_578
+      spriteId: 995444ead69c01a48967958967be73e5
+    - tileId: 579
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_579
+      spriteId: 1e01baded4f5ab54294a2ad73f8604ee
+    - tileId: 580
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_580
+      spriteId: e9fd63d6f797001419e733506ed60b0c
+    - tileId: 581
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_581
+      spriteId: 636480d841a1835418e49a9d1f4b36f2
+    - tileId: 582
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_582
+      spriteId: 59bfbf25958c421479aa896a29b981e0
+    - tileId: 583
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_583
+      spriteId: 027e10880a30a9142b854bdcb9e4f339
+    - tileId: 584
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_584
+      spriteId: 5c381a73f9714b045868d099cd0895ac
+    - tileId: 585
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_585
+      spriteId: 2092bee6c362d994aba0ab0004154f61
+    - tileId: 586
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_586
+      spriteId: 6252874cfa2e45948829e156eeca8093
+    - tileId: 587
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_587
+      spriteId: 468e8b0b7bb88b841ab583135d019f9e
+    - tileId: 588
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_588
+      spriteId: 6663821f0e1776a4883e645766a1cb3b
+    - tileId: 589
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_589
+      spriteId: fc6032d9606e771439a95998d58ba5ec
+    - tileId: 590
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_590
+      spriteId: 6283ef82d82137c408c8732047ee1050
+    - tileId: 591
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_591
+      spriteId: b511dd549fe0bb14882040d0a3703176
+    - tileId: 592
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_592
+      spriteId: a651622e6fd09ba4aacd930f78864391
+    - tileId: 593
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_593
+      spriteId: a5e983ab9d9046042a02e7775513f270
+    - tileId: 594
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_594
+      spriteId: f947c5f2f4233344bbfe02ec717e776c
+    - tileId: 595
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_595
+      spriteId: 45210980877949c40b02114d11111ac5
+    - tileId: 596
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_596
+      spriteId: 0bf06d66952138144a8b62a1fbc30e87
+    - tileId: 597
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_597
+      spriteId: 6052a26f532db5a4d893a52dbe71e2fa
+    - tileId: 598
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_598
+      spriteId: 5908484d1e48c8f43864f995b990f729
+    - tileId: 599
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_599
+      spriteId: eb0f3b847f6fcbb42b6710bd9a29bfdf
+    - tileId: 600
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_600
+      spriteId: be07fc9ad2df9b34596ee350ae3c6222
+    - tileId: 601
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_601
+      spriteId: 5bfbcf4d02f46fa4bbd7b6884bd5a8ed
+    - tileId: 602
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_602
+      spriteId: b8011b51efa1e9f4289b6d7068b104aa
+    - tileId: 603
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_603
+      spriteId: 94185d131b7664042af63ba22e80fb7c
+    - tileId: 604
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_604
+      spriteId: eac37deab9812634bbb809d734412e17
+    - tileId: 605
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_605
+      spriteId: b7085cc83c7d5ee40aba58d44870bbab
+    - tileId: 606
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_606
+      spriteId: 729e87b5079d3e94c87cb4520d95fbc1
+    - tileId: 607
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_607
+      spriteId: 5b0f6dca3313ff944ae822a7e7d055da
+    - tileId: 608
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_608
+      spriteId: 6e95c38b7ea51df44a9ae797d7d829b7
+    - tileId: 609
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_609
+      spriteId: a53dc3f0898ede741b981f892ee04be0
+    - tileId: 610
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_610
+      spriteId: f5cb4e4be652d1544ae1ce2a21fa4e34
+    - tileId: 611
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_611
+      spriteId: 119b60ca7fb2f014c8e0a2324697e7d3
+    - tileId: 612
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_612
+      spriteId: cf013eac2ec02e647ac609f3f130b639
+    - tileId: 613
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_613
+      spriteId: 7f90bcda058fa5c43a9cd5af309bdf63
+    - tileId: 614
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_614
+      spriteId: e5ca9cbd329ef3c498aa0e8cf9c4b340
+    - tileId: 615
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_615
+      spriteId: a7b794ce7a0441d49a09db166d4d7e44
+    - tileId: 616
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_616
+      spriteId: e757b856ef204594e85b1fe587eabac3
+    - tileId: 617
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_617
+      spriteId: 1f1c7ce7a6badd34788b5029cf22c1bd
+    - tileId: 618
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_618
+      spriteId: 1f0bb901c51f59c42b8c6612e11d659b
+    - tileId: 619
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_619
+      spriteId: 03d5a78dc036b1e4ab6f98157a9b7e65
+    - tileId: 620
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_620
+      spriteId: 6fb080aa2f6f1a94ea1769e1a7cd63cc
+    - tileId: 621
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_621
+      spriteId: 4fa1ea0f88fc4f147a542b445f02ef4e
+    - tileId: 622
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_622
+      spriteId: 054f8124eec97be4eaeddbb17dec0fd1
+    - tileId: 623
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_623
+      spriteId: 4aaf51424e1131248ad0391ff531a6d7
+    - tileId: 624
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_624
+      spriteId: 48cbac8b3e41ea2498e6619933cda836
+    - tileId: 625
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_625
+      spriteId: 5dfa9cf8cdee9ec4586024aa3fac9a4b
+    - tileId: 626
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_626
+      spriteId: 0d796b8b1a7cbab4cba97b64a0aaafff
+    - tileId: 627
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_627
+      spriteId: ebc5abb833f1ae9428c5795dc594b7c3
+    - tileId: 628
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_628
+      spriteId: 78cab3c3ae815e848860f8195aa3f730
+    - tileId: 629
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_629
+      spriteId: 3dc957b8f08620945bb585a77648b577
+    - tileId: 630
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_630
+      spriteId: 02410d03aea40b44d822226a3b7e380d
+    - tileId: 631
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_631
+      spriteId: 81efec05236412d4ca2a8d3043fcdee3
+    - tileId: 632
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_632
+      spriteId: e49bdbea9b87eb147b3502b09176a06f
+    - tileId: 633
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_633
+      spriteId: 162c82759118a164db60e30b43e41196
+    - tileId: 634
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_634
+      spriteId: 15e19c2e9b766e34a8e10764b198fd78
+    - tileId: 635
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_635
+      spriteId: 4ff72289ae890a54aac7a1ffe3ee1d7d
+    - tileId: 636
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_636
+      spriteId: c4d75be5d8d18984f955a5c559f9f39c
+    - tileId: 637
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_637
+      spriteId: 8d79f84bc473731439dbee10d2bdba13
+    - tileId: 638
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_638
+      spriteId: 3cf9b134e3e89924ca41dc155cc74f11
+    - tileId: 639
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_639
+      spriteId: 06daf381a47a3184e91b5f449bb0bc91
+    - tileId: 640
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_640
+      spriteId: 1103285030eedb04d8a82c87998a9913
+    - tileId: 641
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_641
+      spriteId: 6aef5173c74fcac4d9028d731a490c19
+    - tileId: 642
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_642
+      spriteId: 162043824b714de44b65a2238d808d96
+    - tileId: 643
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_643
+      spriteId: 5109d669831f3384b8a58357ac299084
+    - tileId: 644
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_644
+      spriteId: 7fa89993069c93e4c97366ce2e72092a
+    - tileId: 645
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_645
+      spriteId: d4c3ce4d638d2d74d8c66cb95d53d35d
+    - tileId: 646
+      size:
+        x: 16
+        y: 16
+      name: Tileset_1_646
+      spriteId: 5119ff0cccf29d84e939f360cdc4a763
+    guid: -1102076669
   platformSettings:
   - name: Default
     overridden: 0
