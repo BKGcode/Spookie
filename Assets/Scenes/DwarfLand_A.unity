@@ -375,14 +375,14 @@ MonoBehaviour:
   foregroundTile: {fileID: 11400000, guid: 340607957e4940f47813acefe201fef5, type: 2}
   tileTypes:
   - name: Dirt
-    tileData: {fileID: 0}
-    perlinThreshold: 0
+    tileData: {fileID: 11400000, guid: 74abdceedf750f5418bc65794c6a529d, type: 2}
+    perlinThreshold: 0.4
   - name: Rock
-    tileData: {fileID: 0}
-    perlinThreshold: 0
+    tileData: {fileID: 11400000, guid: ae60c8a3f5e2ee0449158f0bdb468776, type: 2}
+    perlinThreshold: 0.7
   - name: Gold
-    tileData: {fileID: 0}
-    perlinThreshold: 0
+    tileData: {fileID: 11400000, guid: b3b767d2c8aa78f4ab9a17b07dc71d8b, type: 2}
+    perlinThreshold: 1
 --- !u!114 &387822525
 MonoBehaviour:
   m_ObjectHideFlags: 0

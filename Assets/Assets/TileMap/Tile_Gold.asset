@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7d78f8ee395ecb4fb3ad2dd4dd0ccce, type: 3}
   m_Name: Tile_Gold
   m_EditorClassIdentifier: 
-  tileName: 
-  health: 0
-  backgroundTile: {fileID: 0}
+  tileName: Tile_Gold
+  health: 8
+  backgroundTile: {fileID: 11400000, guid: 341c35121d29ca8468af2afd1d58ddf4, type: 2}
   damageSprites: []
