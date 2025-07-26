@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f0f5aff6b1ed7b4dae66156a7debeae, type: 3}
+  m_Name: SO_Dwarf_B
+  m_EditorClassIdentifier: 
+  possibleNames:
+  - Lucia
+  possibleIcons:
+  - {fileID: -6251682230944352461, guid: 9fc5d6a43aa83eb429f6b99f0b96c44f, type: 3}
+  minTilesBeforeRandomSearch: 4
+  maxTilesBeforeRandomSearch: 8
+  movementSpeed: 4
+  miningPower: 8
+  maxStamina: 110
