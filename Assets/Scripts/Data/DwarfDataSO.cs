@@ -27,6 +27,8 @@ public class DwarfDataSO : ScriptableObject
     [Tooltip("Maximum amount of stamina the dwarf can have.")]
     public float maxStamina = 100f;
 
+    public string DwarfName => this.name;
+
     public DwarfState CreateStateInstance()
     {
         return new DwarfState(this);

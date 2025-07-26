@@ -1,101 +1,58 @@
 using UnityEngine;
-
-public enum MacroBehavior
-{
-    Working,
-    WanderingInCamp,
-    Sleeping,
-    PlayerOverride
-}
+using Dwarf.FSM;
 
 [RequireComponent(typeof(DwarfController), typeof(DwarfStateManager))]
 public class DwarfSupervisor : MonoBehaviour
 {
-    private DwarfStateManager stateManager;
-    private GameClockManager clockManager;
-
-    public MacroBehavior CurrentMacroBehavior { get; private set; }
-    private bool hasPlayerOrder;
+    private DwarfStateManager _stateManager;
+    private bool _hasPlayerOrder;
 
     private void Awake()
     {
-        stateManager = GetComponent<DwarfStateManager>();
-    }
-
-    private void Start()
-    {
-        // Find the clock manager once
-        clockManager = GameClockManager.Instance;
-        if (clockManager == null)
-        {
-            Debug.LogError("GameClockManager not found in the scene!");
-            enabled = false;
-        }
+        _stateManager = GetComponent<DwarfStateManager>();
     }
     
     private void OnEnable()
     {
-        GameEvents.OnMiningOrderGiven += HandlePlayerOrder;
+        GameEvents.OnMineTile += HandlePlayerOrder;
+        GameEvents.OnNightStart += GoToSleepIfNeeded;
     }
 
     private void OnDisable()
     {
-        GameEvents.OnMiningOrderGiven -= HandlePlayerOrder;
+        GameEvents.OnMineTile -= HandlePlayerOrder;
+        GameEvents.OnNightStart -= GoToSleepIfNeeded;
     }
 
-    private void Update()
+    private void GoToSleepIfNeeded()
     {
-        if (clockManager == null) return;
+        // Don't interrupt player orders
+        if (_hasPlayerOrder) return;
+        
+        // If already sleeping, do nothing
+        if (_stateManager.CurrentState is SleepingState) return;
 
-        MacroBehavior newBehavior;
-
-        if (hasPlayerOrder)
-        {
-            newBehavior = MacroBehavior.PlayerOverride;
-        }
-        else if (clockManager.IsWorkingHours)
-        {
-            newBehavior = MacroBehavior.Working;
-        }
-        else if (clockManager.IsWanderingHours)
-        {
-            newBehavior = MacroBehavior.WanderingInCamp;
-        }
-        else // IsSleepingHours
-        {
-            newBehavior = MacroBehavior.Sleeping;
-        }
-        
-        SetMacroBehavior(newBehavior);
-    }
-    
-    private void SetMacroBehavior(MacroBehavior behavior)
-    {
-        if (CurrentMacroBehavior == behavior) return;
-        
-        CurrentMacroBehavior = behavior;
-        Debug.Log($"Supervisor changed Macro Behavior to: {behavior}");
-        
-        // Notify the StateManager (Executor) about the change
-        stateManager.OnMacroBehaviorChanged(behavior);
+        Debug.Log($"Supervisor orders {gameObject.name} to sleep.");
+        _stateManager.ChangeState(new SleepingState(_stateManager));
     }
 
-    private void HandlePlayerOrder(DwarfController dwarf, Vector2Int targetPosition)
+    private void HandlePlayerOrder(Vector3 targetPosition)
     {
-        if (dwarf == GetComponent<DwarfController>())
+        // If this dwarf is selected, it has a player order.
+        if (_stateManager.DwarfController.IsSelected)
         {
-            hasPlayerOrder = true;
-            // The state manager will receive the order through its own event handler
+            _hasPlayerOrder = true;
         }
     }
     
     public void ReportTaskCompleted()
     {
-        hasPlayerOrder = false;
+        // Called by states when a task (like mining) is fully completed.
+        _hasPlayerOrder = false;
     }
 }
 
-// ScriptRole: The high-level "Supervisor" brain layer for a dwarf.
-// Dependencies: DwarfController, DwarfStateManager, GameClockManager
-// HandlesEvents: GameEvents.OnMiningOrderGiven
+// ScriptRole: The high-level "Supervisor" brain for a dwarf, mainly for handling sleep cycles.
+// Dependencies: DwarfController, DwarfStateManager
+// HandlesEvents: GameEvents.OnMineTile, GameEvents.OnNightStart
 // NeedsSetup: Attach to the dwarf prefab. 

@@ -1,29 +1,27 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using Dwarf.FSM;
 
 public class MoveToExactPositionState : IState
 {
-    private readonly DwarfStateManager stateManager;
-    private readonly Vector2Int targetPosition;
-    private readonly Action onArrival;
+    private readonly DwarfStateManager _stateManager;
+    private readonly Vector3 _targetPosition;
+    private readonly Action _onArrival;
 
-    public MoveToExactPositionState(DwarfStateManager manager, Vector2Int target, Action onArrivalCallback)
+    public MoveToExactPositionState(DwarfStateManager manager, Vector3 target, Action onArrivalCallback)
     {
-        stateManager = manager;
-        targetPosition = target;
-        onArrival = onArrivalCallback;
+        _stateManager = manager;
+        _targetPosition = target;
+        _onArrival = onArrivalCallback;
     }
 
     public void OnEnter()
     {
-        // This state assumes the target position is now walkable.
-        Debug.Log($"Dwarf '{stateManager.Controller.CurrentState.DwarfName}' is moving to occupy mined space at {targetPosition}.");
+        Debug.Log($"Dwarf '{_stateManager.DwarfController.DwarfData.DwarfName}' is moving to occupy mined space at {_targetPosition}.");
         
-        // We don't use the full Pathfinding system here, as it's just one step.
-        // We will create a simple, direct path.
-        var directPath = new System.Collections.Generic.List<Vector2Int> { targetPosition };
-        stateManager.Movement.OnPathCompleted += HandleArrival;
-        stateManager.Movement.FollowPath(directPath);
+        var directPath = new List<Vector3> { _targetPosition };
+        _stateManager.DwarfMovement.FollowPath(directPath, HandleArrival, HandleFailure);
     }
 
     public void OnUpdate()
@@ -33,13 +31,19 @@ public class MoveToExactPositionState : IState
 
     public void OnExit()
     {
-        stateManager.Movement.OnPathCompleted -= HandleArrival;
-        stateManager.Movement.Stop();
+        _stateManager.DwarfMovement.Stop();
     }
 
     private void HandleArrival()
     {
-        onArrival?.Invoke();
+        _onArrival?.Invoke();
+    }
+    
+    private void HandleFailure()
+    {
+        Debug.LogWarning("MoveToExactPositionState failed. Transitioning to wait.");
+        // If it fails for some reason, just go back to waiting to prevent getting stuck.
+        _stateManager.ChangeState(new WaitingInCampState(_stateManager));
     }
 }
 

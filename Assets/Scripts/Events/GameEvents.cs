@@ -15,6 +15,10 @@ public static class GameEvents
     public static event Action<DwarfController, Vector2Int> OnMiningOrderGiven;
     public static void ReportMiningOrderGiven(DwarfController dwarf, Vector2Int targetPosition) => OnMiningOrderGiven?.Invoke(dwarf, targetPosition);
 
+    // Called when the player clicks a tile to mine, without a specific dwarf. The selected dwarf should act.
+    public static event Action<Vector3> OnMineTile;
+    public static void ReportMineTile(Vector3 worldPosition) => OnMineTile?.Invoke(worldPosition);
+
     // Called by DwarfInitializer after all initial setup is complete.
     public static event Action OnGameReady;
     public static void ReportGameReady() => OnGameReady?.Invoke();
@@ -31,8 +35,11 @@ public static class GameEvents
     public static void ReportTimeUpdated(float currentTime, float maxTime) => OnTimeUpdated?.Invoke(currentTime, maxTime);
 
     // -- Dwarf Interaction Events --
-    public static event Action<DwarfState> OnDwarfSelected;
-    public static void ReportDwarfSelected(DwarfState dwarfState) => OnDwarfSelected?.Invoke(dwarfState);
+    public static event Action<DwarfController> OnDwarfSelected;
+    public static void ReportDwarfSelected(DwarfController dwarf) => OnDwarfSelected?.Invoke(dwarf);
+
+    public static event Action OnDeselectAllDwarfs;
+    public static void ReportDeselectAllDwarfs() => OnDeselectAllDwarfs?.Invoke();
 
     public static event Action<DwarfState> OnDwarfIsIdle;
     public static void ReportDwarfIsIdle(DwarfState dwarfState) => OnDwarfIsIdle?.Invoke(dwarfState);

@@ -1,48 +1,36 @@
 using UnityEngine;
-using System;
+using Dwarf.FSM;
 
 public class WaitingInCampState : IState
 {
-    private readonly DwarfStateManager stateManager;
-    private float waitTimer;
-    private readonly float waitDuration;
+    private readonly DwarfStateManager _stateManager;
+    private float _waitTimer;
+    private readonly float _waitDuration;
 
     public WaitingInCampState(DwarfStateManager manager)
     {
-        stateManager = manager;
-        waitDuration = UnityEngine.Random.Range(2f, 5f); // Wait for 2 to 5 seconds
+        _stateManager = manager;
+        _waitDuration = Random.Range(2f, 5f); // Wait for 2 to 5 seconds
     }
 
     public void OnEnter()
     {
-        Debug.Log($"Dwarf '{stateManager.Controller.CurrentState.DwarfName}' is waiting in camp for {waitDuration:F1}s.");
-        stateManager.Controller.CurrentState.CurrentStatus = "Wandering";
-        GameEvents.OnNightStart += GoToSleep;
+        Debug.Log($"Dwarf '{_stateManager.DwarfController.DwarfData.DwarfName}' is waiting in camp for {_waitDuration:F1}s.");
+        // If there's a status property to update, it would be done here.
     }
 
     public void OnUpdate()
     {
-        waitTimer += Time.deltaTime;
-        if (waitTimer >= waitDuration)
+        _waitTimer += Time.deltaTime;
+        if (_waitTimer >= _waitDuration)
         {
-            stateManager.ChangeState(new FindWanderPointState(stateManager));
+            _stateManager.ChangeState(new FindWanderPointState(_stateManager));
         }
     }
 
     public void OnExit()
     {
-        GameEvents.OnNightStart -= GoToSleep;
-    }
-
-    private void GoToSleep()
-    {
-        if (stateManager.CurrentState is WaitingInCampState)
-        {
-            Debug.Log("Night has fallen. Time to go to sleep.");
-            Action onArrivalAtCamp = () => stateManager.ChangeState(new SleepingState(stateManager));
-            var goHomeState = new PathfindingToTargetState(stateManager, MapGenerator.CampfirePosition, onArrivalAtCamp, onArrivalAtCamp);
-            stateManager.ChangeState(goHomeState);
-        }
+        // No cleanup needed for this simple state.
     }
 }
 

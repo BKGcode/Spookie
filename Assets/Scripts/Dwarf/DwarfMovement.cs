@@ -1,68 +1,90 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using System.Collections;
 
 [RequireComponent(typeof(DwarfController))]
 public class DwarfMovement : MonoBehaviour
 {
-    public event Action OnPathCompleted;
+    private Action _onPathCompleted;
+    private Action _onPathFailed;
     
-    private DwarfController controller;
-    private List<Vector2Int> currentPath;
-    private int pathIndex;
-    private bool isMoving;
+    private DwarfController _dwarfController;
+    private List<Vector3> _currentPath;
+    private int _pathIndex;
+    private bool _isMoving;
+    private Vector3Int _lastMovementDirection;
 
     private void Awake()
     {
-        controller = GetComponent<DwarfController>();
+        _dwarfController = GetComponent<DwarfController>();
     }
 
     private void Update()
     {
-        if (!isMoving || currentPath == null || pathIndex >= currentPath.Count) return;
+        if (!_isMoving || _currentPath == null || _pathIndex >= _currentPath.Count) return;
 
-        Vector3 targetPosition = Pathfinding.Instance.GridToWorldPosition(currentPath[pathIndex]);
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, controller.CurrentState.BaseStats.movementSpeed * Time.deltaTime);
+        Vector3 targetPosition = _currentPath[_pathIndex];
+        Vector3 currentPosition = transform.position;
 
-        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+        transform.position = Vector3.MoveTowards(currentPosition, targetPosition, _dwarfController.DwarfData.movementSpeed * Time.deltaTime);
+
+        Vector3Int newDirection = Vector3Int.RoundToInt((targetPosition - currentPosition).normalized);
+        if(newDirection != Vector3Int.zero)
         {
-            pathIndex++;
-            if (pathIndex >= currentPath.Count)
+            _lastMovementDirection = newDirection;
+        }
+
+        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        {
+            _pathIndex++;
+            if (_pathIndex >= _currentPath.Count)
             {
-                isMoving = false;
-                DwarfRegistry.UpdateDwarfPosition(controller, Pathfinding.Instance.WorldToGridPosition(transform.position));
-                OnPathCompleted?.Invoke();
-                Debug.Log($"Dwarf '{controller.CurrentState.DwarfName}' reached the end of the path.");
+                Stop();
+                _onPathCompleted?.Invoke();
+                Debug.Log($"Dwarf '{_dwarfController.DwarfData.DwarfName}' reached the end of the path.");
             }
         }
     }
 
-    public void FollowPath(List<Vector2Int> path)
+    public void FollowPath(List<Vector3> path, Action onCompleted, Action onFailed)
     {
         if (path == null || path.Count == 0)
         {
-            Debug.LogWarning($"Dwarf '{controller.CurrentState.DwarfName}' received an empty or null path.");
-            OnPathCompleted?.Invoke();
+            Debug.LogWarning($"Dwarf '{_dwarfController.DwarfData.DwarfName}' received an empty or null path.");
+            _onPathFailed?.Invoke();
             return;
         }
 
-        currentPath = path;
-        pathIndex = 0;
-        isMoving = true;
-        Debug.Log($"Dwarf '{controller.CurrentState.DwarfName}' starting path with {path.Count} nodes.");
+        _currentPath = path;
+        _pathIndex = 0;
+        _isMoving = true;
+        _onPathCompleted = onCompleted;
+        _onPathFailed = onFailed;
+        Debug.Log($"Dwarf '{_dwarfController.DwarfData.DwarfName}' starting path with {_currentPath.Count} nodes.");
     }
 
     public void Stop()
     {
-        isMoving = false;
-        currentPath = null;
-        pathIndex = 0;
-        Debug.Log($"Dwarf '{controller.CurrentState.DwarfName}' has stopped moving.");
+        _isMoving = false;
+        _currentPath = null;
+        _pathIndex = 0;
+        _lastMovementDirection = Vector3Int.zero;
+        Debug.Log($"Dwarf '{_dwarfController.DwarfData.DwarfName}' has stopped moving.");
+    }
+
+    public bool IsAtDestination()
+    {
+        return !_isMoving;
+    }
+
+    public Vector3Int GetLastMovementDirection()
+    {
+        return _lastMovementDirection;
     }
 }
 
 // ScriptRole: Handles the physical movement of the dwarf along a given path.
-// Dependencies: DwarfController, Pathfinding
-// TriggersEvents: OnPathCompleted
-// NeedsSetup: Attach to the dwarf prefab. 
+// RelatedScripts: DwarfController, Pathfinding, DwarfStateManager
+// UsesSO: DwarfDataSO
+// ReceivesFrom: DwarfStateManager (via method calls)
+// SendsTo: None (uses Actions for callbacks) 

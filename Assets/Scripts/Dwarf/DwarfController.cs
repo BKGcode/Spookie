@@ -2,23 +2,47 @@ using UnityEngine;
 
 public class DwarfController : MonoBehaviour
 {
-    [SerializeField] private DwarfDataSO dwarfData;
+    [SerializeField] private DwarfDataSO _dwarfData;
+    public DwarfDataSO DwarfData => _dwarfData;
     
-    public DwarfState CurrentState { get; private set; }
+    public bool IsSelected { get; private set; }
 
     private void Awake()
     {
-        CurrentState = dwarfData.CreateStateInstance();
-        gameObject.name = $"Dwarf_{CurrentState.DwarfName}";
+        gameObject.name = $"Dwarf_{_dwarfData.DwarfName}";
+    }
+    
+    private void OnEnable()
+    {
+        GameEvents.OnDwarfSelected += HandleDwarfSelected;
+        GameEvents.OnDeselectAllDwarfs += HandleDeselectAllDwarfs;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnDwarfSelected -= HandleDwarfSelected;
+        GameEvents.OnDeselectAllDwarfs -= HandleDeselectAllDwarfs;
+    }
+    
+    private void HandleDwarfSelected(DwarfController selectedDwarf)
+    {
+        IsSelected = (selectedDwarf == this);
+    }
+
+    private void HandleDeselectAllDwarfs()
+    {
+        IsSelected = false;
     }
 
     public void Initialize()
     {
-        Debug.Log($"Initializing dwarf: {CurrentState.DwarfName}");
-        // Future logic for initialization will go here.
+        // This can be used for any post-instantiation setup if needed.
+        Debug.Log($"Initialized {gameObject.name}");
     }
 }
 
-// ScriptRole: Manages the state and data of a single dwarf instance in the scene.
-// Dependencies: DwarfDataSO
-// NeedsSetup: Assign the corresponding DwarfDataSO asset. 
+// ScriptRole: Manages the dwarf's data (SO) and its selection state.
+// RelatedScripts: DwarfDataSO, DwarfStateManager, GameEvents
+// UsesSO: DwarfDataSO
+// ReceivesFrom: GameEvents (OnDwarfSelected, OnDeselectAllDwarfs)
+// SendsTo: None 

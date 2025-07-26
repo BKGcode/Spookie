@@ -1209,6 +1209,10 @@ PrefabInstance:
       propertyPath: dwarfData
       value: 
       objectReference: {fileID: 11400000, guid: 10c2330f85b03df4096a7616eeeee559, type: 2}
+    - target: {fileID: 3182250562505156179, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: _dwarfData
+      value: 
+      objectReference: {fileID: 11400000, guid: 10c2330f85b03df4096a7616eeeee559, type: 2}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -2383,6 +2387,10 @@ PrefabInstance:
       propertyPath: holdDuration
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 3182250562505156179, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: _dwarfData
+      value: 
+      objectReference: {fileID: 11400000, guid: 700eca328ba179143b8c2f02c4b3ddb1, type: 2}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.x
       value: 1

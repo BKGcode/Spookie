@@ -16,10 +16,10 @@ public class DwarfInitializer : MonoBehaviour
             // Register initial position
             Vector2Int startPosition = Pathfinding.Instance.WorldToGridPosition(dwarf.transform.position);
             DwarfRegistry.RegisterDwarf(dwarf, startPosition);
-            Debug.Log($"Registered {dwarf.CurrentState.DwarfName} at {startPosition}");
+            Debug.Log($"Registered {dwarf.DwarfData.DwarfName} at {startPosition}");
 
-            // Start the FSM now that everything is ready
-            dwarf.GetComponent<DwarfStateManager>().StartFSM();
+            // The DwarfStateManager now starts itself in its own Start() method.
+            // No need to call StartFSM().
         }
 
         // Signal that the game is ready for player input
@@ -31,8 +31,8 @@ public class DwarfInitializer : MonoBehaviour
 }
 
 // ScriptRole: A temporary utility to find and initialize all dwarves present in the scene at startup.
-// Dependencies: None
+// Dependencies: DwarfController, Pathfinding, DwarfRegistry
 // HandlesEvents: None
-// TriggersEvents: None
+// TriggersEvents: GameEvents.OnGameReady
 // UsesSO: None
-// NeedsSetup: Add this script to any manager-type GameObject in the scene (like GameClock). 
+// NeedsSetup: Add this script to any manager-type GameObject in the scene. 

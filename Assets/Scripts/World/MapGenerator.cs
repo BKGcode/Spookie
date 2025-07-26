@@ -135,6 +135,17 @@ public class MapGenerator : MonoBehaviour
         Debug.Log($"Tile at {position} destroyed and removed from data.");
     }
 
+    public Tilemap GetForegroundTilemap()
+    {
+        return foregroundLayer;
+    }
+
+    public bool IsMineable(int x, int y)
+    {
+        TileDataSO data = GetTileDataAt(new Vector2Int(x, y));
+        return data != null && data.isMineable;
+    }
+
     public void ApplyDamage(Vector2Int position, int damage)
     {
         if (tileHealth.ContainsKey(position))

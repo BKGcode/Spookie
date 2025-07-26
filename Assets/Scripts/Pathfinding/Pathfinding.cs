@@ -87,25 +87,47 @@ public class Pathfinding : MonoBehaviour
         SetWalkable(position, true);
     }
 
-    public List<Vector2Int> FindPath(Vector2Int startPosition, Vector2Int endPosition)
+    public Vector3Int? FindNearestWalkableNode(Vector3Int targetCell)
     {
-        PathNode startNode = grid[startPosition.x, startPosition.y];
-        PathNode endNode = grid[endPosition.x, endPosition.y];
-
-        // If the target tile is not walkable, find the nearest walkable neighbour
-        if (!endNode.isWalkable)
+        PathNode targetNode = GetNode(new Vector2Int(targetCell.x, targetCell.y));
+        if (targetNode != null && targetNode.isWalkable)
         {
-            PathNode nearestNode = FindNearestWalkableNeighbour(endNode);
-            if (nearestNode != null)
+            return targetCell;
+        }
+
+        // Check neighbors
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
             {
-                endNode = nearestNode;
-                Debug.Log($"Target is not walkable. Rerouting to nearest walkable neighbour: {endNode.gridPosition}");
+                if (x == 0 && y == 0) continue;
+
+                Vector2Int neighborPos = new Vector2Int(targetCell.x + x, targetCell.y + y);
+                PathNode neighborNode = GetNode(neighborPos);
+                if (neighborNode != null && neighborNode.isWalkable)
+                {
+                    return new Vector3Int(neighborNode.gridPosition.x, neighborNode.gridPosition.y, 0);
+                }
             }
-            else
-            {
-                Debug.LogWarning($"Target {endPosition} is not walkable and has no walkable neighbours. Pathfinding failed.");
-                return null;
-            }
+        }
+
+        Debug.LogWarning($"Target ({targetCell.x}, {targetCell.y}) has no walkable neighbours.");
+        return null;
+    }
+    
+    public List<Vector3> FindPath(Vector3 startWorldPos, Vector3 endWorldPos)
+    {
+        Vector2Int startPosition = WorldToGridPosition(startWorldPos);
+        Vector2Int endPosition = WorldToGridPosition(endWorldPos);
+
+        PathNode startNode = GetNode(startPosition);
+        PathNode endNode = GetNode(endPosition);
+
+        // If the target tile is not walkable, this should have been handled by the calling State
+        if (endNode == null || !endNode.isWalkable)
+        {
+            Debug.LogWarning($"Target {endPosition} is not walkable. Pathfinding requires a walkable target.");
+            return null;
         }
 
         Debug.Log($"[Pathfinding] Request: From {startPosition} To {endNode.gridPosition}. Is End Walkable? {endNode.isWalkable}");
@@ -132,9 +154,7 @@ public class Pathfinding : MonoBehaviour
             PathNode currentNode = GetLowestFCostNode(openList);
             if (currentNode == endNode)
             {
-                List<Vector2Int> path = ReconstructPath(endNode);
-                Debug.Log($"[Pathfinding] Path Found: {path.Count} nodes.");
-                return path;
+                return ReconstructPath(endNode);
             }
 
             openList.Remove(currentNode);
@@ -194,21 +214,21 @@ public class Pathfinding : MonoBehaviour
         return neighbourList;
     }
 
-    private List<Vector2Int> ReconstructPath(PathNode endNode)
+    private List<Vector3> ReconstructPath(PathNode endNode)
     {
         List<PathNode> path = new List<PathNode>();
         PathNode currentNode = endNode;
-        while(currentNode != null)
+        while (currentNode != null)
         {
             path.Add(currentNode);
             currentNode = currentNode.parentNode;
         }
         path.Reverse();
 
-        List<Vector2Int> vectorPath = new List<Vector2Int>();
-        foreach(var node in path)
+        List<Vector3> vectorPath = new List<Vector3>();
+        foreach (var node in path)
         {
-            vectorPath.Add(node.gridPosition);
+            vectorPath.Add(GridToWorldPosition(node.gridPosition));
         }
 
         return vectorPath;
