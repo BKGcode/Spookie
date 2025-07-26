@@ -553,7 +553,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 387822523}
-  - component: {fileID: 387822525}
   - component: {fileID: 387822524}
   m_Layer: 0
   m_Name: MAP_CONTROLLER
@@ -606,19 +605,7 @@ MonoBehaviour:
   - name: Gold
     tileData: {fileID: 11400000, guid: b3b767d2c8aa78f4ab9a17b07dc71d8b, type: 2}
     perlinThreshold: 1
---- !u!114 &387822525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387822522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a295edf16d550e542b3ec2922ca5ba64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  foregroundLayer: {fileID: 586136943}
+  tileDatas: []
 --- !u!224 &546490639 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 420548076942406346, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
@@ -1013,7 +1000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d1980d57298f5a4cb33f231f4202ba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapGenerator: {fileID: 387822524}
   foregroundTilemap: {fileID: 586136943}
 --- !u!4 &796790495
 Transform:

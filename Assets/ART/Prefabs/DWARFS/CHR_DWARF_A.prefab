@@ -96,11 +96,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6366338942314878910}
-  - component: {fileID: 2697404908279772900}
-  - component: {fileID: 7753724455019740773}
-  - component: {fileID: 5682561625978454681}
-  - component: {fileID: 1114431246757385866}
-  - component: {fileID: 1952585774382754734}
+  - component: {fileID: 6123427171592913538}
+  - component: {fileID: 6212110577386740485}
+  - component: {fileID: 3182250562505156179}
+  - component: {fileID: 4965307577679312388}
+  - component: {fileID: 2407674926569760598}
   m_Layer: 0
   m_Name: CHR_DWARF_A
   m_TagString: Untagged
@@ -124,45 +124,34 @@ Transform:
   - {fileID: 4090530391002549857}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2697404908279772900
-MonoBehaviour:
+--- !u!50 &6123427171592913538
+Rigidbody2D:
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4253300042273970006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee9d86b787abcb9409b72385c5e3d786, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &7753724455019740773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4253300042273970006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ece292bed0454bd478943a5349556405, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseStats: {fileID: 11400000, guid: 700eca328ba179143b8c2f02c4b3ddb1, type: 2}
-  gameSettings: {fileID: 11400000, guid: f5440fb5a10d9234098b2d9786afb1fd, type: 2}
---- !u!114 &5682561625978454681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4253300042273970006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58c98cea107f07142900e86215ec73de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!61 &1114431246757385866
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!61 &6212110577386740485
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -208,7 +197,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1952585774382754734
+--- !u!114 &3182250562505156179
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,7 +206,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 4253300042273970006}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 995f3f8f195a7a646956e4591bf53fbb, type: 3}
+  m_Script: {fileID: 11500000, guid: 5463930097b7ecd44bdc05068938285b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holdDuration: 0.2
+  dwarfData: {fileID: 11400000, guid: 700eca328ba179143b8c2f02c4b3ddb1, type: 2}
+--- !u!114 &4965307577679312388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253300042273970006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1feec0f1577fec04aa27b243d87ccc2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2407674926569760598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253300042273970006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88c2bd348b2ddc44a673aef76671752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
