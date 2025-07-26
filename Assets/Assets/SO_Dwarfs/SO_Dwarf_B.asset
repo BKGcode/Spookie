@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f0f5aff6b1ed7b4dae66156a7debeae, type: 3}
   m_Name: SO_Dwarf_B
   m_EditorClassIdentifier: 
-  dwarfName: Dwarf
+  possibleNames:
+  - Lucia
+  possibleIcons:
+  - {fileID: -6251682230944352461, guid: 9fc5d6a43aa83eb429f6b99f0b96c44f, type: 3}
   movementSpeed: 4
   miningPower: 8
   maxStamina: 110

@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 7753724455019740773}
   - component: {fileID: 5682561625978454681}
   - component: {fileID: 1114431246757385866}
+  - component: {fileID: 1952585774382754734}
   m_Layer: 0
   m_Name: CHR_DWARF_A
   m_TagString: Untagged
@@ -207,3 +208,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1952585774382754734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4253300042273970006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995f3f8f195a7a646956e4591bf53fbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  holdDuration: 0.5
