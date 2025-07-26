@@ -17,7 +17,13 @@ public class DwarfInitializer : MonoBehaviour
             Vector2Int startPosition = Pathfinding.Instance.WorldToGridPosition(dwarf.transform.position);
             DwarfRegistry.RegisterDwarf(dwarf, startPosition);
             Debug.Log($"Registered {dwarf.CurrentState.DwarfName} at {startPosition}");
+
+            // Start the FSM now that everything is ready
+            dwarf.GetComponent<DwarfStateManager>().StartFSM();
         }
+
+        // Signal that the game is ready for player input
+        GameEvents.ReportGameReady();
 
         // This script's job is done, so we can destroy it.
         Destroy(gameObject);

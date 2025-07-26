@@ -6,35 +6,21 @@ public class DwarfStateManager : MonoBehaviour
 {
     public IState CurrentState { get; private set; }
     
-    // References to be used by states
     public DwarfController Controller { get; private set; }
     public DwarfMovement Movement { get; private set; }
-    // Example: public Animator Animator { get; private set; }
+    public DwarfSupervisor Supervisor { get; private set; }
 
     private void Awake()
     {
-        // Initialize references
         Controller = GetComponent<DwarfController>();
         Movement = GetComponent<DwarfMovement>();
-        // Animator = GetComponent<Animator>();
-        Debug.Log("DwarfStateManager awakened.");
+        Supervisor = GetComponent<DwarfSupervisor>();
     }
 
-    private void OnEnable()
+    public void StartFSM()
     {
-        GameEvents.OnDwarfAssigned += HandleDwarfAssigned;
-    }
-
-    private void OnDisable()
-    {
-        GameEvents.OnDwarfAssigned -= HandleDwarfAssigned;
-    }
-
-    private void Start()
-    {
-        // Set the initial state to start wandering
-        ChangeState(new FindWanderPointState(this));
-        Debug.Log("DwarfStateManager started. Initial state set to FindWanderPoint.");
+        // The FSM now waits for the Supervisor's first command.
+        Debug.Log("DwarfStateManager FSM ready and waiting for Supervisor.");
     }
 
     private void Update()
@@ -46,39 +32,80 @@ public class DwarfStateManager : MonoBehaviour
     {
         CurrentState?.OnExit();
         CurrentState = newState;
-        CurrentState.OnEnter();
-        Debug.Log($"Dwarf state changed to: {newState.GetType().Name}");
+        CurrentState?.OnEnter();
+        Debug.Log($"Executor changed state to: {newState?.GetType().Name ?? "null"}");
     }
 
-    private void HandleDwarfAssigned(DwarfController dwarf, Vector2Int targetPosition)
+    public void OnMacroBehaviorChanged(MacroBehavior newBehavior)
     {
-        // Check if this is the dwarf that was assigned the task
-        if (dwarf == Controller)
+        // Avoid changing to the same macro-behavior logic.
+        // Also, PlayerOverride is handled by its own event, not this general method.
+        if (CurrentStateMatchesBehavior(newBehavior) || newBehavior == MacroBehavior.PlayerOverride) return;
+
+        switch (newBehavior)
         {
-            Debug.Log($"Task received: Move to {targetPosition}");
-
-            // Action to perform when pathfinding succeeds
-            Action onPathSuccess = () => {
-                // Check if the target tile is minable
-                if (Pathfinding.Instance.mapGenerator.GetTileDataAt(targetPosition) != null)
-                {
-                    ChangeState(new MiningState(this, targetPosition));
-                }
-                else
-                {
-                    Debug.Log("Target reached, but it's not minable. Going back to wandering.");
-                    ChangeState(new FindWanderPointState(this));
-                }
-            };
-
-            // Action to perform when pathfinding fails
-            Action onPathFailure = () => {
-                Debug.LogWarning("Pathfinding failed. Returning to wandering.");
+            case MacroBehavior.Working:
+                ChangeState(new FindNearestTileState(this));
+                break;
+            case MacroBehavior.WanderingInCamp:
                 ChangeState(new FindWanderPointState(this));
-            };
-
-            var pathfindingState = new PathfindingToTargetState(this, targetPosition, onPathSuccess, onPathFailure);
-            ChangeState(pathfindingState);
+                break;
+            case MacroBehavior.Sleeping:
+                GoToSleep();
+                break;
         }
     }
+
+    private void HandleMiningOrder(DwarfController dwarf, Vector2Int targetPosition)
+    {
+        if (dwarf != Controller) return;
+        if (CurrentState is SleepingState)
+        {
+            Debug.Log($"Dwarf '{Controller.CurrentState.DwarfName}' is sleeping and cannot be disturbed.");
+            return;
+        }
+
+        Debug.Log($"Player order received! Overriding current task.");
+
+        Action onPathSuccess = () =>
+        {
+            Action onMiningCompleted = () => Supervisor.ReportTaskCompleted();
+            ChangeState(new MiningState(this, targetPosition, onMiningCompleted));
+        };
+
+        Action onPathFailure = () =>
+        {
+            Debug.LogWarning("Path to player-ordered target failed.");
+            Supervisor.ReportTaskCompleted();
+        };
+        
+        var pathfindingState = new PathfindingToTargetState(this, targetPosition, onPathSuccess, onPathFailure);
+        ChangeState(pathfindingState);
+    }
+    
+    private void GoToSleep()
+    {
+        Action onArrivalAtCamp = () => ChangeState(new SleepingState(this));
+        var goHomeState = new PathfindingToTargetState(this, MapGenerator.CampfirePosition, onArrivalAtCamp, onArrivalAtCamp);
+        ChangeState(goHomeState);
+    }
+
+    private bool CurrentStateMatchesBehavior(MacroBehavior behavior)
+    {
+        switch (behavior)
+        {
+            case MacroBehavior.Working:
+                return CurrentState is MiningState || CurrentState is FindNearestTileState;
+            case MacroBehavior.WanderingInCamp:
+                return CurrentState is FindWanderPointState || CurrentState is WaitingInCampState;
+            case MacroBehavior.Sleeping:
+                return CurrentState is SleepingState;
+            default:
+                return false;
+        }
+    }
+    
+    // We keep listening for direct player orders
+    private void OnEnable() => GameEvents.OnMiningOrderGiven += HandleMiningOrder;
+    private void OnDisable() => GameEvents.OnMiningOrderGiven -= HandleMiningOrder;
 } 

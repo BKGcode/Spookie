@@ -5,13 +5,23 @@ using UnityEngine;
 public class FeedbackMessagesSO : ScriptableObject
 {
     [System.Serializable]
-    public struct MessagePair
+    public class FeedbackMessage
     {
         public string key;
-        [TextArea] public string message;
+        [TextArea]
+        public string message;
     }
 
-    [SerializeField] private List<MessagePair> messages;
+    public List<FeedbackMessage> messages = new List<FeedbackMessage> {
+        new FeedbackMessage { key = "label_age", message = "Age: {0}" },
+        new FeedbackMessage { key = "label_status", message = "Status: {0}" },
+        new FeedbackMessage { key = "notification_dwarf_idle", message = "{0} is idle!" },
+        new FeedbackMessage { key = "Idle", message = "Idle" },
+        new FeedbackMessage { key = "Moving", message = "Moving" },
+        new FeedbackMessage { key = "Mining", message = "Mining" },
+        new FeedbackMessage { key = "Sleeping", message = "Sleeping" },
+        new FeedbackMessage { key = "Wandering", message = "Wandering" }
+    };
 
     private Dictionary<string, string> messageDictionary;
 
@@ -27,7 +37,7 @@ public class FeedbackMessagesSO : ScriptableObject
         }
     }
 
-    public string GetMessage(string key, string defaultMessage = "...")
+    public string GetMessage(string key, string defaultMessage = "")
     {
         if (messageDictionary.TryGetValue(key, out string message))
         {

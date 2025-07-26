@@ -52,6 +52,14 @@ public class DwarfMovement : MonoBehaviour
         isMoving = true;
         Debug.Log($"Dwarf '{controller.CurrentState.DwarfName}' starting path with {path.Count} nodes.");
     }
+
+    public void Stop()
+    {
+        isMoving = false;
+        currentPath = null;
+        pathIndex = 0;
+        Debug.Log($"Dwarf '{controller.CurrentState.DwarfName}' has stopped moving.");
+    }
 }
 
 // ScriptRole: Handles the physical movement of the dwarf along a given path.

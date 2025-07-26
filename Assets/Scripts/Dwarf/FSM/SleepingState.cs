@@ -14,9 +14,6 @@ public class SleepingState : IState
     {
         Debug.Log($"Dwarf '{stateManager.Controller.CurrentState.DwarfName}' is now sleeping.");
         stateManager.Controller.CurrentState.CurrentStatus = "Sleeping";
-        
-        // Subscribe to day start event to wake up
-        GameEvents.OnDayStart += WakeUp;
     }
 
     public void OnUpdate()
@@ -25,30 +22,14 @@ public class SleepingState : IState
         if (dwarfState.CurrentStamina < dwarfState.BaseStats.maxStamina)
         {
             dwarfState.CurrentStamina += staminaRegenRate * Time.deltaTime;
-            // Clamp the value to not exceed max stamina
             dwarfState.CurrentStamina = Mathf.Min(dwarfState.CurrentStamina, dwarfState.BaseStats.maxStamina);
         }
-        else
-        {
-            // Fully rested, wake up
-            Debug.Log("Dwarf is fully rested.");
-            WakeUp();
-        }
+        // The decision to wake up is now handled by the Supervisor based on the time of day.
     }
 
     public void OnExit()
     {
         Debug.Log($"Dwarf '{stateManager.Controller.CurrentState.DwarfName}' has woken up.");
-        GameEvents.OnDayStart -= WakeUp;
-    }
-
-    private void WakeUp()
-    {
-        // Avoid multiple calls if already transitioning
-        if (stateManager.CurrentState is SleepingState)
-        {
-            stateManager.ChangeState(new FindWanderPointState(stateManager));
-        }
     }
 }
 

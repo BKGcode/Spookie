@@ -92,7 +92,23 @@ public class Pathfinding : MonoBehaviour
         PathNode startNode = grid[startPosition.x, startPosition.y];
         PathNode endNode = grid[endPosition.x, endPosition.y];
 
-        Debug.Log($"[Pathfinding] Request: From {startPosition} To {endPosition}. Is End Walkable? {endNode.isWalkable}");
+        // If the target tile is not walkable, find the nearest walkable neighbour
+        if (!endNode.isWalkable)
+        {
+            PathNode nearestNode = FindNearestWalkableNeighbour(endNode);
+            if (nearestNode != null)
+            {
+                endNode = nearestNode;
+                Debug.Log($"Target is not walkable. Rerouting to nearest walkable neighbour: {endNode.gridPosition}");
+            }
+            else
+            {
+                Debug.LogWarning($"Target {endPosition} is not walkable and has no walkable neighbours. Pathfinding failed.");
+                return null;
+            }
+        }
+
+        Debug.Log($"[Pathfinding] Request: From {startPosition} To {endNode.gridPosition}. Is End Walkable? {endNode.isWalkable}");
 
         List<PathNode> openList = new List<PathNode> { startNode };
         HashSet<PathNode> closedList = new HashSet<PathNode>();
@@ -204,6 +220,54 @@ public class Pathfinding : MonoBehaviour
         int yDistance = Mathf.Abs(a.gridPosition.y - b.gridPosition.y);
         int remaining = Mathf.Abs(xDistance - yDistance);
         return MOVE_DIAGONAL_COST * Mathf.Min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
+    }
+
+    private PathNode FindNearestWalkableNeighbour(PathNode originalNode)
+    {
+        PathNode bestNeighbour = null;
+        // Simple approach: return the very first valid neighbour we find.
+        // A better approach might calculate distance, but this is fine for now.
+        foreach (var neighbour in GetNeighbourList(originalNode))
+        {
+            if (neighbour.isWalkable && !DwarfRegistry.IsTileOccupied(neighbour.gridPosition))
+            {
+                bestNeighbour = neighbour;
+                break; // Found a valid spot, no need to check further for this simple implementation.
+            }
+        }
+        return bestNeighbour;
+    }
+
+    public Vector2Int? FindNearestWalkableTileOfType(Vector2Int startPosition, TileDataSO targetType)
+    {
+        // This is a simple, non-optimized search. For a large map, a more efficient algorithm would be needed.
+        Queue<PathNode> searchQueue = new Queue<PathNode>();
+        HashSet<PathNode> visitedNodes = new HashSet<PathNode>();
+        
+        searchQueue.Enqueue(GetNode(startPosition));
+        visitedNodes.Add(GetNode(startPosition));
+
+        while (searchQueue.Count > 0)
+        {
+            PathNode currentNode = searchQueue.Dequeue();
+
+            // Check if this tile is of the target type
+            TileDataSO tileData = mapGenerator.GetTileDataAt(currentNode.gridPosition);
+            if (tileData == targetType)
+            {
+                return currentNode.gridPosition;
+            }
+
+            foreach (var neighbour in GetNeighbourList(currentNode))
+            {
+                if (!visitedNodes.Contains(neighbour))
+                {
+                    visitedNodes.Add(neighbour);
+                    searchQueue.Enqueue(neighbour);
+                }
+            }
+        }
+        return null; // No tile of the target type found
     }
 
     private PathNode GetLowestFCostNode(List<PathNode> pathNodeList)

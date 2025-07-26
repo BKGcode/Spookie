@@ -11,6 +11,14 @@ public static class GameEvents
     public static event Action<DwarfController, Vector2Int> OnDwarfAssigned;
     public static void ReportDwarfAssigned(DwarfController dwarf, Vector2Int targetPosition) => OnDwarfAssigned?.Invoke(dwarf, targetPosition);
 
+    // Called by the InputManager when the player explicitly orders a dwarf to mine a tile.
+    public static event Action<DwarfController, Vector2Int> OnMiningOrderGiven;
+    public static void ReportMiningOrderGiven(DwarfController dwarf, Vector2Int targetPosition) => OnMiningOrderGiven?.Invoke(dwarf, targetPosition);
+
+    // Called by DwarfInitializer after all initial setup is complete.
+    public static event Action OnGameReady;
+    public static void ReportGameReady() => OnGameReady?.Invoke();
+    
     // -- Time Events --
     public static event Action OnDayStart;
     public static void ReportDayStart() => OnDayStart?.Invoke();

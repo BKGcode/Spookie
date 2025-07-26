@@ -150,7 +150,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 1514823680}
   interactiveTilemap: {fileID: 586136943}
-  dwarvesToAssign: 2
 --- !u!4 &78588821
 Transform:
   m_ObjectHideFlags: 0
@@ -1206,6 +1205,10 @@ PrefabInstance:
       propertyPath: holdDuration
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 3182250562505156179, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: dwarfData
+      value: 
+      objectReference: {fileID: 11400000, guid: 10c2330f85b03df4096a7616eeeee559, type: 2}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.x
       value: 1

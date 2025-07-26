@@ -46,6 +46,7 @@ public class PathfindingToTargetState : IState
     public void OnExit()
     {
         stateManager.Movement.OnPathCompleted -= HandlePathCompleted;
+        stateManager.Movement.Stop();
     }
 
     private void HandlePathCompleted()

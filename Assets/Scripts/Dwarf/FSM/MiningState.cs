@@ -5,12 +5,14 @@ public class MiningState : IState
 {
     private readonly DwarfStateManager stateManager;
     private readonly Vector2Int targetPosition;
+    private readonly Action onTaskCompleted;
     private float miningTimer;
 
-    public MiningState(DwarfStateManager manager, Vector2Int target)
+    public MiningState(DwarfStateManager manager, Vector2Int target, Action onTaskCompletedCallback = null)
     {
         stateManager = manager;
         targetPosition = target;
+        onTaskCompleted = onTaskCompletedCallback;
     }
 
     public void OnEnter()
@@ -21,17 +23,9 @@ public class MiningState : IState
 
     public void OnUpdate()
     {
-        // Check for exit conditions first
-        if (stateManager.Controller.CurrentState.CurrentStamina <= 0)
-        {
-            Debug.Log("Dwarf is exhausted. Going home to rest.");
-            Action onArrivalAtCamp = () => stateManager.ChangeState(new SleepingState(stateManager));
-            var goHomeState = new PathfindingToTargetState(stateManager, MapGenerator.CampfirePosition, onArrivalAtCamp, onArrivalAtCamp);
-            stateManager.ChangeState(goHomeState);
-            return;
-        }
+        // Stamina check is now handled by the Supervisor's time-based logic.
+        // The state's only job is to mine.
 
-        // Apply damage on a timer
         miningTimer += Time.deltaTime;
         if (miningTimer >= 1f) // Mine once per second
         {
@@ -46,8 +40,14 @@ public class MiningState : IState
             // Check if the tile was destroyed after mining
             if (Pathfinding.Instance.mapGenerator.GetTileDataAt(targetPosition) == null)
             {
-                Debug.Log($"Tile at {targetPosition} destroyed. Task complete.");
-                stateManager.ChangeState(new FindWanderPointState(stateManager));
+                Debug.Log($"Tile at {targetPosition} destroyed. Moving to occupy the space.");
+
+                Action onArrivalAtMinedSpot = () => {
+                    // AFTER moving, decide the next action based on the Supervisor's current orders.
+                    stateManager.OnMacroBehaviorChanged(stateManager.Supervisor.CurrentMacroBehavior);
+                };
+                
+                stateManager.ChangeState(new MoveToExactPositionState(stateManager, targetPosition, onArrivalAtMinedSpot));
             }
         }
     }
