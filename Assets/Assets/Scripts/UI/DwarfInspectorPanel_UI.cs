@@ -14,6 +14,9 @@ public class DwarfInspectorPanel_UI : MonoBehaviour
     [SerializeField] private Slider staminaSlider;
     [SerializeField] private Button closeButton;
 
+    [Header("Data")]
+    [SerializeField] private FeedbackMessagesSO feedbackMessages;
+
     [Header("Settings")]
     [SerializeField] private float autoCloseDelay = 5f;
 
@@ -73,8 +76,13 @@ public class DwarfInspectorPanel_UI : MonoBehaviour
     {
         dwarfIcon.sprite = stats.dwarfIcon;
         nameText.text = stats.dwarfName;
-        ageText.text = $"Age: {stats.age}";
-        statusText.text = $"Status: {stats.currentStatus}";
+        
+        string ageLabel = feedbackMessages.GetMessage("label_age", "Age: {0}");
+        ageText.text = string.Format(ageLabel, stats.age);
+
+        string statusLabel = feedbackMessages.GetMessage("label_status", "Status: {0}");
+        statusText.text = string.Format(statusLabel, feedbackMessages.GetMessage(stats.currentStatus, stats.currentStatus));
+
         staminaSlider.value = stats.CurrentStamina / stats.BaseStats.maxStamina;
     }
 

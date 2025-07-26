@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using System.Collections;
 
-public class DwarfSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class DwarfSelector : MonoBehaviour
 {
     [SerializeField] private float holdDuration = 0.5f;
     private Coroutine holdCoroutine;
@@ -13,12 +12,12 @@ public class DwarfSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         dwarfStats = GetComponent<DwarfStats>();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private void OnMouseDown()
     {
         holdCoroutine = StartCoroutine(HoldTimer());
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    private void OnMouseUp()
     {
         if (holdCoroutine != null)
         {
@@ -36,7 +35,7 @@ public class DwarfSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 }
 
 // ScriptRole: Detects a 'click and hold' on a dwarf to trigger an inspection event.
-// Dependencies: DwarfStats, Collider2D, and an EventSystem in the scene.
+// Dependencies: DwarfStats, Collider2D, and a Physics2DRaycaster on the Camera.
 // HandlesEvents: None
 // TriggersEvents: GameEvents.OnDwarfSelected
 // UsesSO: None

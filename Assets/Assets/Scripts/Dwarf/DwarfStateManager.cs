@@ -71,9 +71,13 @@ public class DwarfStateManager : MonoBehaviour
     private string GetStateName(DwarfBaseState state)
     {
         // This can be expanded with a switch for more descriptive names
-        return state.GetType().Name
+        // Returns a key for the localization system.
+        string stateKey = state.GetType().Name
             .Replace("Dwarf", "")
-            .Replace("State", "");
+            .Replace("State", "")
+            .ToLower();
+            
+        return $"status_{stateKey}";
     }
 
     private void HandleDwarfAssignment(DwarfStateManager dwarf, Vector2Int targetPosition)

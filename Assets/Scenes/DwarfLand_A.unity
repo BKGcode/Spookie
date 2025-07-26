@@ -541,7 +541,6 @@ Transform:
   m_Children:
   - {fileID: 1514823677}
   - {fileID: 1984270858}
-  - {fileID: 1759262232}
   - {fileID: 657947749}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1117,13 +1116,21 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 1952585774382754734, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: holdDuration
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.99999994
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.625
       objectReference: {fileID: 0}
     - target: {fileID: 4253300042273970006, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_Name
@@ -1194,6 +1201,7 @@ GameObject:
   - component: {fileID: 1514823680}
   - component: {fileID: 1514823679}
   - component: {fileID: 1514823678}
+  - component: {fileID: 1514823681}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1319,6 +1327,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1514823681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514823676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56666c5a40171f54783dd416a44f42bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!1 &1577149012
 GameObject:
   m_ObjectHideFlags: 0
@@ -1486,7 +1510,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 345624745}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1759262233
 MonoBehaviour:
@@ -1929,13 +1953,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 753330983280977028, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5880069114246988180, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
       propertyPath: m_Name
       value: CNT_Dwarf_Inspector
       objectReference: {fileID: 0}
+    - target: {fileID: 5880069114246988180, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706140225683726347, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8332411170037715148, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1961,6 +1997,10 @@ PrefabInstance:
     - target: {fileID: 1376297489438066555, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_SortingOrder
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952585774382754734, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
+      propertyPath: holdDuration
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4090530391002549857, guid: 601e628bb467756419b30e4a707d55f0, type: 3}
       propertyPath: m_LocalScale.x
@@ -2027,6 +2067,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1759262232}
   - {fileID: 345624745}
   - {fileID: 387822523}
   - {fileID: 628177988}
