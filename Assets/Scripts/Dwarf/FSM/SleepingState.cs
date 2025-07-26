@@ -47,7 +47,7 @@ public class SleepingState : IState
         // Avoid multiple calls if already transitioning
         if (stateManager.CurrentState is SleepingState)
         {
-            stateManager.ChangeState(new IdleState(stateManager));
+            stateManager.ChangeState(new FindWanderPointState(stateManager));
         }
     }
 }

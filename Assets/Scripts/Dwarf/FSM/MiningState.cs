@@ -47,7 +47,7 @@ public class MiningState : IState
             if (Pathfinding.Instance.mapGenerator.GetTileDataAt(targetPosition) == null)
             {
                 Debug.Log($"Tile at {targetPosition} destroyed. Task complete.");
-                stateManager.ChangeState(new IdleState(stateManager));
+                stateManager.ChangeState(new FindWanderPointState(stateManager));
             }
         }
     }

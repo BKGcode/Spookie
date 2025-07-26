@@ -103,6 +103,15 @@ public class MapGenerator : MonoBehaviour
         return null;
     }
 
+    public Vector2Int GetRandomCampPosition()
+    {
+        int campStartX = (mapWidth - campSize) / 2;
+        int campStartY = (mapHeight - campSize) / 2;
+        int x = Random.Range(campStartX, campStartX + campSize);
+        int y = Random.Range(campStartY, campStartY + campSize);
+        return new Vector2Int(x, y);
+    }
+
     private void SetTileData(Vector2Int position, TileDataSO tileData)
     {
         if (tileData == null) return;

@@ -32,9 +32,9 @@ public class DwarfStateManager : MonoBehaviour
 
     private void Start()
     {
-        // Set the initial state
-        ChangeState(new IdleState(this));
-        Debug.Log("DwarfStateManager started. Initial state set to Idle.");
+        // Set the initial state to start wandering
+        ChangeState(new FindWanderPointState(this));
+        Debug.Log("DwarfStateManager started. Initial state set to FindWanderPoint.");
     }
 
     private void Update()
@@ -66,15 +66,15 @@ public class DwarfStateManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Target reached, but it's not minable. Going idle.");
-                    ChangeState(new IdleState(this));
+                    Debug.Log("Target reached, but it's not minable. Going back to wandering.");
+                    ChangeState(new FindWanderPointState(this));
                 }
             };
 
             // Action to perform when pathfinding fails
             Action onPathFailure = () => {
-                Debug.LogWarning("Pathfinding failed. Returning to idle state.");
-                ChangeState(new IdleState(this));
+                Debug.LogWarning("Pathfinding failed. Returning to wandering.");
+                ChangeState(new FindWanderPointState(this));
             };
 
             var pathfindingState = new PathfindingToTargetState(this, targetPosition, onPathSuccess, onPathFailure);
