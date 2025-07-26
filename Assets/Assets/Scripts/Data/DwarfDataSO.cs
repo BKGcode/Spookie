@@ -1,10 +1,15 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "NewDwarfData", menuName = "Spookie/Data/Dwarf Data")]
 public class DwarfDataSO : ScriptableObject
 {
-    [Tooltip("Name or type of the dwarf.")]
-    public string dwarfName = "Dwarf";
+    [Header("Procedural Identity")]
+    [Tooltip("Possible names for procedural generation.")]
+    public List<string> possibleNames;
+    
+    [Tooltip("Possible icons for procedural generation.")]
+    public List<Sprite> possibleIcons;
 
     [Header("Stats")]
     [Tooltip("How fast the dwarf moves across the map.")]
