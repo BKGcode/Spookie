@@ -83,10 +83,12 @@ public class TerrainRenderer : MonoBehaviour
 
         Debug.Log("TerrainRenderer: Generating grass surface.");
 
-        // Use a noise function for natural-looking patches
+        // Use a noise function for natural-looking patches.
+        // The offsets are derived from the map seed to ensure the grass pattern is deterministic.
+        System.Random prng = new System.Random(data.MapSeed);
         float noiseScale = 0.1f;
-        float noiseOffsetX = Random.Range(0f, 100f);
-        float noiseOffsetY = Random.Range(0f, 100f);
+        float noiseOffsetX = prng.Next(0, 10000);
+        float noiseOffsetY = prng.Next(0, 10000);
         
         for (int y = 0; y < data.Height; y++)
         {
