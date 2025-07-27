@@ -519,6 +519,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 387822523}
+  - component: {fileID: 387822524}
+  - component: {fileID: 387822525}
+  - component: {fileID: 387822526}
   m_Layer: 0
   m_Name: MAP_CONTROLLER
   m_TagString: Untagged
@@ -541,6 +544,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &387822524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387822522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a2c85951e8d1c642bfdc9f9a871facf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapWidth: 100
+  mapHeight: 100
+  seed: 1
+  generateOnStart: 1
+  materialDatabase: {fileID: 11400000, guid: b598a5d38cf0bd547a85636f5450ff72, type: 2}
+  OnTerrainGenerated:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &387822525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387822522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f49ec8843b54a9f4fb54f637ed45f46c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrainGenerator: {fileID: 387822524}
+--- !u!114 &387822526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387822522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f70b8005f290efe41a1cad4f0ca39659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialDatabase: {fileID: 11400000, guid: b598a5d38cf0bd547a85636f5450ff72, type: 2}
+  feedbackMessages: {fileID: 11400000, guid: 39f02c3527e7960439d26f920859ac35, type: 2}
+  loadOnStart: 1
+  autoSaveIntervalSeconds: 300
+  tileToMineForDebug: {x: 50, y: 50}
 --- !u!224 &546490639 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 420548076942406346, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
