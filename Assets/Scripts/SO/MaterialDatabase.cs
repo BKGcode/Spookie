@@ -15,11 +15,9 @@ public class MaterialDatabase : ScriptableObject
     
     private Dictionary<int, MaterialSO> materialLookup;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        Debug.Log("MaterialDatabase: OnEnable_Start");
         BuildLookupCache();
-        Debug.Log("MaterialDatabase: OnEnable_End");
     }
 
     private void BuildLookupCache()
@@ -59,8 +57,6 @@ public class MaterialDatabase : ScriptableObject
                 materialLookup.Add(material.MaterialId, material);
             }
         }
-        
-        Debug.Log($"MaterialDatabase: Cache construido con {materialLookup.Count} materiales en total.");
     }
 
     public MaterialSO GetMaterialById(int id)
@@ -103,8 +99,6 @@ public class MaterialDatabase : ScriptableObject
 #if UNITY_EDITOR
     void OnValidate()
     {
-        Debug.Log("MaterialDatabase: OnValidate_Start");
-        
         var allMaterials = new List<MaterialSO>();
         if (baseMaterial != null) allMaterials.Add(baseMaterial);
         if (coverageMaterials != null) allMaterials.AddRange(coverageMaterials);
@@ -116,13 +110,9 @@ public class MaterialDatabase : ScriptableObject
             {
                 if (material == null) continue;
                 
-                if (ids.Contains(material.MaterialId))
+                if (!ids.Add(material.MaterialId))
                 {
                     Debug.LogError($"MaterialDatabase: ID duplicado detectado: {material.MaterialId} ({material.MaterialName})", this);
-                }
-                else
-                {
-                    ids.Add(material.MaterialId);
                 }
             }
         }
@@ -131,8 +121,6 @@ public class MaterialDatabase : ScriptableObject
         {
             BuildLookupCache();
         }
-        
-        Debug.Log("MaterialDatabase: OnValidate_End");
     }
 
     [ContextMenu("Rebuild Cache")]

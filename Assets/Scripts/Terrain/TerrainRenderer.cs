@@ -23,14 +23,12 @@ public class TerrainRenderer : MonoBehaviour
 
     void OnEnable()
     {
-        terrainGenerator.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
-        Debug.Log("TerrainRenderer: Subscribed to OnTerrainGenerated event.");
+        TerrainEvents.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
     }
 
     void OnDisable()
     {
-        terrainGenerator.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
-        Debug.Log("TerrainRenderer: Unsubscribed from OnTerrainGenerated event.");
+        TerrainEvents.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
     }
 
     /// <summary>
@@ -38,23 +36,16 @@ public class TerrainRenderer : MonoBehaviour
     /// </summary>
     private void HandleTerrainGenerated(TerrainData data)
     {
-        Debug.Log("TerrainRenderer: Received OnTerrainGenerated event. Starting render process.");
         ClearExistingMeshes();
         GenerateAllMeshes(data);
-        CombineMeshes();
-        DrawSpecialProperties(data); // Draw debug markers for special properties
-        Debug.Log("TerrainRenderer: Render process complete.");
+        DrawSpecialProperties(data);
     }
 
     private void ClearExistingMeshes()
     {
-        Debug.Log("TerrainRenderer: Clearing existing terrain meshes.");
         foreach (Transform child in transform)
         {
-            if (child.name.StartsWith("TerrainMesh_"))
-            {
-                Destroy(child.gameObject);
-            }
+            Destroy(child.gameObject);
         }
         cubeMeshesToCombine.Clear();
         floorMeshesToCombine.Clear();
@@ -212,7 +203,6 @@ public class TerrainRenderer : MonoBehaviour
             Mesh combinedMesh = new Mesh();
             combinedMesh.CombineMeshes(pair.Value.ToArray(), true, true);
             filter.mesh = combinedMesh;
-            Debug.Log($"TerrainRenderer: Combined {pair.Value.Count} cube meshes for material {pair.Key.name}.");
         }
         
         foreach (var pair in floorMeshesToCombine)
@@ -227,7 +217,6 @@ public class TerrainRenderer : MonoBehaviour
             Mesh combinedMesh = new Mesh();
             combinedMesh.CombineMeshes(pair.Value.ToArray(), true, true);
             filter.mesh = combinedMesh;
-            Debug.Log($"TerrainRenderer: Combined {pair.Value.Count} floor meshes for material {pair.Key.name}.");
         }
     }
 

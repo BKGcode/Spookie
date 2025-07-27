@@ -7,10 +7,11 @@ using System.Collections.Generic;
 [System.Serializable]
 public class TerrainData
 {
-    [SerializeField] private TerrainTile[,] tileGrid;
-    [SerializeField] private int width = 100;
-    [SerializeField] private int height = 100;
-    [SerializeField] private int mapSeed;
+    private TerrainTile[,] tileGrid;
+    private Dictionary<Vector2Int, TerrainTile> modifiedTiles;
+    private int width;
+    private int height;
+    private int mapSeed;
 
     public int Width => width;
     public int Height => height;
@@ -19,13 +20,13 @@ public class TerrainData
     /// <summary>
     /// Initializes a new TerrainData object with a specific size and seed.
     /// </summary>
-    public TerrainData(int gridWidth, int gridHeight, int seed)
+    public TerrainData(int width, int height, int seed)
     {
-        Debug.Log($"TerrainData: Initializing with size {gridWidth}x{gridHeight} and seed {seed}.");
-        width = gridWidth;
-        height = gridHeight;
-        mapSeed = seed;
-        tileGrid = new TerrainTile[width, height];
+        this.width = width;
+        this.height = height;
+        this.mapSeed = seed;
+        this.tileGrid = new TerrainTile[width, height];
+        this.modifiedTiles = new Dictionary<Vector2Int, TerrainTile>();
     }
     
     /// <summary>

@@ -38,40 +38,18 @@ public class MaterialSO : ScriptableObject
 
     void OnValidate()
     {
-        Debug.Log($"MaterialSO: OnValidate para {materialName}");
-        
-        // Validate rarity is between 0-1
-        if (coveragePercentage < 0)
+        if (durability <= 0)
         {
-            Debug.LogWarning($"MaterialSO ({materialName}): Coverage Percentage no puede ser menor que 0. Ajustando a 0.", this);
-            coveragePercentage = 0;
+            durability = 1;
         }
-        else if (coveragePercentage > 100)
+
+        if (baseValue <= 0)
         {
-            Debug.LogWarning($"MaterialSO ({materialName}): Coverage Percentage no puede ser mayor que 100. Ajustando a 100.", this);
-            coveragePercentage = 100;
-        }
-        
-        // Validate durability is positive
-        if (durability <= 0f)
-        {
-            Debug.LogWarning($"MaterialSO ({materialName}): Durability debe ser mayor que 0. Ajustando a 1.", this);
-            durability = 1f;
-        }
-        
-        // Validate material ID is positive
-        if (materialId < 0)
-        {
-            Debug.LogWarning($"MaterialSO ({materialName}): Material ID debe ser mayor o igual que 0. Ajustando a 0.", this);
-            materialId = 0;
-        }
-        
-        // Validate economic value consistency
-        if (hasEconomicValue && baseValue <= 0)
-        {
-            Debug.LogWarning($"MaterialSO ({materialName}): Material con valor económico debe tener baseValue > 0. Ajustando a 1.", this);
             baseValue = 1;
         }
+
+        if (coveragePercentage < 0) coveragePercentage = 0;
+        if (coveragePercentage > 100) coveragePercentage = 100;
     }
 
     public override int GetHashCode()

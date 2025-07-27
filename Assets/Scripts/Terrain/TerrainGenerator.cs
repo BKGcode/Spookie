@@ -48,13 +48,8 @@ public class TerrainGenerator : MonoBehaviour
         
         currentTerrainData = new TerrainData(mapWidth, mapHeight, seed);
         
-        // Phase 1: Generate Base Materials
         GenerateBaseMaterials();
-        
-        // Phase 2: Apply Special Materials
         ApplySpecialMaterials();
-        
-        // Phase 3: Post-Process
         PostProcess();
 
         LogMaterialDistribution();

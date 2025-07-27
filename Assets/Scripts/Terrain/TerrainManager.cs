@@ -34,7 +34,6 @@ public class TerrainManager : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log("TerrainManager: Awake_Start");
         if (Instance != null && Instance != this)
         {
             Debug.LogWarning("TerrainManager: Another instance exists. Destroying this one.", this);
@@ -52,18 +51,13 @@ public class TerrainManager : MonoBehaviour
             enabled = false;
             return;
         }
-
-        // Subscribe to generation event to cache data
-        terrainGenerator.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
-        Debug.Log("TerrainManager: Subscribed to OnTerrainGenerated event.");
-        Debug.Log("TerrainManager: Awake_End");
     }
 
     IEnumerator Start()
     {
         if (loadOnStart)
         {
-            LoadTerrain();
+            yield return StartCoroutine(LoadTerrain());
         }
         else
         {
@@ -86,13 +80,16 @@ public class TerrainManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        if (terrainGenerator != null)
-        {
-            terrainGenerator.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
-            Debug.Log("TerrainManager: Unsubscribed from OnTerrainGenerated event.");
-        }
+        TerrainEvents.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
+        TerrainEvents.OnTileMined.AddListener(HandleTileMined);
+    }
+
+    private void OnDisable()
+    {
+        TerrainEvents.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
+        TerrainEvents.OnTileMined.RemoveListener(HandleTileMined);
     }
 
     private void HandleTerrainGenerated(TerrainData data)
@@ -100,6 +97,37 @@ public class TerrainManager : MonoBehaviour
         Debug.Log("TerrainManager: Caching newly generated terrain data.");
         currentTerrainData = data;
         TerrainEvents.OnTerrainGenerated?.Invoke(data);
+    }
+
+    private void HandleTileMined(TileMinedEventData data)
+    {
+        if (!IsValidPosition(data.x, data.y))
+        {
+            Debug.LogWarning(feedbackMessages.GetMessage("mining_invalid_position"));
+            return;
+        }
+        
+        TerrainTile tile = currentTerrainData.GetTile(data.x, data.y);
+        if (!tile.IsMineable())
+        {
+            Debug.Log(feedbackMessages.GetMessage("mining_not_mineable"));
+            return;
+        }
+
+        // For now, we'll assume one-hit mining. Durability will be handled later.
+        tile.SetMiningState(MiningState.Mined);
+        currentTerrainData.SetTile(data.x, data.y, tile);
+        
+        Debug.Log($"TerrainManager: Tile at ({data.x},{data.y}) was mined.");
+
+        // Trigger events
+        var eventData = new TileMinedEventData { x = data.x, y = data.y, material = tile.GetMaterial(), wasCompletelyMined = true };
+        TerrainEvents.OnTileMined?.Invoke(eventData);
+        
+        // Optional: Re-render the entire chunk or just update the specific tile.
+        // For simplicity, we can trigger a full re-render for now.
+        // A more optimized approach would be to update only the affected meshes.
+        // terrainRenderer.UpdateTile(x, y);
     }
     
     #region Public API
@@ -205,7 +233,7 @@ public class TerrainManager : MonoBehaviour
     /// Loads the terrain state from a file, or generates a new one if no file exists.
     /// </summary>
     [ContextMenu("Load Terrain")]
-    public void LoadTerrain()
+    public IEnumerator LoadTerrain()
     {
         TerrainSaveData saveData = TerrainSaveSystem.LoadTerrain();
         if (saveData != null)
@@ -234,6 +262,7 @@ public class TerrainManager : MonoBehaviour
             Debug.Log("TerrainManager: No save file found or failed to load. Generating new terrain.");
             terrainGenerator.GenerateTerrain(); // Generate with inspector seed
         }
+        yield return null;
     }
 
     #endregion

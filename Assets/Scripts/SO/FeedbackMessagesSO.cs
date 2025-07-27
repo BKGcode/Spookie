@@ -16,41 +16,27 @@ public class FeedbackMessage
 [CreateAssetMenu(fileName = "FeedbackMessages", menuName = "Spookie/Terrain/Feedback Messages")]
 public class FeedbackMessagesSO : ScriptableObject
 {
-    [SerializeField] private List<FeedbackMessage> messages = new List<FeedbackMessage>();
+    [SerializeField] private List<FeedbackMessage> messages;
     
     private Dictionary<string, string> messageCache;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        Debug.Log("FeedbackMessagesSO: OnEnable_Start");
         BuildCache();
-        Debug.Log("FeedbackMessagesSO: OnEnable_End");
     }
 
     private void BuildCache()
     {
-        messageCache = new Dictionary<string, string>();
-        
         if (messages == null) return;
         
-        foreach (var msg in messages)
+        messageCache = new Dictionary<string, string>(messages.Count);
+        foreach (var message in messages)
         {
-            if (string.IsNullOrEmpty(msg.Key))
+            if (!string.IsNullOrEmpty(message.Key) && !messageCache.ContainsKey(message.Key))
             {
-                Debug.LogWarning("FeedbackMessagesSO: Mensaje con clave vacía encontrado.", this);
-                continue;
+                messageCache.Add(message.Key, message.Message);
             }
-            
-            if (messageCache.ContainsKey(msg.Key))
-            {
-                Debug.LogWarning($"FeedbackMessagesSO: Clave duplicada encontrada: '{msg.Key}'", this);
-                continue;
-            }
-            
-            messageCache.Add(msg.Key, msg.Message);
         }
-        
-        Debug.Log($"FeedbackMessagesSO: Cache construido con {messageCache.Count} mensajes.");
     }
 
     public string GetMessage(string key)
@@ -63,7 +49,7 @@ public class FeedbackMessagesSO : ScriptableObject
         }
         
         Debug.LogWarning($"FeedbackMessagesSO: Mensaje no encontrado para clave: '{key}'. Devolviendo default.", this);
-        return $"[MISSING: {key}]";
+        return $"[MESSAGE NOT FOUND: {key}]";
     }
 
 #if UNITY_EDITOR

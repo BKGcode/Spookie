@@ -16,7 +16,6 @@ public class RarityDistributor
         terrainData = data;
         materialDatabase = database;
         seed = generationSeed;
-        Debug.Log("RarityDistributor: Initialized with Tile Budget generation logic.");
     }
 
     /// <summary>
@@ -24,8 +23,6 @@ public class RarityDistributor
     /// </summary>
     public void DistributeAllMaterials(MaterialSO baseMaterialToExclude)
     {
-        Debug.Log("RarityDistributor: Starting tile budget distribution.");
-        
         var materialsToDistribute = materialDatabase.GetCoverageMaterials();
 
         int totalTiles = terrainData.Width * terrainData.Height;
@@ -51,7 +48,6 @@ public class RarityDistributor
             PlaceMaterialVeins(material, tilesToPlace, ref availablePositions);
         }
         
-        Debug.Log("RarityDistributor: Tile budget distribution complete.");
     }
 
     private void PlaceMaterialVeins(MaterialSO material, int tilesToPlace, ref List<Vector2Int> availablePositions)
