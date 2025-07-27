@@ -167,8 +167,8 @@ public class TerrainRenderer : MonoBehaviour
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
 
-        // Top Face (Y+)
-        AddFace(Vector3.up, 0.5f, ref vertices, ref triangles, ref uvs);
+        // Note: Top and bottom faces are intentionally omitted for optimization.
+        // The top is covered by the grass mesh, and the bottom is not visible.
 
         // Front Face (Z+)
         if (y == data.Height - 1 || data.GetTile(x, y + 1).GetMiningState() == MiningState.Mined)
@@ -191,12 +191,6 @@ public class TerrainRenderer : MonoBehaviour
             AddFace(Vector3.left, 0.5f, ref vertices, ref triangles, ref uvs);
         }
         
-        // Bottom Face (Y-)
-        // This is simplified: in a 2D top-down game, the bottom is rarely seen unless blocks are mined from below.
-        // For now, we assume it's always needed if we are rendering a cube.
-        // A more complex 3D game would check for a block below: `data.GetTile(x, y - 1, z)` etc.
-        AddFace(Vector3.down, 0.5f, ref vertices, ref triangles, ref uvs);
-
         Mesh mesh = new Mesh();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
@@ -220,12 +214,13 @@ public class TerrainRenderer : MonoBehaviour
         
         vertices.AddRange(faceVertices);
         
+        // Corrected winding order for visible faces from the outside
         triangles.Add(vCount);
-        triangles.Add(vCount + 2);
         triangles.Add(vCount + 1);
-        triangles.Add(vCount);
-        triangles.Add(vCount + 3);
         triangles.Add(vCount + 2);
+        triangles.Add(vCount);
+        triangles.Add(vCount + 2);
+        triangles.Add(vCount + 3);
 
         uvs.Add(new Vector2(0, 0));
         uvs.Add(new Vector2(1, 0));
@@ -306,7 +301,7 @@ public class TerrainRenderer : MonoBehaviour
             for (int x = 0; x < data.Width; x++)
             {
                 SpaceType type = data.GetTile(x, y).GetSpecialProperty();
-                if (type != SpaceType.None)
+                if (type != SpaceType.None && type != SpaceType.Empty)
                 {
                     GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     marker.transform.position = new Vector3(x, 1, y); // Position it above the ground

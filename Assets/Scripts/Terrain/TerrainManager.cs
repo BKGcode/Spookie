@@ -36,6 +36,16 @@ public class TerrainManager : MonoBehaviour
         terrainRenderer = GetComponent<TerrainRenderer>();
     }
 
+    private void OnEnable()
+    {
+        PlayerActions.OnMineAttempt += HandleMineAttempt;
+    }
+
+    private void OnDisable()
+    {
+        PlayerActions.OnMineAttempt -= HandleMineAttempt;
+    }
+
     void Start()
     {
         if (levelToLoad == null)
@@ -129,12 +139,17 @@ public class TerrainManager : MonoBehaviour
         var eventData = new TileMinedEventData { x = x, y = y, material = tile.GetMaterial(), wasCompletelyMined = true };
         TerrainEvents.OnTileMined?.Invoke(eventData);
         
-        // Optional: Re-render the entire chunk or just update the specific tile.
-        // For simplicity, we can trigger a full re-render for now.
-        // A more optimized approach would be to update only the affected meshes.
-        // terrainRenderer.UpdateTile(x, y);
+        // Force a full re-render to reflect the change.
+        // This is not optimal for performance, but ensures visual consistency for now.
+        terrainRenderer.RenderTerrain(currentTerrainData, grassDatabase);
     }
     
+    private void HandleMineAttempt(Vector2Int tileCoords)
+    {
+        Debug.Log($"TerrainManager: Received OnMineAttempt for tile {tileCoords}. Processing...");
+        MineTileAt(tileCoords.x, tileCoords.y);
+    }
+
     /// <summary>
     /// Checks if a given coordinate is within the valid terrain boundaries.
     /// </summary>
@@ -164,7 +179,7 @@ public class TerrainManager : MonoBehaviour
 
 // ScriptRole: Loads and manages the state of the terrain for a playable level.
 // Dependencies: TerrainDataAsset, MaterialDatabase, TerrainRenderer
-// HandlesEvents: None
-// TriggersEvents: None
+// HandlesEvents: PlayerActions.OnMineAttempt
+// TriggersEvents: TerrainEvents.OnTileMined
 // UsesSO: TerrainDataAsset, MaterialDatabase, FeedbackMessagesSO, GrassDatabaseSO
 // NeedsSetup: Assign the 'Level To Load' asset and other dependencies in the Inspector. 

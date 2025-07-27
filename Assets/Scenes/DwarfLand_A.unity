@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 78588821}
+  - component: {fileID: 78588822}
   m_Layer: 0
   m_Name: INPUT_MANAGER
   m_TagString: Untagged
@@ -150,6 +151,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &78588822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78588819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44d4e166a7a3c304b8518ec99c2dd026, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &108360480
 GameObject:
   m_ObjectHideFlags: 0
@@ -1304,7 +1317,7 @@ GameObject:
   - component: {fileID: 1514823681}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2390,10 +2403,10 @@ SceneRoots:
   - {fileID: 1759262232}
   - {fileID: 345624745}
   - {fileID: 387822523}
+  - {fileID: 78588821}
   - {fileID: 796790495}
   - {fileID: 628177988}
   - {fileID: 108360482}
-  - {fileID: 78588821}
   - {fileID: 226854019}
   - {fileID: 6593195671275321380}
   - {fileID: 1420959490}
