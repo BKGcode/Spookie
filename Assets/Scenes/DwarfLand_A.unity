@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 78588821}
-  - component: {fileID: 78588820}
   m_Layer: 0
   m_Name: INPUT_MANAGER
   m_TagString: Untagged
@@ -136,20 +135,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &78588820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78588819}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94ad1a0d148bc25408941534ae3a9884, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 1514823680}
-  interactiveTilemap: {fileID: 586136943}
 --- !u!4 &78588821
 Transform:
   m_ObjectHideFlags: 0
@@ -174,7 +159,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 108360482}
-  - component: {fileID: 108360481}
   m_Layer: 0
   m_Name: UI_MANAGER
   m_TagString: Untagged
@@ -182,23 +166,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &108360481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 108360480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e9e4f1f12b02214b960cfaac9861db6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  clockSlider: {fileID: 149754073}
-  clockText: {fileID: 1577149014}
-  cycleIcon: {fileID: 902554065}
-  dayIcon: {fileID: -5496889470019206096, guid: 849a779a81cb68745bffdd8397edc26e, type: 3}
-  nightIcon: {fileID: -633470824222734380, guid: 0d39b6b3d655e7d469cff28e8f2009c3, type: 3}
 --- !u!4 &108360482
 Transform:
   m_ObjectHideFlags: 0
@@ -552,7 +519,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 387822523}
-  - component: {fileID: 387822524}
   m_Layer: 0
   m_Name: MAP_CONTROLLER
   m_TagString: Untagged
@@ -575,36 +541,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &387822524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387822522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c23e210443a64141ac1844945ff4a06, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mapWidth: 100
-  mapHeight: 100
-  noiseScale: 0.1
-  campSize: 6
-  backgroundLayer: {fileID: 183729877}
-  foregroundLayer: {fileID: 586136943}
-  foregroundTile: {fileID: 11400000, guid: 340607957e4940f47813acefe201fef5, type: 2}
-  tileTypes:
-  - name: Dirt
-    tileData: {fileID: 11400000, guid: 74abdceedf750f5418bc65794c6a529d, type: 2}
-    perlinThreshold: 0.4
-  - name: Rock
-    tileData: {fileID: 11400000, guid: ae60c8a3f5e2ee0449158f0bdb468776, type: 2}
-    perlinThreshold: 0.7
-  - name: Gold
-    tileData: {fileID: 11400000, guid: b3b767d2c8aa78f4ab9a17b07dc71d8b, type: 2}
-    perlinThreshold: 1
-  tileDatas: []
 --- !u!224 &546490639 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 420548076942406346, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
@@ -742,8 +678,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 628177988}
-  - component: {fileID: 628177987}
-  - component: {fileID: 628177989}
   m_Layer: 0
   m_Name: GAME_MANAGER
   m_TagString: Untagged
@@ -751,19 +685,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &628177987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628177986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1657cc425d6fc04fa855b93480e326b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameSettings: {fileID: 11400000, guid: f5440fb5a10d9234098b2d9786afb1fd, type: 2}
 --- !u!4 &628177988
 Transform:
   m_ObjectHideFlags: 0
@@ -779,18 +700,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &628177989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628177986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: daa6d8f82c6392146ba0c812d31148a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &635781155
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,7 +888,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 796790495}
-  - component: {fileID: 796790494}
   m_Layer: 0
   m_Name: PATHFINDING
   m_TagString: Untagged
@@ -987,19 +895,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &796790494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796790493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d1980d57298f5a4cb33f231f4202ba8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  foregroundTilemap: {fileID: 586136943}
 --- !u!4 &796790495
 Transform:
   m_ObjectHideFlags: 0
@@ -1137,7 +1032,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1309555581}
-  - component: {fileID: 1309555582}
   m_Layer: 5
   m_Name: CNT_Notification_Manager
   m_TagString: Untagged
@@ -1165,22 +1059,6 @@ RectTransform:
   m_AnchoredPosition: {x: 50, y: -50}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1309555582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1309555580}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1148acfb458df34dbca6b500759bde2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  notificationPanel: {fileID: 1455158580}
-  notificationText: {fileID: 1744354669}
-  feedbackMessages: {fileID: 11400000, guid: 5abb2494bfdd0464da01339b464c5fa7, type: 2}
-  displayDuration: 5
 --- !u!1001 &1420959490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2358,7 +2236,8 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8153671233368652760, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
