@@ -12,12 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad070cd4344f25e459a01bc20d24cfd2, type: 3}
   m_Name: TIle_Tierra
   m_EditorClassIdentifier: 
-  materialName: Tierra
-  materialId: 2
-  material: {fileID: 2100000, guid: 0c2e81d2aaf0ae44da14d2064d567c84, type: 2}
-  editorColor: {r: 0.972549, g: 0.48235294, b: 0.16862746, a: 1}
-  coveragePercentage: 0
-  durability: 10
-  itemPrefab: {fileID: 0}
-  hasEconomicValue: 0
-  baseValue: 1
+  guid: 27f75a19-7485-465a-b71b-359c66cc75ae
+  MaterialName: TIle_Tierra
+  CoveragePercentage: 5
+  IsMineable: 1
+  Durability: 10
+  Material: {fileID: 2100000, guid: 0c2e81d2aaf0ae44da14d2064d567c84, type: 2}
+  EditorColor: {r: 0.972549, g: 0.48235294, b: 0.16862746, a: 1}

@@ -1,29 +1,50 @@
 using UnityEngine;
 
 /// <summary>
-/// Static utility class for generating Perlin noise maps.
+/// A non-static class for generating random numbers and Perlin noise.
+/// An instance of this class can be used to get a sequence of pseudo-random numbers.
 /// </summary>
-public static class NoiseGenerator
+public class NoiseGenerator
 {
+    private System.Random prng;
+
     /// <summary>
-    /// Generates a 2D noise map.
+    /// Initializes a new instance of the NoiseGenerator with a specific seed.
+    /// </summary>
+    /// <param name="seed">The seed for the random number generator.</param>
+    public NoiseGenerator(int seed)
+    {
+        prng = new System.Random(seed);
+    }
+
+    /// <summary>
+    /// Returns a pseudo-random integer within a specified range.
+    /// </summary>
+    /// <param name="min">The inclusive lower bound of the random number returned.</param>
+    /// <param name="max">The exclusive upper bound of the random number returned.</param>
+    /// <returns>A 32-bit signed integer greater than or equal to min and less than max.</returns>
+    public int GetNext(int min, int max)
+    {
+        return prng.Next(min, max);
+    }
+
+    /// <summary>
+    /// Generates a 2D Perlin noise map.
     /// </summary>
     /// <param name="mapWidth">Width of the map.</param>
     /// <param name="mapHeight">Height of the map.</param>
-    /// <param name="seed">Seed for the random number generator.</param>
     /// <param name="scale">Scale of the noise. Higher values mean more zoomed out.</param>
     /// <param name="octaves">Number of layers of noise to combine.</param>
     /// <param name="persistence">How much each octave contributes to the overall shape (0-1).</param>
     /// <param name="lacunarity">How much detail is added in each octave (>=1).</param>
     /// <param name="offset">Offset to sample the noise from a different position.</param>
     /// <returns>A 2D float array with noise values between 0 and 1.</returns>
-    public static float[,] GetNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistence, float lacunarity, Vector2 offset)
+    public float[,] GetNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistence, float lacunarity, Vector2 offset)
     {
-        Debug.Log($"NoiseGenerator: Generating noise map ({mapWidth}x{mapHeight}) with seed {seed}.");
+        Debug.Log($"NoiseGenerator: Generating noise map ({mapWidth}x{mapHeight}).");
         
         float[,] noiseMap = new float[mapWidth, mapHeight];
         
-        System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
         for (int i = 0; i < octaves; i++)
         {
@@ -82,25 +103,4 @@ public static class NoiseGenerator
         Debug.Log("NoiseGenerator: Noise map generation complete.");
         return noiseMap;
     }
-    
-    /// <summary>
-    /// Gets a single normalized Perlin noise value for a given position.
-    /// </summary>
-    public static float GetPerlinValue(float x, float y, float scale, int seed)
-    {
-        if (scale <= 0) scale = 0.0001f;
-        
-        // Using seed to create an offset
-        float seededX = x / scale + seed;
-        float seededY = y / scale + seed;
-        
-        return Mathf.PerlinNoise(seededX, seededY);
-    }
-}
-
-// ScriptRole: Provides static methods to generate 2D Perlin noise maps with configurable parameters.
-// Dependencies: None
-// HandlesEvents: None
-// TriggersEvents: None
-// UsesSO: None
-// NeedsSetup: None. This is a static utility class. 
+} 

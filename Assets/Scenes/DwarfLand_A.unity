@@ -589,11 +589,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f70b8005f290efe41a1cad4f0ca39659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelToLoad: {fileID: 11400000, guid: 126d4f3a8c033134f865c4fe6139fb83, type: 2}
   materialDatabase: {fileID: 11400000, guid: b598a5d38cf0bd547a85636f5450ff72, type: 2}
   feedbackMessages: {fileID: 11400000, guid: 39f02c3527e7960439d26f920859ac35, type: 2}
-  loadOnStart: 1
-  autoSaveIntervalSeconds: 300
-  tileToMineForDebug: {x: 50, y: 50}
+  grassDatabase: {fileID: 11400000, guid: a6cbcfb276357fa499782c9b5fe34eb5, type: 2}
 --- !u!224 &546490639 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 420548076942406346, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
@@ -1318,13 +1317,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514823676}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50, y: 50, z: -30}
+  m_LocalRotation: {x: 0.70710576, y: -0, z: -0, w: 0.70710784}
+  m_LocalPosition: {x: 50, y: 50, z: 48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 345624745}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &1514823678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1348,8 +1347,8 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0

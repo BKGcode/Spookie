@@ -12,12 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad070cd4344f25e459a01bc20d24cfd2, type: 3}
   m_Name: TIle_Oro
   m_EditorClassIdentifier: 
-  materialName: Oro
-  materialId: 0
-  material: {fileID: 2100000, guid: 4ac1f988d24de844d8fdfb9e678e3e44, type: 2}
-  editorColor: {r: 0.972549, g: 0.79607844, b: 0.18823525, a: 1}
-  coveragePercentage: 1
-  durability: 30
-  itemPrefab: {fileID: 0}
-  hasEconomicValue: 1
-  baseValue: 10
+  guid: 4918e8b9-098d-438c-974c-4cbfef7235c4
+  MaterialName: TIle_Oro
+  CoveragePercentage: 5
+  IsMineable: 1
+  Durability: 10
+  Material: {fileID: 2100000, guid: 4ac1f988d24de844d8fdfb9e678e3e44, type: 2}
+  EditorColor: {r: 0.972549, g: 0.79607844, b: 0.18823525, a: 1}

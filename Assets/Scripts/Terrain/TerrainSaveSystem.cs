@@ -10,13 +10,10 @@ public static class TerrainSaveSystem
     private static readonly string saveFileName = "terrain.json";
     
     /// <summary>
-    /// Saves the provided terrain data to a file.
+    /// Saves the provided terrain data to a specific file path.
     /// </summary>
-    /// <param name="saveData">The data to save.</param>
-    /// <returns>True if saving was successful.</returns>
-    public static bool SaveTerrain(TerrainSaveData saveData)
+    public static bool SaveTerrain(TerrainSaveData saveData, string path)
     {
-        string path = GetSavePath();
         Debug.Log($"TerrainSaveSystem: Attempting to save terrain to {path}");
         
         try
@@ -28,21 +25,27 @@ public static class TerrainSaveSystem
         }
         catch (Exception e)
         {
-            Debug.LogError($"TerrainSaveSystem: Failed to save terrain data. Error: {e.Message}");
+            Debug.LogError($"TerrainSaveSystem: Failed to save terrain data to {path}. Error: {e.Message}");
             return false;
         }
     }
+    
+    /// <summary>
+    /// Saves the provided terrain data to the default application path.
+    /// </summary>
+    public static bool SaveTerrain(TerrainSaveData saveData)
+    {
+        return SaveTerrain(saveData, GetDefaultSavePath());
+    }
 
     /// <summary>
-    /// Loads terrain data from a file.
+    /// Loads terrain data from a specific file path.
     /// </summary>
-    /// <returns>The loaded TerrainSaveData, or null if loading fails.</returns>
-    public static TerrainSaveData LoadTerrain()
+    public static TerrainSaveData LoadTerrain(string path)
     {
-        string path = GetSavePath();
-        if (!FileExists())
+        if (!File.Exists(path))
         {
-            Debug.Log("TerrainSaveSystem: No save file found.");
+            Debug.LogError($"TerrainSaveSystem: No file found at path {path}.");
             return null;
         }
 
@@ -53,46 +56,58 @@ public static class TerrainSaveSystem
             string json = File.ReadAllText(path);
             TerrainSaveData saveData = JsonUtility.FromJson<TerrainSaveData>(json);
             
-            // Basic data integrity check
-            if (saveData == null || saveData.ModifiedTiles == null)
+            if (saveData == null || saveData.AllTiles == null)
             {
                 throw new Exception("Loaded data is null or corrupted.");
             }
             
-            Debug.Log($"TerrainSaveSystem: Load successful. Found {saveData.ModifiedTiles.Count} modified tiles.");
+            Debug.Log($"TerrainSaveSystem: Load successful from {path}. Found {saveData.AllTiles.Count} tiles.");
             return saveData;
         }
         catch (Exception e)
         {
-            Debug.LogError($"TerrainSaveSystem: Failed to load or parse terrain data. Error: {e.Message}. A new map will be generated.");
-            // Optional: Backup or delete the corrupted file
-            // File.Move(path, path + ".corrupted");
+            Debug.LogError($"TerrainSaveSystem: Failed to load or parse terrain data from {path}. Error: {e.Message}.");
             return null;
         }
     }
-
+    
     /// <summary>
-    /// Checks if a save file exists.
+    /// Loads terrain data from the default application path.
     /// </summary>
-    public static bool FileExists()
+    public static TerrainSaveData LoadTerrain()
     {
-        return File.Exists(GetSavePath());
+        string path = GetDefaultSavePath();
+        if (!File.Exists(path))
+        {
+            // This is not an error in runtime, just means no save game exists yet.
+            Debug.Log("TerrainSaveSystem: No default save file found.");
+            return null;
+        }
+        return LoadTerrain(path);
     }
 
     /// <summary>
-    /// Deletes the current save file.
+    /// Checks if a save file exists at the default path.
     /// </summary>
-    public static void DeleteSaveFile()
+    public static bool DefaultSaveFileExists()
     {
-        string path = GetSavePath();
+        return File.Exists(GetDefaultSavePath());
+    }
+
+    /// <summary>
+    /// Deletes the default save file.
+    /// </summary>
+    public static void DeleteDefaultSaveFile()
+    {
+        string path = GetDefaultSavePath();
         if (File.Exists(path))
         {
             File.Delete(path);
-            Debug.Log($"TerrainSaveSystem: Deleted save file at {path}.");
+            Debug.Log($"TerrainSaveSystem: Deleted default save file at {path}.");
         }
     }
 
-    private static string GetSavePath()
+    private static string GetDefaultSavePath()
     {
         return Path.Combine(Application.persistentDataPath, saveFileName);
     }
@@ -104,4 +119,5 @@ public static class TerrainSaveSystem
 // HandlesEvents: None
 // TriggersEvents: None
 // UsesSO: None
+// NeedsSetup: None. This is a static utility class. 
 // NeedsSetup: None. This is a static utility class. 

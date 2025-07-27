@@ -21,6 +21,17 @@ public class TerrainGenerator : MonoBehaviour
     public UnityEvent<TerrainData> OnTerrainGenerated;
     
     private TerrainData currentTerrainData;
+
+    /// <summary>
+    /// Sets up the generator with essential dependencies and parameters.
+    /// Used for on-the-fly generation from editor tools.
+    /// </summary>
+    public void Initialize(MaterialDatabase db, int width, int height)
+    {
+        this.materialDatabase = db;
+        this.mapWidth = width;
+        this.mapHeight = height;
+    }
     
     void Start()
     {
@@ -35,12 +46,12 @@ public class TerrainGenerator : MonoBehaviour
     /// <summary>
     /// Generates a new terrain using a specific seed and the current database.
     /// </summary>
-    public void GenerateTerrain(int? specificSeed = null)
+    public TerrainData GenerateTerrain(int? specificSeed = null)
     {
         if (materialDatabase == null)
         {
             Debug.LogError("TerrainGenerator: MaterialDatabase is not assigned.", this);
-            return;
+            return null;
         }
 
         seed = specificSeed ?? this.seed; // Use the provided seed or the current seed
@@ -56,15 +67,17 @@ public class TerrainGenerator : MonoBehaviour
 
         Debug.Log("TerrainGenerator: Terrain generation complete.");
         OnTerrainGenerated?.Invoke(currentTerrainData);
+        
+        return currentTerrainData;
     }
 
     /// <summary>
     /// Generates a new terrain using the seed from the Inspector.
     /// </summary>
     [ContextMenu("Generate Terrain")]
-    public void GenerateTerrain()
+    public TerrainData GenerateTerrain()
     {
-        GenerateTerrain(this.seed);
+        return GenerateTerrain(this.seed);
     }
     
     private void GenerateBaseMaterials()

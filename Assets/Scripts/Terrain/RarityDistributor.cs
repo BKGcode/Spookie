@@ -10,44 +10,57 @@ public class RarityDistributor
     private TerrainData terrainData;
     private MaterialDatabase materialDatabase;
     private int seed;
+    private NoiseGenerator noise;
+    private List<Vector2Int> availableCoords;
 
     public RarityDistributor(TerrainData data, MaterialDatabase database, int generationSeed)
     {
         terrainData = data;
         materialDatabase = database;
         seed = generationSeed;
+        if (terrainData == null || materialDatabase == null)
+        {
+            Debug.LogError("RarityDistributor: TerrainData or MaterialDatabase is null.");
+            return;
+        }
+        this.noise = new NoiseGenerator(seed);
+        this.availableCoords = GetShuffledPositions();
     }
 
     /// <summary>
     /// Distributes materials based on their defined coverage percentage.
     /// </summary>
-    public void DistributeAllMaterials(MaterialSO baseMaterialToExclude)
+    public void DistributeAllMaterials(MaterialSO baseMaterial)
     {
-        var materialsToDistribute = materialDatabase.GetCoverageMaterials();
+        Debug.Log("RarityDistributor: Distributing materials...");
+
+        var materialsToDistribute = materialDatabase.GetCoverageMaterials()
+            .OrderByDescending(m => m.CoveragePercentage)
+            .ToList();
 
         int totalTiles = terrainData.Width * terrainData.Height;
-        float totalPercentage = materialsToDistribute.Sum(m => m.CoveragePercentage);
-
-        if (totalPercentage > 100)
-        {
-            Debug.LogWarning($"RarityDistributor: La suma de porcentajes ({totalPercentage}%) excede el 100%. Algunos materiales podrían no generarse completamente.");
-        }
-
-        List<Vector2Int> availablePositions = GetShuffledPositions();
-
         foreach (var material in materialsToDistribute)
         {
-            int tilesToPlace = Mathf.FloorToInt(totalTiles * (material.CoveragePercentage / 100f));
-            
-            if (availablePositions.Count < tilesToPlace)
+            int requiredTiles = (int)(totalTiles * (material.CoveragePercentage / 100f));
+            for (int i = 0; i < requiredTiles; i++)
             {
-                Debug.LogWarning($"RarityDistributor: No hay suficientes tiles disponibles para {material.MaterialName}. Faltan {tilesToPlace - availablePositions.Count} tiles.");
-                tilesToPlace = availablePositions.Count;
-            }
+                if (availableCoords.Count == 0)
+                {
+                    Debug.LogWarning($"RarityDistributor: Ran out of available coordinates while placing {material.MaterialName}.");
+                    break;
+                }
 
-            PlaceMaterialVeins(material, tilesToPlace, ref availablePositions);
+                int randomIndex = noise.GetNext(0, availableCoords.Count);
+                Vector2Int coord = availableCoords[randomIndex];
+                availableCoords.RemoveAt(randomIndex); // Ensure this coordinate is not picked again
+
+                // Only place the new material if the tile is still the base material
+                if (terrainData.GetTile(coord.x, coord.y).GetMaterial() == baseMaterial)
+                {
+                    terrainData.SetTile(coord.x, coord.y, new TerrainTile(material));
+                }
+            }
         }
-        
     }
 
     private void PlaceMaterialVeins(MaterialSO material, int tilesToPlace, ref List<Vector2Int> availablePositions)
@@ -100,16 +113,16 @@ public class RarityDistributor
                 positions.Add(new Vector2Int(x, y));
             }
         }
-        
+
         // Fisher-Yates shuffle
-        System.Random random = new System.Random(seed);
-        for (int i = positions.Count - 1; i > 1; i--)
+        for (int i = positions.Count - 1; i > 0; i--)
         {
-            int j = random.Next(i + 1);
-            var temp = positions[j];
-            positions[j] = positions[i];
-            positions[i] = temp;
+            int j = noise.GetNext(0, i + 1);
+            Vector2Int temp = positions[i];
+            positions[i] = positions[j];
+            positions[j] = temp;
         }
+
         return positions;
     }
     

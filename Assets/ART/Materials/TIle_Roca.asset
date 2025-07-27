@@ -12,12 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad070cd4344f25e459a01bc20d24cfd2, type: 3}
   m_Name: TIle_Roca
   m_EditorClassIdentifier: 
-  materialName: Roca
-  materialId: 1
-  material: {fileID: 2100000, guid: 0a73e251b61ca2846aba84791b9df54e, type: 2}
-  editorColor: {r: 0, g: 0.47933507, b: 0.6226415, a: 1}
-  coveragePercentage: 50
-  durability: 20
-  itemPrefab: {fileID: 0}
-  hasEconomicValue: 0
-  baseValue: 1
+  guid: 55bb7233-2c0e-4714-9e4f-e8947af438f1
+  MaterialName: TIle_Roca
+  CoveragePercentage: 40
+  IsMineable: 1
+  Durability: 10
+  Material: {fileID: 2100000, guid: 0a73e251b61ca2846aba84791b9df54e, type: 2}
+  EditorColor: {r: 0, g: 0.47933507, b: 0.6226415, a: 1}

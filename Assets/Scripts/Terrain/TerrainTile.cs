@@ -39,6 +39,14 @@ public struct TerrainTile
     }
     
     /// <summary>
+    /// Sets the material for this tile.
+    /// </summary>
+    public void SetMaterial(MaterialSO newMaterial)
+    {
+        material = newMaterial;
+    }
+
+    /// <summary>
     /// Sets a special property for this tile.
     /// </summary>
     /// <param name="newProperty">The new SpaceType property to assign.</param>

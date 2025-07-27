@@ -12,6 +12,7 @@ public class TerrainRenderer : MonoBehaviour
     
     private Dictionary<Material, List<CombineInstance>> cubeMeshesToCombine = new Dictionary<Material, List<CombineInstance>>();
     private Dictionary<Material, List<CombineInstance>> floorMeshesToCombine = new Dictionary<Material, List<CombineInstance>>();
+    private Dictionary<Material, List<CombineInstance>> grassMeshesToCombine = new Dictionary<Material, List<CombineInstance>>();
 
     void OnValidate()
     {
@@ -21,26 +22,17 @@ public class TerrainRenderer : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        TerrainEvents.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
-    }
-
-    void OnDisable()
-    {
-        TerrainEvents.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
-    }
-
     /// <summary>
-    /// Callback method to render the terrain when it's generated.
+    /// Public method to render the terrain. This is now called directly by TerrainManager.
     /// </summary>
-    private void HandleTerrainGenerated(TerrainData data)
+    public void RenderTerrain(TerrainData data, GrassDatabaseSO grassDatabase)
     {
         ClearExistingMeshes();
-        GenerateAllMeshes(data);
+        GenerateAndCombineMeshes(data);
+        GenerateGrassSurface(data, grassDatabase);
         DrawSpecialProperties(data);
     }
-
+    
     private void ClearExistingMeshes()
     {
         foreach (Transform child in transform)
@@ -49,10 +41,12 @@ public class TerrainRenderer : MonoBehaviour
         }
         cubeMeshesToCombine.Clear();
         floorMeshesToCombine.Clear();
+        grassMeshesToCombine.Clear();
     }
     
-    private void GenerateAllMeshes(TerrainData data)
+    private void GenerateAndCombineMeshes(TerrainData data)
     {
+        // First, generate all individual mesh instances
         for (int y = 0; y < data.Height; y++)
         {
             for (int x = 0; x < data.Width; x++)
@@ -60,18 +54,77 @@ public class TerrainRenderer : MonoBehaviour
                 TerrainTile currentTile = data.GetTile(x, y);
                 if (currentTile.GetMiningState() == MiningState.Mined)
                 {
-                    // Generate floor mesh if mined
                     CreateFloorMeshInstance(x, y, currentTile.GetMaterial());
                 }
                 else
                 {
-                    // Generate cube mesh if not mined
                     CreateCubeMeshInstance(x, y, data);
                 }
             }
         }
+        
+        // Now, combine them into single meshes for performance
+        CombineMeshes();
     }
 
+    private void GenerateGrassSurface(TerrainData data, GrassDatabaseSO grassDatabase)
+    {
+        if (grassDatabase == null)
+        {
+            Debug.LogWarning("GrassDatabase is not assigned in TerrainManager. Skipping grass generation.");
+            return;
+        }
+
+        if (grassDatabase.GrassTypes.Count == 0)
+        {
+            Debug.LogWarning("GrassDatabase is assigned, but its 'GrassTypes' list is empty. Skipping grass generation.", grassDatabase);
+            return;
+        }
+
+        Debug.Log("TerrainRenderer: Generating grass surface.");
+
+        // Use a noise function for natural-looking patches
+        float noiseScale = 0.1f;
+        float noiseOffsetX = Random.Range(0f, 100f);
+        float noiseOffsetY = Random.Range(0f, 100f);
+        
+        for (int y = 0; y < data.Height; y++)
+        {
+            for (int x = 0; x < data.Width; x++)
+            {
+                if (data.GetTile(x, y).GetMiningState() != MiningState.Mined)
+                {
+                    // Use Perlin noise to select a grass type
+                    float noiseValue = Mathf.PerlinNoise((x + noiseOffsetX) * noiseScale, (y + noiseOffsetY) * noiseScale);
+                    int grassIndex = Mathf.FloorToInt(noiseValue * grassDatabase.GrassTypes.Count);
+                    grassIndex = Mathf.Clamp(grassIndex, 0, grassDatabase.GrassTypes.Count - 1);
+                    
+                    GrassTypeSO grassType = grassDatabase.GrassTypes[grassIndex];
+                    CreateGrassQuadInstance(x, y, grassType);
+                }
+            }
+        }
+        CombineGrassMeshes();
+    }
+
+    private void CreateGrassQuadInstance(int x, int y, GrassTypeSO grassType)
+    {
+        if (grassType == null || grassType.Material == null) return;
+        
+        // This quad will be the top surface of our cubes
+        Mesh grassQuad = CreateQuadMesh(Vector3.up * 0.5f);
+        
+        CombineInstance combine = new CombineInstance();
+        combine.mesh = grassQuad;
+        combine.transform = Matrix4x4.TRS(new Vector3(x, 0, y), Quaternion.identity, Vector3.one);
+
+        if (!grassMeshesToCombine.ContainsKey(grassType.Material))
+        {
+            grassMeshesToCombine[grassType.Material] = new List<CombineInstance>();
+        }
+        grassMeshesToCombine[grassType.Material].Add(combine);
+    }
+    
     private void CreateCubeMeshInstance(int x, int y, TerrainData data)
     {
         TerrainTile tile = data.GetTile(x, y);
@@ -138,6 +191,12 @@ public class TerrainRenderer : MonoBehaviour
             AddFace(Vector3.left, 0.5f, ref vertices, ref triangles, ref uvs);
         }
         
+        // Bottom Face (Y-)
+        // This is simplified: in a 2D top-down game, the bottom is rarely seen unless blocks are mined from below.
+        // For now, we assume it's always needed if we are rendering a cube.
+        // A more complex 3D game would check for a block below: `data.GetTile(x, y - 1, z)` etc.
+        AddFace(Vector3.down, 0.5f, ref vertices, ref triangles, ref uvs);
+
         Mesh mesh = new Mesh();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
@@ -220,6 +279,23 @@ public class TerrainRenderer : MonoBehaviour
         }
     }
 
+    private void CombineGrassMeshes()
+    {
+        foreach (var pair in grassMeshesToCombine)
+        {
+            GameObject combinedObject = new GameObject("TerrainMesh_Grass_" + pair.Key.name);
+            combinedObject.transform.parent = transform;
+            var filter = combinedObject.AddComponent<MeshFilter>();
+            var renderer = combinedObject.AddComponent<MeshRenderer>();
+            
+            renderer.material = pair.Key;
+            
+            Mesh combinedMesh = new Mesh();
+            combinedMesh.CombineMeshes(pair.Value.ToArray(), true, true);
+            filter.mesh = combinedMesh;
+        }
+    }
+
     private void DrawSpecialProperties(TerrainData data)
     {
         GameObject specialPropertyGroup = new GameObject("TerrainMesh_SpecialProperties");
@@ -246,7 +322,7 @@ public class TerrainRenderer : MonoBehaviour
     {
         switch (type)
         {
-            case SpaceType.Empty: return Color.gray;
+            // 'Empty' is now represented by the lack of a block, so it doesn't need a colored marker.
             case SpaceType.Treasure: return Color.yellow;
             case SpaceType.Enemy: return Color.red;
             default: return Color.clear;
@@ -255,8 +331,8 @@ public class TerrainRenderer : MonoBehaviour
 }
 
 // ScriptRole: Renders the entire terrain by generating and combining meshes for performance.
-// Dependencies: TerrainGenerator, TerrainData, MaterialSO
-// HandlesEvents: OnTerrainGenerated
+// Dependencies: TerrainGenerator, TerrainData, MaterialSO, GrassDatabaseSO
+// HandlesEvents: None
 // TriggersEvents: None
-// UsesSO: MaterialSO (via TerrainData)
-// NeedsSetup: Attach to the same GameObject as TerrainGenerator. It will listen for generation events. 
+// UsesSO: MaterialSO (via TerrainData), GrassTypeSO (via GrassDatabase)
+// NeedsSetup: Attach to the same GameObject as TerrainGenerator. It's called by TerrainManager. 
