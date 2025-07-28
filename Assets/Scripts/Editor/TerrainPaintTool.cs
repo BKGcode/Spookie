@@ -90,8 +90,13 @@ public class TerrainPaintTool
         
         MaterialSO selectedMaterial = materialDatabase.GetAllMaterials()[selectedMaterialIndex];
         
+        // When painting a material, we overwrite the tile's state completely
+        // to ensure it becomes a full, solid block of the selected type.
         TerrainTile tile = terrainData.GetTile(x, y);
         tile.SetMaterial(selectedMaterial);
+        tile.SetMiningState(MiningState.Intact);
+        tile.SetSpecialProperty(SpaceType.None);
+        
         terrainData.SetTile(x, y, tile);
     }
     
