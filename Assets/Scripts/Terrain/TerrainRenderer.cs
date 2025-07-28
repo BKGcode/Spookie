@@ -113,28 +113,40 @@ public class TerrainRenderer : MonoBehaviour
         tileObj.transform.position = new Vector3(x, 0, y);
         tileObj.transform.parent = this.transform;
 
+        // We need a targetable component for player interaction and AI
+        tileObj.AddComponent<World.Targetable>();
+
         if (currentTile.GetMiningState() == MiningState.Mined)
         {
+            // This is a floor tile. It needs a thin collider so dwarfs can walk on it.
             Mesh floorMesh = CreateQuadMesh(Vector3.down * 0.5f);
             MeshFilter filter = tileObj.AddComponent<MeshFilter>();
             filter.mesh = floorMesh;
             MeshRenderer renderer = tileObj.AddComponent<MeshRenderer>();
             renderer.material = materialSO.Material;
+
+            // Add a thin BoxCollider to act as the floor
+            BoxCollider collider = tileObj.AddComponent<BoxCollider>();
+            collider.size = new Vector3(1, 0.1f, 1);
+            collider.center = new Vector3(0, -0.5f, 0);
         }
         else
         {
-            // Create the ground block
+            // This is a solid, mineable block. It needs a collider.
             Mesh cubeMesh = CreateCubeMeshWithFaceCulling(x, y, data);
             MeshFilter filter = tileObj.AddComponent<MeshFilter>();
             filter.mesh = cubeMesh;
             MeshRenderer renderer = tileObj.AddComponent<MeshRenderer>();
             renderer.material = materialSO.Material;
             
-            // Create the grass on top
+            // Add the collider
+            BoxCollider collider = tileObj.AddComponent<BoxCollider>();
+            collider.size = Vector3.one; // Standard 1x1x1 block
+
+            // Create the grass on top (no collider needed for grass)
             CreateGrassForTile(tileObj, x, y, grassDatabase);
         }
         
-        // Store the reference to the new GameObject
         tileObjects[new Vector2Int(x, y)] = tileObj;
     }
 

@@ -4,29 +4,34 @@ using System.Collections.Generic;
 using System.Linq;
 using World;
 using Core;
-using UnityEngine.AI;
+using Pathfinding;
 
 namespace Dwarfs
 {
-    [RequireComponent(typeof(DwarfData), typeof(DwarfMovement), typeof(NavMeshAgent))]
+    [RequireComponent(typeof(DwarfData), typeof(DwarfMovement))]
     public class DwarfBrain : MonoBehaviour
     {
+        // Component Dependencies
         private DwarfData _dwarfData;
         private DwarfMovement _dwarfMovement;
-        private NavMeshAgent _agent;
-
+        
+        // State
         private Targetable _currentTargetable;
         private Coroutine _searchCoroutine;
-        
         private Queue<PlayerDirective> _directiveQueue = new Queue<PlayerDirective>();
-        private float _workTimer;
-        private const float WorkTimeToDestroyTarget = 5f; // Time in seconds to "mine" a target.
+        private HashSet<Targetable> _blacklistedTargets = new HashSet<Targetable>();
 
+        // Timers and Constants
+        private float _workTimer;
+        private const float WorkTimeToDestroyTarget = 5f;
+        private const float NoJobSearchInterval = 5f;
+        private const float FailedPathPenalty = 2f;
+
+        #region Unity Lifecycle
         private void Awake()
         {
             _dwarfData = GetComponent<DwarfData>();
             _dwarfMovement = GetComponent<DwarfMovement>();
-            _agent = GetComponent<NavMeshAgent>();
             Debug.Log($"DwarfBrain initialized for {name}.");
         }
 
@@ -46,45 +51,45 @@ namespace Dwarfs
         {
             if (_dwarfData.currentState == DwarfData.DwarfState.Sleeping) return;
 
-            // Priority 1: Process the directive queue if we have one.
+            // Priority 1: Player commands (either active or in queue)
             if (_dwarfData.currentDirective != null)
             {
-                HandleDirective();
+                HandleDirectiveState();
                 return;
             }
 
-            // If the current directive is null, but the queue is not, process the next one.
             if (_directiveQueue.Count > 0)
             {
                 ProcessNextInQueue();
                 return;
             }
             
-            // Priority 2: Autonomous behavior
+            // Priority 2: Autonomous states
             switch (_dwarfData.currentState)
             {
                 case DwarfData.DwarfState.Idle:
                     HandleIdleState();
                     break;
                 case DwarfData.DwarfState.Working:
-                    HandleWorkingState();
+                    HandleAutonomousWorkState();
                     break;
                 case DwarfData.DwarfState.Living:
                     HandleLivingState();
                     break;
             }
         }
-        
+        #endregion
+
+        #region Public API
         public void AssignDirective(PlayerDirective directive)
         {
-            CleanupCurrentTasks(true); // Hard reset for player command
+            CleanupCurrentTasks(true);
 
-            var path = new NavMeshPath();
-            _agent.CalculatePath(directive.Target.transform.position, path);
+            var path = Pathfinder.FindPath(transform.position, directive.Target.transform.position);
 
-            if (path.status != NavMeshPathStatus.PathComplete)
+            if (path == null)
             {
-                Debug.Log($"Target for {name} is blocked. Attempting to generate tunnel path.");
+                Debug.Log($"Target for {name} is blocked. Generating tunnel path.");
                 GenerateTunnelQueue(directive);
             }
             else
@@ -94,8 +99,10 @@ namespace Dwarfs
             
             ProcessNextInQueue();
         }
+        #endregion
 
-        private void HandleDirective()
+        #region State Handlers
+        private void HandleDirectiveState()
         {
             if (_dwarfData.currentState != DwarfData.DwarfState.Working) return;
             
@@ -111,70 +118,159 @@ namespace Dwarfs
             }
             else
             {
-                Debug.LogWarning($"{name} ran out of work budget on a directive. Aborting queue.");
+                Debug.LogWarning($"{name} ran out of work budget. Aborting directive queue.");
                 AbortDirective();
             }
         }
 
-        private void CompleteCurrentDirective()
+        private void HandleIdleState()
         {
-            Debug.Log($"{name} completed directive on target {_currentTargetable.name}.");
-            Destroy(_currentTargetable.gameObject); // The target is destroyed
-            ReleaseCurrentTarget();
-            _dwarfData.currentDirective = null;
-            // The main loop will call ProcessNextInQueue automatically.
-        }
-
-        private void GenerateTunnelQueue(PlayerDirective finalDirective)
-        {
-            Vector3 startPos = transform.position;
-            Vector3 endPos = finalDirective.Target.transform.position;
-            
-            Vector3 center = (startPos + endPos) / 2f;
-            float distance = Vector3.Distance(startPos, endPos);
-            Vector3 halfExtents = new Vector3(2f, 5f, distance / 2f); // Box width/height is arbitrary
-            Quaternion orientation = Quaternion.LookRotation(endPos - startPos);
-
-            var colliders = Physics.OverlapBox(center, halfExtents, orientation);
-
-            var obstacles = colliders
-                .Select(c => c.GetComponent<Targetable>())
-                .Where(t => t != null && t != finalDirective.Target && !t.IsOccupied)
-                .OrderBy(t => Vector3.Distance(transform.position, t.transform.position))
-                .ToList();
-            
-            Debug.Log($"Found {obstacles.Count} obstacles to tunnel through.");
-
-            foreach (var obstacle in obstacles)
+            if (_dwarfData.WorkTimeBudget > 0)
             {
-                _directiveQueue.Enqueue(new PlayerDirective(obstacle));
+                if (_searchCoroutine == null)
+                {
+                    _searchCoroutine = StartCoroutine(SearchForTargetsRoutine());
+                }
             }
-            _directiveQueue.Enqueue(finalDirective);
+            else
+            {
+                _dwarfData.currentState = DwarfData.DwarfState.Living;
+            }
         }
 
+        private void HandleAutonomousWorkState()
+        {
+            if (_dwarfData.WorkTimeBudget > 0)
+            {
+                _dwarfData.ConsumeWorkTime(Time.deltaTime);
+            }
+            else
+            {
+                ReleaseCurrentTarget();
+                _dwarfData.currentState = DwarfData.DwarfState.Idle;
+            }
+        }
+
+        private void HandleLivingState()
+        {
+            if (_dwarfData.LivingTimeBudget > 0)
+            {
+                 _dwarfData.ConsumeLivingTime(Time.deltaTime);
+                 if(_searchCoroutine == null) 
+                 {
+                    _searchCoroutine = StartCoroutine(SearchForTargetsRoutine());
+                 }
+            }
+            else // Should not happen often, but as a fallback
+            {
+                 _dwarfData.currentState = DwarfData.DwarfState.Idle;
+            }
+        }
+
+        private void HandleArrival()
+        {
+            // Pathfinding failed completely
+            if (_currentTargetable == null)
+            {
+                 Debug.LogWarning($"{name} failed to find a path to the designated target.");
+                 _dwarfData.ConsumeWorkTime(FailedPathPenalty);
+                 if(_dwarfData.currentDirective != null)
+                 {
+                    _blacklistedTargets.Add(_dwarfData.currentDirective.Target);
+                    AbortDirective();
+                 }
+                 _dwarfData.currentState = DwarfData.DwarfState.Idle;
+                 return;
+            }
+            
+            // Arrived for a player directive
+            if (_dwarfData.currentDirective != null && _dwarfData.currentDirective.Target == _currentTargetable)
+            {
+                 if (_currentTargetable.IsOccupied)
+                 {
+                    Debug.LogWarning($"{name} arrived at directive target, but it's occupied. Aborting.");
+                    AbortDirective();
+                 }
+                 else
+                 {
+                    _currentTargetable.SetOccupancy(true);
+                    _dwarfData.currentState = DwarfData.DwarfState.Working;
+                    _workTimer = 0f;
+                    Debug.Log($"{name} started working on player directive: {_currentTargetable.name}");
+                 }
+                 return;
+            }
+            
+            // Arrived for an autonomous task
+            if (!_currentTargetable.IsOccupied)
+            {
+                _currentTargetable.SetOccupancy(true);
+                _dwarfData.currentState = DwarfData.DwarfState.Working;
+                Debug.Log($"{name} claimed autonomous target {_currentTargetable.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"{name} arrived at autonomous target, but it's occupied. Finding new job.");
+                ReleaseCurrentTarget();
+                _dwarfData.currentState = DwarfData.DwarfState.Idle;
+            }
+        }
+
+        private void HandleNightStart()
+        {
+             Debug.Log($"{name} is going to sleep, forgetting all tasks.");
+             _blacklistedTargets.Clear();
+             CleanupCurrentTasks(false);
+        }
+        #endregion
+
+        #region Task & Queue Management
         private void ProcessNextInQueue()
         {
             if (_dwarfData.currentDirective != null || _directiveQueue.Count == 0) return;
 
-            var nextDirective = _directiveQueue.Dequeue();
-            _dwarfData.currentDirective = nextDirective;
-            SetCurrentTarget(nextDirective.Target);
+            _dwarfData.currentDirective = _directiveQueue.Dequeue();
+            SetCurrentTarget(_dwarfData.currentDirective.Target);
             
             _dwarfData.currentState = DwarfData.DwarfState.Walking;
             _dwarfMovement.GoToTarget(_currentTargetable.transform);
-            Debug.Log($"{name} is starting next directive in queue: {_currentTargetable.name}");
+            Debug.Log($"{name} starting next directive in queue: {_currentTargetable.name}");
+        }
+
+        private void GenerateTunnelQueue(PlayerDirective finalDirective)
+        {
+            PathNode startNode = PathfindingGrid.Instance.WorldPointToNode(transform.position);
+            PathNode endNode = PathfindingGrid.Instance.WorldPointToNode(finalDirective.Target.transform.position);
+            
+            List<PathNode> line = GetLineOfSight(startNode, endNode);
+            var obstacles = line
+                .Where(node => !node.isWalkable)
+                .Select(node => Physics.OverlapSphere(node.worldPosition, 0.4f)
+                                       .Select(c => c.GetComponent<Targetable>())
+                                       .FirstOrDefault(t => t != null))
+                .Where(t => t != null && t != finalDirective.Target)
+                .Distinct()
+                .ToList();
+
+            Debug.Log($"Found {obstacles.Count} obstacles to tunnel.");
+
+            obstacles.ForEach(obs => _directiveQueue.Enqueue(new PlayerDirective(obs)));
+            _directiveQueue.Enqueue(finalDirective);
         }
         
+        private void CompleteCurrentDirective()
+        {
+            Debug.Log($"{name} completed work on {_currentTargetable.name}.");
+            PathfindingGrid.Instance.UpdateNodeWalkability(_currentTargetable.transform.position, true);
+            Destroy(_currentTargetable.gameObject);
+            ReleaseCurrentTarget();
+            _dwarfData.currentDirective = null;
+        }
+
         private void AbortDirective()
         {
             CleanupCurrentTasks(false);
             _dwarfData.currentState = DwarfData.DwarfState.Living;
-        }
-        
-        private void HandleNightStart()
-        {
-             Debug.Log($"{name} is going to sleep, forgetting all tasks and directives.");
-             CleanupCurrentTasks(false);
         }
 
         private void CleanupCurrentTasks(bool forNewPlayerDirective)
@@ -190,10 +286,42 @@ namespace Dwarfs
                 _searchCoroutine = null;
             }
             
-            // If it's not for a new player directive, the state should change.
             if (!forNewPlayerDirective)
             {
                 _dwarfData.currentState = DwarfData.DwarfState.Sleeping;
+            }
+        }
+        #endregion
+
+        #region Target Management
+        private IEnumerator SearchForTargetsRoutine()
+        {
+            while (true) // The loop is controlled by the coroutine being stopped.
+            {
+                if (_dwarfData.currentState == DwarfData.DwarfState.Idle || _dwarfData.currentState == DwarfData.DwarfState.Living)
+                {
+                    Debug.Log($"{name} is searching for a target...");
+                    Transform foundTransform = Targetable.FindClosest(transform.position, _blacklistedTargets);
+
+                    if (foundTransform != null)
+                    {
+                        _dwarfData.currentState = DwarfData.DwarfState.Idle;
+                        SetCurrentTarget(foundTransform.GetComponent<Targetable>());
+                        _dwarfMovement.GoToTarget(_currentTargetable.transform);
+                        _searchCoroutine = null; 
+                        yield break;
+                    }
+                    else
+                    {
+                        Debug.Log($"{name} found no available jobs. Will check again later.");
+                        _dwarfData.currentState = DwarfData.DwarfState.Living;
+                        yield return new WaitForSeconds(NoJobSearchInterval);
+                    }
+                }
+                else
+                {
+                     yield return null; // Wait a frame if in another state
+                }
             }
         }
 
@@ -203,131 +331,10 @@ namespace Dwarfs
             {
                 _currentTargetable.OnOccupancyChanged -= HandleTargetOccupancyChanged;
             }
-
             _currentTargetable = newTarget;
-
             if (_currentTargetable != null)
             {
                 _currentTargetable.OnOccupancyChanged += HandleTargetOccupancyChanged;
-            }
-        }
-
-        private void HandleTargetOccupancyChanged(bool isOccupied)
-        {
-            if (isOccupied && _currentTargetable != null && (_dwarfData.currentState == DwarfData.DwarfState.Walking || _dwarfData.currentState == DwarfData.DwarfState.Idle))
-            {
-                // If our current target gets stolen
-                if (_dwarfData.currentDirective != null && _dwarfData.currentDirective.Target == _currentTargetable)
-                {
-                    Debug.LogWarning($"{name}'s directive target was stolen! Aborting directive queue.");
-                    AbortDirective();
-                }
-                else
-                {
-                    Debug.LogWarning($"{name}'s autonomous target was stolen! Finding a new job.");
-                    _dwarfMovement.StopMoving();
-                    ReleaseCurrentTarget();
-                    _dwarfData.currentState = DwarfData.DwarfState.Idle;
-                }
-            }
-        }
-        
-        // --- Unchanged methods from before ---
-        
-        private void HandleIdleState()
-        {
-            if (_dwarfData.WorkTimeBudget > 0)
-            {
-                if (_searchCoroutine == null)
-                {
-                    _searchCoroutine = StartCoroutine(SearchForTargetsRoutine());
-                }
-            }
-            else
-            {
-                _dwarfData.currentState = DwarfData.DwarfState.Living;
-                Debug.Log($"{name} has no more work budget, switching to Living state.");
-            }
-        }
-        
-        private IEnumerator SearchForTargetsRoutine()
-        {
-            while (_dwarfData.currentState == DwarfData.DwarfState.Idle)
-            {
-                Debug.Log($"{name} is searching for a target...");
-                Transform foundTransform = Targetable.FindClosest(transform.position);
-
-                if (foundTransform != null)
-                {
-                    SetCurrentTarget(foundTransform.GetComponent<Targetable>());
-                    _dwarfData.currentState = DwarfData.DwarfState.Walking;
-                    _dwarfMovement.GoToTarget(_currentTargetable.transform);
-                    _searchCoroutine = null; 
-                    yield break;
-                }
-
-                yield return new WaitForSeconds(SearchInterval);
-            }
-            _searchCoroutine = null;
-        }
-        
-        private void HandleWorkingState()
-        {
-            if (_dwarfData.WorkTimeBudget > 0)
-            {
-                _dwarfData.ConsumeWorkTime(Time.deltaTime);
-            }
-            else
-            {
-                ReleaseCurrentTarget();
-                _dwarfData.currentState = DwarfData.DwarfState.Idle;
-                Debug.Log($"{name} finished working and is now Idle.");
-            }
-        }
-        
-        private void HandleLivingState()
-        {
-            if (_dwarfData.LivingTimeBudget > 0)
-            {
-                _dwarfData.ConsumeLivingTime(Time.deltaTime);
-            }
-            else
-            {
-                _dwarfData.currentState = DwarfData.DwarfState.Idle;
-                 Debug.Log($"{name} ran out of living budget, going Idle.");
-            }
-        }
-        
-        private void HandleArrival()
-        {
-            if (_currentTargetable == null) return;
-            
-            if (_dwarfData.currentDirective != null && _dwarfData.currentDirective.Target == _currentTargetable)
-            {
-                 if (_currentTargetable.IsOccupied)
-                 {
-                    Debug.LogWarning($"{name} arrived at directive target, but it's occupied. Aborting directive queue.");
-                    AbortDirective();
-                    return;
-                 }
-                 _currentTargetable.SetOccupancy(true);
-                 _dwarfData.currentState = DwarfData.DwarfState.Working;
-                 _workTimer = 0f;
-                 Debug.Log($"{name} started working on player directive: {_currentTargetable.name}");
-                 return;
-            }
-            
-            if (!_currentTargetable.IsOccupied)
-            {
-                _currentTargetable.SetOccupancy(true);
-                _dwarfData.currentState = DwarfData.DwarfState.Working;
-                Debug.Log($"{name} successfully claimed autonomous target {_currentTargetable.name} and starts working.");
-            }
-            else
-            {
-                Debug.LogWarning($"{name} arrived at autonomous target, but it's already occupied. Returning to Idle.");
-                ReleaseCurrentTarget();
-                _dwarfData.currentState = DwarfData.DwarfState.Idle;
             }
         }
 
@@ -335,15 +342,73 @@ namespace Dwarfs
         {
             if (_currentTargetable != null)
             {
-                _currentTargetable.OnOccupancyChanged -= HandleTargetOccupancyChanged;
-                
                 if (_currentTargetable.IsOccupied)
                 {
                     _currentTargetable.SetOccupancy(false);
                 }
-                
                 SetCurrentTarget(null);
             }
         }
+
+        private void HandleTargetOccupancyChanged(bool isOccupied)
+        {
+            if (!isOccupied || _currentTargetable == null) return;
+            
+            if (_dwarfData.currentState == DwarfData.DwarfState.Walking)
+            {
+                Debug.LogWarning($"{name}'s target at {_currentTargetable.name} was stolen! Finding new job.");
+                if (_dwarfData.currentDirective != null) AbortDirective();
+                else
+                {
+                    _dwarfMovement.StopMoving();
+                    ReleaseCurrentTarget();
+                    _dwarfData.currentState = DwarfData.DwarfState.Idle;
+                }
+            }
+        }
+        #endregion
+
+        #region Utility
+        private List<PathNode> GetLineOfSight(PathNode start, PathNode end)
+        {
+            List<PathNode> line = new List<PathNode>();
+            int x = start.gridX, y = start.gridY, z = start.gridZ;
+            int x2 = end.gridX, y2 = end.gridY, z2 = end.gridZ;
+            
+            int w = x2 - x, h = y2 - y, d = z2 - z;
+            int dx1 = 0, dy1 = 0, dz1 = 0, dx2 = 0, dy2 = 0, dz2 = 0;
+            if (w<0) dx1 = -1; else if (w>0) dx1 = 1;
+            if (h<0) dy1 = -1; else if (h>0) dy1 = 1;
+            if (d<0) dz1 = -1; else if (d>0) dz1 = 1;
+            if (w<0) dx2 = -1; else if (w>0) dx2 = 1;
+            int longest = Mathf.Abs(w), shortest = Mathf.Abs(h);
+            if (longest < Mathf.Abs(d))
+            {
+                longest = Mathf.Abs(d);
+                shortest = Mathf.Abs(w);
+                if (shortest < Mathf.Abs(h)) shortest = Mathf.Abs(h);
+                dy2 = 0;
+            }
+            else if (shortest < Mathf.Abs(d))
+            {
+                shortest = Mathf.Abs(d);
+            }
+
+            int numerator = longest >> 1;
+            for (int i=0; i<=longest; i++)
+            {
+                line.Add(PathfindingGrid.Instance.WorldPointToNode(new Vector3(x, y, z)));
+                numerator += shortest;
+                if (numerator >= longest)
+                {
+                    numerator -= longest;
+                    x += dx1; y += dy1; z += dz1;
+                } else {
+                    x += dx2; y += dy2; z += dz2;
+                }
+            }
+            return line;
+        }
+        #endregion
     }
 } 

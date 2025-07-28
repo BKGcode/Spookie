@@ -59,11 +59,21 @@ namespace World
         /// <returns>The transform of the closest target, or null if none are available.</returns>
         public static Transform FindClosest(Vector3 position)
         {
+            return FindClosest(position, null);
+        }
+
+        public static Transform FindClosest(Vector3 position, HashSet<Targetable> blacklist)
+        {
             Transform bestTarget = null;
             float closestDistanceSqr = Mathf.Infinity;
 
             foreach (var target in AvailableTargets)
             {
+                if (blacklist != null && blacklist.Contains(target))
+                {
+                    continue; // Skip blacklisted targets
+                }
+
                 Vector3 directionToTarget = target.transform.position - position;
                 float dSqrToTarget = directionToTarget.sqrMagnitude;
                 if (dSqrToTarget < closestDistanceSqr)

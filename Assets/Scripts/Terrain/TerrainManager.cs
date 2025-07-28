@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Pathfinding;
 
 /// <summary>
 /// Singleton manager that coordinates all terrain-related systems.
@@ -74,6 +75,9 @@ public class TerrainManager : MonoBehaviour
         }
 
         currentTerrainData = TerrainDataFactory.CreateFromSaveData(asset.LevelData, materialDatabase);
+        
+        // Initialize the pathfinding grid with the newly created terrain data
+        PathfindingGrid.Instance.InitializeGrid(currentTerrainData);
         
         if (currentTerrainData == null)
         {
