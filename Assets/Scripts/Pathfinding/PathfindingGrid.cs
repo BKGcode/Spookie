@@ -7,6 +7,9 @@ namespace Pathfinding
     {
         public static PathfindingGrid Instance { get; private set; }
 
+        [Header("Grid Settings")]
+        [SerializeField] private LayerMask unwalkableMask;
+
         private PathNode[,,] _grid;
         private int _gridSizeX, _gridSizeY, _gridSizeZ;
         
@@ -30,11 +33,11 @@ namespace Pathfinding
         {
             _nodeDiameter = NodeRadius * 2;
             
-            // Assuming block size is 1x1x1
-            Vector3 worldSize = new Vector3(terrainData.Width, 20, terrainData.Height); // Using Height for Z, and a fixed vertical size for now
+            // The grid is now effectively 2D, with a single layer centered at y=0.
+            Vector3 worldSize = new Vector3(terrainData.Width, 1, terrainData.Height);
             
             _gridSizeX = Mathf.RoundToInt(worldSize.x / _nodeDiameter);
-            _gridSizeY = Mathf.RoundToInt(worldSize.y / _nodeDiameter);
+            _gridSizeY = 1; // Force a single vertical layer
             _gridSizeZ = Mathf.RoundToInt(worldSize.z / _nodeDiameter);
             
             CreateGrid(worldSize);
@@ -51,11 +54,18 @@ namespace Pathfinding
                 {
                     for (int z = 0; z < _gridSizeZ; z++)
                     {
-                        Vector3 worldPoint = _worldBottomLeft + Vector3.right * (x * _nodeDiameter + NodeRadius) + Vector3.up * (y * _nodeDiameter + NodeRadius) + Vector3.forward * (z * _nodeDiameter + NodeRadius);
+                        // Check for obstacles at block-height (Y=0.5)
+                        Vector3 collisionCheckPoint = new Vector3(x, 0.5f, z);
+                        bool isWalkable = !Physics.CheckSphere(collisionCheckPoint, NodeRadius, unwalkableMask);
+
+                        // But create the actual path node at floor-height (Y=0)
+                        Vector3 nodeWorldPosition = new Vector3(x, 0, z);
                         
-                        // Let's check for colliders at this position to determine walkability
-                        bool isWalkable = !Physics.CheckSphere(worldPoint, NodeRadius);
-                        _grid[x, y, z] = new PathNode(x, y, z, worldPoint, isWalkable);
+                        if (!isWalkable)
+                        {
+                            Debug.DrawRay(collisionCheckPoint, Vector3.up * 2, Color.red, 10f);
+                        }
+                        _grid[x, y, z] = new PathNode(x, y, z, nodeWorldPosition, isWalkable);
                     }
                 }
             }
@@ -64,21 +74,13 @@ namespace Pathfinding
 
         public PathNode WorldPointToNode(Vector3 worldPosition)
         {
-            float percentX = (worldPosition.x - transform.position.x + (_gridSizeX * NodeRadius)) / (_gridSizeX * _nodeDiameter);
-            float percentY = (worldPosition.y - transform.position.y + (_gridSizeY * NodeRadius)) / (_gridSizeY * _nodeDiameter);
-            float percentZ = (worldPosition.z - transform.position.z + (_gridSizeZ * NodeRadius)) / (_gridSizeZ * _nodeDiameter);
-
-            percentX = Mathf.Clamp01(percentX);
-            percentY = Mathf.Clamp01(percentY);
-            percentZ = Mathf.Clamp01(percentZ);
-
-            int x = Mathf.FloorToInt((_gridSizeX) * percentX);
-            int y = Mathf.FloorToInt((_gridSizeY) * percentY);
-            int z = Mathf.FloorToInt((_gridSizeZ) * percentZ);
+            // We can now safely use integer coordinates as the grid matches the world.
+            int x = Mathf.RoundToInt(worldPosition.x);
+            int y = 0; // Always use the single layer
+            int z = Mathf.RoundToInt(worldPosition.z);
             
             // Boundary check
             x = Mathf.Clamp(x, 0, _gridSizeX - 1);
-            y = Mathf.Clamp(y, 0, _gridSizeY - 1);
             z = Mathf.Clamp(z, 0, _gridSizeZ - 1);
 
             return _grid[x, y, z];
@@ -98,20 +100,17 @@ namespace Pathfinding
             List<PathNode> neighbours = new List<PathNode>();
             for (int x = -1; x <= 1; x++)
             {
-                for (int y = -1; y <= 1; y++)
+                for (int z = -1; z <= 1; z++)
                 {
-                    for (int z = -1; z <= 1; z++)
+                    if (x == 0 && z == 0) continue;
+
+                    int checkX = node.gridX + x;
+                    int checkY = 0; // Always on the same plane
+                    int checkZ = node.gridZ + z;
+
+                    if (checkX >= 0 && checkX < _gridSizeX && checkZ >= 0 && checkZ < _gridSizeZ)
                     {
-                        if (x == 0 && y == 0 && z == 0) continue;
-
-                        int checkX = node.gridX + x;
-                        int checkY = node.gridY + y;
-                        int checkZ = node.gridZ + z;
-
-                        if (checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkY < _gridSizeY && checkZ >= 0 && checkZ < _gridSizeZ)
-                        {
-                            neighbours.Add(_grid[checkX, checkY, checkZ]);
-                        }
+                        neighbours.Add(_grid[checkX, checkY, checkZ]);
                     }
                 }
             }

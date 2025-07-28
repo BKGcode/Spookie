@@ -108,42 +108,43 @@ public class TerrainRenderer : MonoBehaviour
         TerrainTile currentTile = data.GetTile(x, y);
         MaterialSO materialSO = currentTile.GetMaterial();
         if (materialSO == null) return;
-        
-        GameObject tileObj = new GameObject($"Tile_{x}_{y}");
-        tileObj.transform.position = new Vector3(x, 0, y);
-        tileObj.transform.parent = this.transform;
 
-        // We need a targetable component for player interaction and AI
-        tileObj.AddComponent<World.Targetable>();
+        GameObject tileObj = new GameObject($"Tile_{x}_{y}");
+        tileObj.transform.parent = this.transform;
 
         if (currentTile.GetMiningState() == MiningState.Mined)
         {
-            // This is a floor tile. It needs a thin collider so dwarfs can walk on it.
-            Mesh floorMesh = CreateQuadMesh(Vector3.down * 0.5f);
+            // Create a floor tile at Y=0 on the 'Default' (walkable) layer.
+            tileObj.transform.position = new Vector3(x, 0, y);
+            tileObj.layer = LayerMask.NameToLayer("Default");
+            
+            Mesh floorMesh = CreateQuadMesh(Vector3.zero); // Centered at the object's origin
             MeshFilter filter = tileObj.AddComponent<MeshFilter>();
             filter.mesh = floorMesh;
             MeshRenderer renderer = tileObj.AddComponent<MeshRenderer>();
             renderer.material = materialSO.Material;
 
-            // Add a thin BoxCollider to act as the floor
+            // Optional: A thin collider for physics interactions, if needed later.
             BoxCollider collider = tileObj.AddComponent<BoxCollider>();
             collider.size = new Vector3(1, 0.1f, 1);
-            collider.center = new Vector3(0, -0.5f, 0);
+            collider.center = Vector3.zero;
         }
         else
         {
-            // This is a solid, mineable block. It needs a collider.
+            // Create a solid block centered at Y=0.5 on the 'Obstacles' layer.
+            tileObj.transform.position = new Vector3(x, 0.5f, y);
+            tileObj.layer = LayerMask.NameToLayer("Obstacles");
+            tileObj.AddComponent<World.Targetable>();
+            
             Mesh cubeMesh = CreateCubeMeshWithFaceCulling(x, y, data);
             MeshFilter filter = tileObj.AddComponent<MeshFilter>();
             filter.mesh = cubeMesh;
             MeshRenderer renderer = tileObj.AddComponent<MeshRenderer>();
             renderer.material = materialSO.Material;
             
-            // Add the collider
             BoxCollider collider = tileObj.AddComponent<BoxCollider>();
-            collider.size = Vector3.one; // Standard 1x1x1 block
-
-            // Create the grass on top (no collider needed for grass)
+            collider.size = Vector3.one;
+            
             CreateGrassForTile(tileObj, x, y, grassDatabase);
         }
         

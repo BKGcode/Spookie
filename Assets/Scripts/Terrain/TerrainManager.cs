@@ -39,12 +39,12 @@ public class TerrainManager : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerActions.OnMineAttempt += HandleMineAttempt;
+        // PlayerActions.OnMineAttempt += HandleMineAttempt; // No longer needed
     }
 
     private void OnDisable()
     {
-        PlayerActions.OnMineAttempt -= HandleMineAttempt;
+        // PlayerActions.OnMineAttempt -= HandleMineAttempt; // No longer needed
     }
 
     void Start()
@@ -62,6 +62,9 @@ public class TerrainManager : MonoBehaviour
         {
             terrainRenderer.RenderTerrain(currentTerrainData, grassDatabase);
         }
+        
+        // Notify all listeners that the terrain is ready.
+        TerrainEvents.OnTerrainGenerated?.Invoke(currentTerrainData);
     }
 
     private void LoadTerrainFromAsset(TerrainDataAsset asset)
@@ -134,6 +137,8 @@ public class TerrainManager : MonoBehaviour
     
     private void HandleMineAttempt(Vector2Int tileCoords)
     {
+        // This handler is kept for now in case it's needed for other inputs,
+        // but it's disconnected from PlayerActions.
         Debug.Log($"TerrainManager: Received OnMineAttempt for tile {tileCoords}. Processing...");
         MineTileAt(tileCoords.x, tileCoords.y);
     }
@@ -167,7 +172,7 @@ public class TerrainManager : MonoBehaviour
 
 // ScriptRole: Loads and manages the state of the terrain for a playable level.
 // Dependencies: TerrainDataAsset, MaterialDatabase, TerrainRenderer
-// HandlesEvents: PlayerActions.OnMineAttempt
+// HandlesEvents: None
 // TriggersEvents: TerrainEvents.OnTileMined
 // UsesSO: TerrainDataAsset, MaterialDatabase, FeedbackMessagesSO, GrassDatabaseSO
 // NeedsSetup: Assign the 'Level To Load' asset and other dependencies in the Inspector. 

@@ -1,98 +1,108 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 
 namespace Dwarfs
 {
-    [RequireComponent(typeof(CharacterController))]
     public class DwarfMovement : MonoBehaviour
     {
         public event Action OnArrival;
         
         [Header("Movement Settings")]
-        [SerializeField] private float speed = 3f;
+        [SerializeField] private float speed = 5f; // Speed is now higher for quicker tile-to-tile movement.
+        [SerializeField] private LayerMask groundLayer;
 
-        private CharacterController _characterController;
-        private List<PathNode> _path;
-        private int _pathIndex;
-        private Vector3 _velocity;
+        private Coroutine _movementCoroutine;
 
-        private void Awake()
+        private void OnEnable()
         {
-            _characterController = GetComponent<CharacterController>();
+            // No longer need to listen for terrain generation.
+            // TerrainEvents.OnTerrainGenerated.AddListener(HandleTerrainGenerated);
         }
 
-        private void Update()
+        private void OnDisable()
         {
-            ApplyGravity();
-            FollowPath();
+            // TerrainEvents.OnTerrainGenerated.RemoveListener(HandleTerrainGenerated);
         }
 
-        public void GoToTarget(Transform target)
+        public void GoToTarget(Vector3 targetPosition)
         {
-            List<PathNode> newPath = Pathfinder.FindPath(transform.position, target.position);
+            if (_movementCoroutine != null)
+            {
+                StopCoroutine(_movementCoroutine);
+            }
+
+            List<PathNode> newPath = Pathfinder.FindPath(transform.position, targetPosition);
+            
             if (newPath != null && newPath.Count > 0)
             {
-                _path = newPath;
-                _pathIndex = 0;
-                Debug.Log($"{name} found a path to {target.name} with {_path.Count} nodes.");
+                _movementCoroutine = StartCoroutine(FollowPathRoutine(newPath));
+                Debug.Log($"{name} is moving to {targetPosition} via a path of {newPath.Count} nodes.");
             }
             else
             {
-                Debug.LogWarning($"{name} could not find a path to {target.name}.");
-                _path = null;
+                Debug.LogWarning($"{name} could not find a path to {targetPosition}.");
                 OnArrival?.Invoke(); 
             }
         }
         
         public void StopMoving()
         {
-            _path = null;
-            _pathIndex = 0;
+            if (_movementCoroutine != null)
+            {
+                StopCoroutine(_movementCoroutine);
+                _movementCoroutine = null;
+            }
             Debug.Log($"{name} has stopped moving.");
         }
 
-        private void ApplyGravity()
+        private IEnumerator FollowPathRoutine(List<PathNode> path)
         {
-            if (_characterController.isGrounded && _velocity.y < 0)
+            foreach (var node in path)
             {
-                _velocity.y = -2f;
-            }
-            _velocity.y += Physics.gravity.y * Time.deltaTime;
-            _characterController.Move(_velocity * Time.deltaTime);
-        }
-
-        private void FollowPath()
-        {
-            if (_path == null || _pathIndex >= _path.Count) return;
-
-            Vector3 targetNodePosition = _path[_pathIndex].worldPosition;
-            
-            // We use the CharacterController to move, which handles collisions.
-            Vector3 moveDirection = (targetNodePosition - transform.position).normalized;
-            _characterController.Move(moveDirection * speed * Time.deltaTime);
-            
-            if (moveDirection != Vector3.zero)
-            {
-                transform.rotation = Quaternion.LookRotation(moveDirection);
-            }
-
-            // Check if we are close enough to the current node to switch to the next one.
-            if (Vector3.Distance(transform.position, targetNodePosition) < 0.5f)
-            {
-                _pathIndex++;
-                if (_pathIndex >= _path.Count)
+                Vector3 startPosition = transform.position;
+                // The node's worldPosition contains the correct floor-level Y coordinate.
+                Vector3 targetPosition = node.worldPosition; // This is (x, 0, z)
+                
+                // Instantly face the target direction on the horizontal plane.
+                Vector3 direction = targetPosition - startPosition;
+                direction.y = 0;
+                if (direction.sqrMagnitude > 0.001f) // Check to avoid looking down if not moving
                 {
-                    ArrivedAtDestination();
+                    transform.rotation = Quaternion.LookRotation(direction);
                 }
+
+                // Move from tile to tile
+                float distance = Vector3.Distance(startPosition, targetPosition);
+                float duration = distance / speed;
+                float elapsedTime = 0f;
+
+                while (elapsedTime < duration)
+                {
+                    // Lerp position and force Y to be 0, ensuring we stay on the ground plane.
+                    Vector3 newPos = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
+                    newPos.y = 0;
+                    transform.position = newPos;
+
+                    elapsedTime += Time.deltaTime;
+                    yield return null;
+                }
+
+                // Ensure final position is exactly on the ground plane.
+                Vector3 finalPos = targetPosition;
+                finalPos.y = 0;
+                transform.position = finalPos;
             }
+            
+            ArrivedAtDestination();
         }
         
         private void ArrivedAtDestination()
         {
             Debug.Log($"{name} arrived at destination.");
-            _path = null;
+            _movementCoroutine = null;
             OnArrival?.Invoke();
         }
     }

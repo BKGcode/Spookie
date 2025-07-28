@@ -7,7 +7,7 @@ namespace World
     public class Targetable : MonoBehaviour
     {
         // Static list to keep track of all available targets
-        private static readonly List<Targetable> AvailableTargets = new List<Targetable>();
+        private static readonly List<Targetable> allTargetables = new List<Targetable>();
 
         public bool IsOccupied { get; private set; }
         public event Action<bool> OnOccupancyChanged;
@@ -17,16 +17,16 @@ namespace World
             // Register this target as available when it's enabled
             if (!IsOccupied)
             {
-                AvailableTargets.Add(this);
+                allTargetables.Add(this);
             }
-            Debug.Log($"{name} is now available as a target.");
+            // Debug.Log($"{name} is now available as a target.");
         }
 
         private void OnDisable()
         {
             // Unregister this target when it's disabled
-            AvailableTargets.Remove(this);
-            Debug.Log($"{name} is no longer available as a target.");
+            allTargetables.Remove(this);
+            // Debug.Log($"{name} is no longer available as a target.");
         }
 
         /// <summary>
@@ -42,13 +42,13 @@ namespace World
 
             if (IsOccupied)
             {
-                AvailableTargets.Remove(this);
-                Debug.Log($"{name} is now OCCUPIED.");
+                allTargetables.Remove(this);
+                // Debug.Log($"{name} is now OCCUPIED.");
             }
             else
             {
-                AvailableTargets.Add(this);
-                Debug.Log($"{name} is now FREE.");
+                allTargetables.Add(this);
+                // Debug.Log($"{name} is now FREE.");
             }
         }
 
@@ -56,18 +56,15 @@ namespace World
         /// Finds the closest available target to a given position.
         /// </summary>
         /// <param name="position">The position to find the closest target to.</param>
-        /// <returns>The transform of the closest target, or null if none are available.</returns>
-        public static Transform FindClosest(Vector3 position)
+        /// <returns>The closest Targetable component, or null if none are available.</returns>
+        public static Targetable FindClosest(Vector3 position, HashSet<Targetable> blacklist)
         {
-            return FindClosest(position, null);
-        }
-
-        public static Transform FindClosest(Vector3 position, HashSet<Targetable> blacklist)
-        {
-            Transform bestTarget = null;
+            Targetable bestTarget = null;
             float closestDistanceSqr = Mathf.Infinity;
 
-            foreach (var target in AvailableTargets)
+            allTargetables.RemoveAll(item => item == null); // Clean up destroyed targets
+
+            foreach (var target in allTargetables)
             {
                 if (blacklist != null && blacklist.Contains(target))
                 {
@@ -79,7 +76,7 @@ namespace World
                 if (dSqrToTarget < closestDistanceSqr)
                 {
                     closestDistanceSqr = dSqrToTarget;
-                    bestTarget = target.transform;
+                    bestTarget = target;
                 }
             }
 
