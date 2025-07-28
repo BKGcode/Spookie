@@ -5,42 +5,26 @@ using System.Linq;
 
 /// <summary>
 /// Main class responsible for generating the procedural terrain.
+/// This is a plain C# class, not a MonoBehaviour.
 /// </summary>
-public class TerrainGenerator : MonoBehaviour
+public class TerrainGenerator
 {
-    [Header("Configuration")]
-    [SerializeField] private int mapWidth = 100;
-    [SerializeField] private int mapHeight = 100;
-    [SerializeField] private int seed = 0;
-    [SerializeField] private bool generateOnStart = true;
+    private int mapWidth = 100;
+    private int mapHeight = 100;
+    private int seed = 0;
     
-    [Header("Dependencies")]
-    [SerializeField] private MaterialDatabase materialDatabase;
-
-    [Header("Events")]
-    public UnityEvent<TerrainData> OnTerrainGenerated;
+    private MaterialDatabase materialDatabase;
     
     private TerrainData currentTerrainData;
 
     /// <summary>
-    /// Sets up the generator with essential dependencies and parameters.
-    /// Used for on-the-fly generation from editor tools.
+    /// Initializes the generator with essential dependencies and parameters.
     /// </summary>
-    public void Initialize(MaterialDatabase db, int width, int height)
+    public TerrainGenerator(MaterialDatabase db, int width, int height)
     {
         this.materialDatabase = db;
         this.mapWidth = width;
         this.mapHeight = height;
-    }
-    
-    void Start()
-    {
-        // This is now handled by TerrainManager to avoid double generation
-        // if (generateOnStart)
-        // {
-        //     Debug.Log("TerrainGenerator: Auto-generating terrain on Start.");
-        //     GenerateTerrain();
-        // }
     }
     
     /// <summary>
@@ -50,7 +34,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         if (materialDatabase == null)
         {
-            Debug.LogError("TerrainGenerator: MaterialDatabase is not assigned.", this);
+            Debug.LogError("TerrainGenerator: MaterialDatabase is not assigned.");
             return null;
         }
 
@@ -66,15 +50,16 @@ public class TerrainGenerator : MonoBehaviour
         LogMaterialDistribution();
 
         Debug.Log("TerrainGenerator: Terrain generation complete.");
-        OnTerrainGenerated?.Invoke(currentTerrainData);
+        // We now trigger the global event from TerrainEvents.
+        TerrainEvents.OnTerrainGenerated?.Invoke(currentTerrainData);
         
         return currentTerrainData;
     }
 
     /// <summary>
-    /// Generates a new terrain using the seed from the Inspector.
+    /// Generates a new terrain using a specific seed from the constructor.
     /// </summary>
-    [ContextMenu("Generate Terrain")]
+    [ContextMenu("Generate Terrain")] // This attribute is for MonoBehaviours, will not work here but harmless.
     public TerrainData GenerateTerrain()
     {
         return GenerateTerrain(this.seed);
@@ -86,7 +71,7 @@ public class TerrainGenerator : MonoBehaviour
         MaterialSO baseMaterial = materialDatabase.GetBaseMaterial();
         if (baseMaterial == null)
         {
-            Debug.LogError("TerrainGenerator: No se pudo obtener el material base de la base de datos. Asigna uno en el MaterialDatabase.", this);
+            Debug.LogError("TerrainGenerator: No se pudo obtener el material base de la base de datos. Asigna uno en el MaterialDatabase.");
             return;
         }
 
@@ -188,8 +173,8 @@ public class TerrainGenerator : MonoBehaviour
 }
 
 // ScriptRole: Orchestrates the entire procedural terrain generation process.
-// Dependencies: MaterialDatabase, NoiseGenerator, RarityDistributor, TerrainData
+// Dependencies: MaterialDatabase, RarityDistributor, TerrainData
 // HandlesEvents: None
-// TriggersEvents: OnTerrainGenerated (passes the completed TerrainData)
+// TriggersEvents: TerrainEvents.OnTerrainGenerated (passes the completed TerrainData)
 // UsesSO: MaterialDatabase
-// NeedsSetup: Assign MaterialDatabase in the Inspector. Set seed and dimensions. 
+// NeedsSetup: This is a plain C# class. Instantiate it and call GenerateTerrain(). 

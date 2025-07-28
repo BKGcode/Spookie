@@ -12,8 +12,8 @@ public class TerrainDataAsset : ScriptableObject
 }
 
 // ScriptRole: Acts as an asset container for a complete terrain level configuration.
-// Dependencies: TerrainSaveData
+// Dependencies: None
 // HandlesEvents: None
 // TriggersEvents: None
-// UsesSO: None
+// UsesSO: TerrainSaveData
 // NeedsSetup: Create instances via the Assets > Create menu. Data is populated by the Terrain Editor. 

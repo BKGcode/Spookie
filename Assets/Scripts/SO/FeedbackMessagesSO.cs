@@ -64,9 +64,9 @@ public class FeedbackMessagesSO : ScriptableObject
 #endif
 }
 
-// ScriptRole: Provides localized messages for UI feedback throughout the terrain generation system
+// ScriptRole: Provides localized messages for UI feedback.
 // Dependencies: None
 // HandlesEvents: None
 // TriggersEvents: None
 // UsesSO: None
-// NeedsSetup: Create asset in Resources/Messages/ folder and populate with key-message pairs 
+// NeedsSetup: Create one instance in the project. Populate the list with key-message pairs for the UI. 

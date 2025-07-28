@@ -19,7 +19,7 @@ public class TerrainManager : MonoBehaviour
     [SerializeField] private GrassDatabaseSO grassDatabase;
 
     // Internal component references
-    private TerrainGenerator terrainGenerator; // Still useful for creating new terrains in editor
+    // The TerrainGenerator is no longer a component and is not used by the manager at runtime.
     private TerrainRenderer terrainRenderer;
     private TerrainData currentTerrainData;
 
@@ -32,7 +32,7 @@ public class TerrainManager : MonoBehaviour
         }
         Instance = this;
         
-        terrainGenerator = GetComponent<TerrainGenerator>();
+        // This line is removed as TerrainGenerator is no longer a MonoBehaviour.
         terrainRenderer = GetComponent<TerrainRenderer>();
     }
 
@@ -67,33 +67,18 @@ public class TerrainManager : MonoBehaviour
     {
         Debug.Log($"TerrainManager: Loading level '{asset.name}'.");
         
-        var saveData = asset.LevelData;
-        if (saveData == null)
+        if (asset.LevelData == null)
         {
             Debug.LogError($"Asset '{asset.name}' has no level data.", this);
             return;
         }
 
-        currentTerrainData = new TerrainData(saveData.Width, saveData.Height, saveData.MapSeed);
+        currentTerrainData = TerrainDataFactory.CreateFromSaveData(asset.LevelData, materialDatabase);
         
-        for (int i = 0; i < saveData.AllTiles.Count; i++)
+        if (currentTerrainData == null)
         {
-            var savedTile = saveData.AllTiles[i];
-            int x = i % saveData.Width;
-            int y = i / saveData.Width;
-
-            MaterialSO material = materialDatabase.GetMaterialByGuid(savedTile.MaterialGuid);
-            if (material == null && !string.IsNullOrEmpty(savedTile.MaterialGuid))
-            {
-                Debug.LogWarning($"Could not find material with GUID '{savedTile.MaterialGuid}'. Using base material.");
-                material = materialDatabase.GetBaseMaterial();
-            }
-
-            TerrainTile newTile = new TerrainTile(material);
-            newTile.SetMiningState(savedTile.MiningState);
-            newTile.SetSpecialProperty(savedTile.SpecialProperty);
-            
-            currentTerrainData.SetTile(x, y, newTile);
+            Debug.LogError("TerrainManager: Failed to create terrain data from asset.", this);
+            return;
         }
         
         Debug.Log("TerrainManager: Level loaded successfully.");
@@ -139,9 +124,8 @@ public class TerrainManager : MonoBehaviour
         var eventData = new TileMinedEventData { x = x, y = y, material = tile.GetMaterial(), wasCompletelyMined = true };
         TerrainEvents.OnTileMined?.Invoke(eventData);
         
-        // Force a full re-render to reflect the change.
-        // This is not optimal for performance, but ensures visual consistency for now.
-        terrainRenderer.RenderTerrain(currentTerrainData, grassDatabase);
+        // The inefficient full re-render has been replaced with a targeted visual update.
+        terrainRenderer.UpdateTileVisual(x, y, currentTerrainData, grassDatabase);
     }
     
     private void HandleMineAttempt(Vector2Int tileCoords)

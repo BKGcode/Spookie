@@ -28,7 +28,7 @@ public class GrassDatabaseSO : ScriptableObject
 }
 
 // ScriptRole: Holds a list of all available GrassTypeSO for the terrain system.
-// Dependencies: GrassTypeSO
+// Dependencies: None
 // HandlesEvents: None
 // TriggersEvents: None
 // UsesSO: GrassTypeSO

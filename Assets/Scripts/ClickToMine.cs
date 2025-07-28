@@ -6,14 +6,14 @@ using UnityEngine;
 /// </summary>
 public class ClickToMine : MonoBehaviour
 {
-    private Camera mainCamera;
+    [Tooltip("The camera used to cast rays from the screen into the world.")]
+    [SerializeField] private Camera mainCamera;
 
     void Awake()
     {
-        mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogError("ClickToMine: Main Camera is not found. Please ensure your camera is tagged 'MainCamera'.", this);
+            Debug.LogError("ClickToMine: Camera reference is not set. Please assign it in the Inspector.", this);
             enabled = false;
         }
     }
@@ -50,8 +50,8 @@ public class ClickToMine : MonoBehaviour
 
 
 // ScriptRole: Translates player mouse clicks into mining attempt events.
-// Dependencies: A camera tagged as 'MainCamera' in the scene.
+// Dependencies: A camera assigned in the Inspector.
 // HandlesEvents: None
 // TriggersEvents: PlayerActions.OnMineAttempt
 // UsesSO: None
-// NeedsSetup: Attach this script to any active GameObject in the scene (e.g., a 'GameManager' or the camera itself). 
+// NeedsSetup: Attach to any active GameObject. Assign the main scene camera to the 'mainCamera' field. 

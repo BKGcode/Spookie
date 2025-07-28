@@ -178,19 +178,12 @@ public class TerrainEditorWindow : EditorWindow
     {
         Debug.Log($"Attempting to generate new terrain with seed: {generationSeed}");
 
-        // Create a temporary generator object
-        GameObject generatorGO = new GameObject("TempGenerator");
-        generatorGO.hideFlags = HideFlags.HideAndDontSave; // Keep it clean
-        
-        TerrainGenerator generator = generatorGO.AddComponent<TerrainGenerator>();
-        generator.Initialize(materialDatabase, currentTerrainData.Width, currentTerrainData.Height);
+        // Instantiate the generator directly, no more temporary GameObjects.
+        var generator = new TerrainGenerator(materialDatabase, currentTerrainData.Width, currentTerrainData.Height);
         
         // Generate the new data
         TerrainData newTerrainData = generator.GenerateTerrain(generationSeed);
         
-        // Clean up the temporary object immediately
-        DestroyImmediate(generatorGO);
-
         if (newTerrainData != null)
         {
             currentTerrainData = newTerrainData;
@@ -290,33 +283,22 @@ public class TerrainEditorWindow : EditorWindow
 
     private void LoadTerrainDataFromAsset(TerrainDataAsset asset)
     {
-        if (asset.LevelData == null || asset.LevelData.AllTiles == null)
+        if (asset.LevelData == null)
         {
-            EditorUtility.DisplayDialog("Load Error", "The asset's level data is corrupted or empty.", "OK");
+            EditorUtility.DisplayDialog("Load Error", "The asset's level data is null. Cannot load.", "OK");
             return;
         }
 
         currentAsset = asset;
         generationSeed = asset.LevelData.MapSeed; // Load seed from asset
-        currentTerrainData = new TerrainData(asset.LevelData.Width, asset.LevelData.Height, asset.LevelData.MapSeed);
         
-        for (int i = 0; i < asset.LevelData.AllTiles.Count; i++)
+        // Use the centralized factory to create the terrain data
+        currentTerrainData = TerrainDataFactory.CreateFromSaveData(asset.LevelData, materialDatabase);
+
+        if (currentTerrainData == null)
         {
-            var savedTile = asset.LevelData.AllTiles[i];
-            int x = i % asset.LevelData.Width;
-            int y = i / asset.LevelData.Width;
-
-            MaterialSO material = materialDatabase.GetMaterialByGuid(savedTile.MaterialGuid);
-            if (material == null && !string.IsNullOrEmpty(savedTile.MaterialGuid))
-            {
-                Debug.LogWarning($"Could not find material with GUID '{savedTile.MaterialGuid}'.");
-            }
-
-            TerrainTile newTile = new TerrainTile(material);
-            newTile.SetMiningState(savedTile.MiningState);
-            newTile.SetSpecialProperty(savedTile.SpecialProperty);
-            
-            currentTerrainData.SetTile(x, y, newTile);
+            EditorUtility.DisplayDialog("Load Error", "Failed to create terrain data. Check the console for errors.", "OK");
+            return;
         }
 
         statistics.Analyze(currentTerrainData);

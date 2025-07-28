@@ -14,6 +14,7 @@ public class MaterialSOGuidAssigner
         EditorApplication.delayCall += AssignGuidsToAllMaterials;
     }
 
+    [MenuItem("Spookie/Tools/Assign Missing Material GUIDs")]
     private static void AssignGuidsToAllMaterials()
     {
         string[] guids = AssetDatabase.FindAssets("t:MaterialSO");

@@ -40,4 +40,4 @@ public class MaterialSO : ScriptableObject
 // HandlesEvents: None
 // TriggersEvents: None
 // UsesSO: None
-// NeedsSetup: Set materialId (unique), material, configure rarity and durability values 
+// NeedsSetup: Set a unique Guid and MaterialName. Configure gameplay and visual properties in the Inspector. 

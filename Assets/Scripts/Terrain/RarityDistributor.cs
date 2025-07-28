@@ -28,77 +28,37 @@ public class RarityDistributor
     }
 
     /// <summary>
-    /// Distributes materials based on their defined coverage percentage.
+    /// Distributes materials based on their defined coverage percentage by iterating through a pre-shuffled list of coordinates.
     /// </summary>
     public void DistributeAllMaterials(MaterialSO baseMaterial)
     {
         Debug.Log("RarityDistributor: Distributing materials...");
 
-        var materialsToDistribute = materialDatabase.GetCoverageMaterials()
-            .OrderByDescending(m => m.CoveragePercentage)
-            .ToList();
-
+        var materialsToDistribute = materialDatabase.GetCoverageMaterials();
         int totalTiles = terrainData.Width * terrainData.Height;
+        int coordIndex = 0;
+
         foreach (var material in materialsToDistribute)
         {
             int requiredTiles = (int)(totalTiles * (material.CoveragePercentage / 100f));
-            for (int i = 0; i < requiredTiles; i++)
+            int placedCount = 0;
+            
+            while (placedCount < requiredTiles && coordIndex < availableCoords.Count)
             {
-                if (availableCoords.Count == 0)
-                {
-                    Debug.LogWarning($"RarityDistributor: Ran out of available coordinates while placing {material.MaterialName}.");
-                    break;
-                }
-
-                int randomIndex = noise.GetNext(0, availableCoords.Count);
-                Vector2Int coord = availableCoords[randomIndex];
-                availableCoords.RemoveAt(randomIndex); // Ensure this coordinate is not picked again
-
-                // Only place the new material if the tile is still the base material
+                Vector2Int coord = availableCoords[coordIndex];
+                
+                // We check if the tile is still the base material to avoid overwriting other procedural materials.
                 if (terrainData.GetTile(coord.x, coord.y).GetMaterial() == baseMaterial)
                 {
                     terrainData.SetTile(coord.x, coord.y, new TerrainTile(material));
+                    placedCount++;
                 }
+                coordIndex++;
             }
-        }
-    }
 
-    private void PlaceMaterialVeins(MaterialSO material, int tilesToPlace, ref List<Vector2Int> availablePositions)
-    {
-        System.Random random = new System.Random(seed + material.MaterialId);
-        int placedCount = 0;
-
-        while (placedCount < tilesToPlace && availablePositions.Count > 0)
-        {
-            // Start a new vein from a random available position
-            int startIndex = availablePositions.Count - 1;
-            Vector2Int startPos = availablePositions[startIndex];
-            availablePositions.RemoveAt(startIndex);
-
-            terrainData.SetTile(startPos.x, startPos.y, new TerrainTile(material));
-            placedCount++;
-
-            // Expand the vein with a random walk
-            Vector2Int currentPos = startPos;
-            int veinSize = random.Next(5, 20); // Each vein will have a random size
-
-            for (int i = 0; i < veinSize && placedCount < tilesToPlace && availablePositions.Count > 0; i++)
+            if (placedCount < requiredTiles)
             {
-                var neighbors = GetShuffledNeighbors(currentPos, random);
-                bool foundSpot = false;
-                foreach (var neighbor in neighbors)
-                {
-                    if (availablePositions.Contains(neighbor))
-                    {
-                        currentPos = neighbor;
-                        terrainData.SetTile(currentPos.x, currentPos.y, new TerrainTile(material));
-                        placedCount++;
-                        availablePositions.Remove(currentPos);
-                        foundSpot = true;
-                        break;
-                    }
-                }
-                if (!foundSpot) break; // No available neighbors, end this vein
+                Debug.LogWarning($"RarityDistributor: Could only place {placedCount}/{requiredTiles} tiles for {material.MaterialName}. The map might be full or percentages might exceed 100%.");
             }
         }
     }
@@ -126,18 +86,6 @@ public class RarityDistributor
         return positions;
     }
     
-    private List<Vector2Int> GetShuffledNeighbors(Vector2Int pos, System.Random random)
-    {
-        var neighbors = new List<Vector2Int>
-        {
-            new Vector2Int(pos.x + 1, pos.y),
-            new Vector2Int(pos.x - 1, pos.y),
-            new Vector2Int(pos.x, pos.y + 1),
-            new Vector2Int(pos.x, pos.y - 1)
-        };
-
-        return neighbors.OrderBy(p => random.Next()).ToList();
-    }
 }
 
 
