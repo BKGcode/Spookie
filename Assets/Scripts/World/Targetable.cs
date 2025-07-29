@@ -6,6 +6,9 @@ namespace World
 {
     public class Targetable : MonoBehaviour
     {
+        // Static event to notify when any target becomes occupied.
+        public static event Action<Targetable> OnTargetOccupied;
+
         // Static list to keep track of all available targets
         private static readonly List<Targetable> allTargetables = new List<Targetable>();
 
@@ -43,6 +46,7 @@ namespace World
             if (IsOccupied)
             {
                 allTargetables.Remove(this);
+                OnTargetOccupied?.Invoke(this); // Notify all listeners that this specific target is now taken
                 // Debug.Log($"{name} is now OCCUPIED.");
             }
             else
@@ -86,5 +90,5 @@ namespace World
 }
 
 // ScriptRole: Marks an object as a potential target for AI, managing its occupied/free state.
-// TriggersEvents: OnOccupancyChanged(bool).
+// TriggersEvents: OnOccupancyChanged(bool), OnTargetOccupied(Targetable)
 // NeedsSetup: Attach to any GameObject that should be interactable (e.g., rocks, beds). 

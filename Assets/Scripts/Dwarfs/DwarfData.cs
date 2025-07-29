@@ -7,26 +7,25 @@ namespace Dwarfs
 {
     public class DwarfData : MonoBehaviour
     {
-        public enum DwarfState { Idle, Working, Living, Sleeping, Walking }
+        [Header("Configuration")]
+        [SerializeField] private DwarfStatsSO _stats;
+        public DwarfStatsSO Stats => _stats;
 
         [Header("State")]
-        public DwarfState currentState;
         public PlayerDirective? currentDirective;
-
-        [Header("Attributes")]
-        [SerializeField, Range(0.1f, 0.9f)] private float sleepinessFactor;
 
         // Public properties for the brain to access
         public float WorkTimeBudget { get; private set; }
         public float LivingTimeBudget { get; private set; }
 
-        private Coroutine _sleepCoroutine;
-
         private void Awake()
         {
-            sleepinessFactor = Random.Range(0.1f, 0.9f);
-            currentState = DwarfState.Sleeping; 
-            Debug.Log($"Dwarf {name} initialized with sleepinessFactor: {sleepinessFactor}");
+            if (_stats == null)
+            {
+                Debug.LogError($"Dwarf {name} is missing DwarfStatsSO reference!");
+                return; // Prevent further execution without stats
+            }
+            Debug.Log($"Dwarf {name} initialized with stats: {_stats.name}");
         }
 
         private void OnEnable()
@@ -45,17 +44,12 @@ namespace Dwarfs
 
         private void HandleDayStart()
         {
-            if (_sleepCoroutine != null)
-            {
-                StopCoroutine(_sleepCoroutine);
-                _sleepCoroutine = null;
-            }
-
-            WorkTimeBudget = TimeManager.Instance.DayCycleDuration;
-            LivingTimeBudget = TimeManager.Instance.NightCycleDuration;
-            currentState = DwarfState.Idle;
+            // According to GDD, both budgets are a percentage of the total day duration.
+            float dayDuration = TimeManager.Instance.totalDayDurationInSeconds;
+            WorkTimeBudget = dayDuration * _stats.WorkTimePercentage;
+            LivingTimeBudget = dayDuration * _stats.LivingTimePercentage;
             
-            Debug.Log($"Dwarf {name} wakes up! State: {currentState}. Work Budget: {WorkTimeBudget}s.");
+            Debug.Log($"Dwarf {name} wakes up! Work Budget: {WorkTimeBudget}s, Living Budget: {LivingTimeBudget}s.");
         }
 
         private void HandleNightStart()
@@ -63,7 +57,6 @@ namespace Dwarfs
             Debug.Log($"Dwarf {name} feels sleepy as night falls.");
             // The brain will now be responsible for forcing the dwarf to sleep.
             currentDirective = null; // Forget directive when night starts
-            currentState = DwarfState.Sleeping;
         }
 
         // Methods for the brain to modify budgets
@@ -79,6 +72,8 @@ namespace Dwarfs
     }
 }
 
-// ScriptRole: Holds the core data and vital cycle logic for a single dwarf.
-// HandlesEvents: TimeManager.OnDayStart, TimeManager.OnNightStart.
-// NeedsSetup: Attach to the Dwarf prefab. Requires a TimeManager in the scene. 
+// ScriptRole: Holds the core data, stats reference, and vital cycle logic for a single dwarf.
+// Dependencies: DwarfBrain, DwarfMovement
+// HandlesEvents: TimeManager.OnDayStart, TimeManager.OnNightStart
+// UsesSO: DwarfStatsSO
+// NeedsSetup: Attach to the Dwarf prefab. Requires a TimeManager in the scene. Assign DwarfStatsSO in the Inspector. 

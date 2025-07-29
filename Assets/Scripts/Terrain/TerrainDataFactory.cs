@@ -22,6 +22,12 @@ public static class TerrainDataFactory
 
         var terrainData = new TerrainData(saveData.Width, saveData.Height, saveData.MapSeed);
 
+        // Copy over the spawn points
+        if (saveData.DwarfSpawnPoints != null)
+        {
+            terrainData.DwarfSpawnPoints.AddRange(saveData.DwarfSpawnPoints);
+        }
+
         if (saveData.AllTiles == null || saveData.AllTiles.Count != saveData.Width * saveData.Height)
         {
             Debug.LogError("TerrainDataFactory: Tile data is corrupted or does not match terrain dimensions. Returning empty terrain.");

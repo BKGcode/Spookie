@@ -7,7 +7,7 @@ using System.Linq;
 /// </summary>
 public class TerrainPaintTool
 {
-    private enum PaintMode { Material, SpecialProperty }
+    private enum PaintMode { Material, SpecialProperty, DwarfSpawner }
     private PaintMode currentPaintMode = PaintMode.Material;
     
     // Brush settings
@@ -29,12 +29,19 @@ public class TerrainPaintTool
         {
             DrawMaterialPainterUI(materialDatabase);
         }
-        else // currentPaintMode == PaintMode.SpecialProperty
+        else if (currentPaintMode == PaintMode.SpecialProperty)
         {
             DrawPropertyPainterUI();
         }
+        else // currentPaintMode == PaintMode.DwarfSpawner
+        {
+            DrawDwarfSpawnerUI();
+        }
 
-        brushSize = EditorGUILayout.IntSlider("Brush Size:", brushSize, 1, 5);
+        if (currentPaintMode != PaintMode.DwarfSpawner)
+        {
+            brushSize = EditorGUILayout.IntSlider("Brush Size:", brushSize, 1, 5);
+        }
     }
 
     private void DrawMaterialPainterUI(MaterialDatabase materialDatabase)
@@ -54,12 +61,23 @@ public class TerrainPaintTool
         selectedSpaceType = (SpaceType)EditorGUILayout.EnumPopup("Space Type:", selectedSpaceType);
     }
 
+    private void DrawDwarfSpawnerUI()
+    {
+        EditorGUILayout.HelpBox("Click on a walkable tile to add or remove a dwarf spawn point.", MessageType.Info);
+    }
+
     /// <summary>
     /// Applies the painting action to the terrain data.
     /// </summary>
     public void Paint(TerrainData terrainData, Vector2Int centerCoords, MaterialDatabase materialDatabase)
     {
         if (terrainData == null) return;
+
+        if (currentPaintMode == PaintMode.DwarfSpawner)
+        {
+            PaintDwarfSpawn(terrainData, centerCoords.x, centerCoords.y);
+            return; // Exit after handling the single tile
+        }
         
         int extent = (brushSize - 1) / 2;
         for (int y = -extent; y <= extent; y++)
@@ -75,10 +93,15 @@ public class TerrainPaintTool
                     {
                         PaintMaterial(terrainData, targetX, targetY, materialDatabase);
                     }
-                    else // currentPaintMode == PaintMode.SpecialProperty
+                    else if (currentPaintMode == PaintMode.SpecialProperty)
                     {
                         PaintProperty(terrainData, targetX, targetY, materialDatabase);
                     }
+                    // This is now handled above
+                    // else // DwarfSpawner
+                    // {
+                    //     PaintDwarfSpawn(terrainData, targetX, targetY);
+                    // }
                 }
             }
         }
@@ -124,6 +147,31 @@ public class TerrainPaintTool
 
         tile.SetSpecialProperty(selectedSpaceType);
         terrainData.SetTile(x, y, tile);
+    }
+
+    private void PaintDwarfSpawn(TerrainData terrainData, int x, int y)
+    {
+        TerrainTile tile = terrainData.GetTile(x, y);
+        Vector2Int coords = new Vector2Int(x, y);
+
+        // Can only place spawners on walkable ground (mined tiles)
+        if (tile.GetMiningState() == MiningState.Mined)
+        {
+            if (terrainData.DwarfSpawnPoints.Contains(coords))
+            {
+                terrainData.DwarfSpawnPoints.Remove(coords);
+                Debug.Log($"Removed dwarf spawn point at {coords}");
+            }
+            else
+            {
+                terrainData.DwarfSpawnPoints.Add(coords);
+                Debug.Log($"Added dwarf spawn point at {coords}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Cannot place spawn point at {coords}. Tile is not walkable (not mined).");
+        }
     }
 }
 

@@ -22,13 +22,19 @@ public class TerrainSaveData
     public int MapSeed;
     public int Width;
     public int Height;
-    public List<SavedTileData> AllTiles = new List<SavedTileData>();
+    public List<SavedTileData> AllTiles { get; private set; } = new List<SavedTileData>();
+    public List<Vector2Int> DwarfSpawnPoints { get; private set; } = new List<Vector2Int>();
 
-    public TerrainSaveData(int seed, int width, int height, string version)
+    // Parameterless constructor for serialization
+    public TerrainSaveData() {}
+
+    public TerrainSaveData(int seed, int width, int height, string createdBy)
     {
         MapSeed = seed;
         Width = width;
         Height = height;
-        GameVersion = version;
+        GameVersion = createdBy;
+        AllTiles = new List<SavedTileData>(width * height);
+        DwarfSpawnPoints = new List<Vector2Int>();
     }
 } 

@@ -15,5 +15,4 @@ namespace Dwarfs
         }
     }
 }
-
 // ScriptRole: A simple data structure to encapsulate a player's command to a dwarf. 

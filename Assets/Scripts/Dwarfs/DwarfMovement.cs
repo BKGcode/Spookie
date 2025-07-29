@@ -64,7 +64,7 @@ namespace Dwarfs
             {
                 Vector3 startPosition = transform.position;
                 // The node's worldPosition contains the correct floor-level Y coordinate.
-                Vector3 targetPosition = node.worldPosition; // This is (x, 0, z)
+                Vector3 targetPosition = new Vector3(node.worldPosition.x, transform.position.y, node.worldPosition.z);
                 
                 // Instantly face the target direction on the horizontal plane.
                 Vector3 direction = targetPosition - startPosition;
@@ -81,19 +81,16 @@ namespace Dwarfs
 
                 while (elapsedTime < duration)
                 {
-                    // Lerp position and force Y to be 0, ensuring we stay on the ground plane.
+                    // Lerp position and maintain the current Y to stay on the correct plane.
                     Vector3 newPos = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
-                    newPos.y = 0;
                     transform.position = newPos;
 
                     elapsedTime += Time.deltaTime;
                     yield return null;
                 }
 
-                // Ensure final position is exactly on the ground plane.
-                Vector3 finalPos = targetPosition;
-                finalPos.y = 0;
-                transform.position = finalPos;
+                // Ensure final position is exactly on the target plane.
+                transform.position = targetPosition;
             }
             
             ArrivedAtDestination();
@@ -106,4 +103,9 @@ namespace Dwarfs
             OnArrival?.Invoke();
         }
     }
-} 
+}
+
+// ScriptRole: Handles the physical movement of the dwarf using a pathfinding system.
+// Dependencies: Transform
+// TriggersEvents: OnArrival
+// NeedsSetup: Attach to the Dwarf prefab. The 'speed' can be configured in the Inspector. 

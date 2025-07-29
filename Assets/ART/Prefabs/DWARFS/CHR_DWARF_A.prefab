@@ -309,8 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7203a2794b26bcb449caa286bd48f329, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 0
-  sleepinessFactor: 0.1
+  _stats: {fileID: 11400000, guid: c2ee4d3f088060342b07708c28df20c4, type: 2}
 --- !u!114 &7374316452234664361
 MonoBehaviour:
   m_ObjectHideFlags: 0

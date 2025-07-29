@@ -17,6 +17,8 @@ public class TerrainData
     public int Height => height;
     public int MapSeed => mapSeed;
     
+    public List<Vector2Int> DwarfSpawnPoints { get; private set; }
+
     /// <summary>
     /// Initializes a new TerrainData object with a specific size and seed.
     /// </summary>
@@ -27,6 +29,7 @@ public class TerrainData
         this.mapSeed = seed;
         this.tileGrid = new TerrainTile[width, height];
         this.modifiedTiles = new Dictionary<Vector2Int, TerrainTile>();
+        this.DwarfSpawnPoints = new List<Vector2Int>();
     }
     
     /// <summary>

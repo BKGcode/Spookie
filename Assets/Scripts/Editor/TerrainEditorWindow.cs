@@ -259,19 +259,24 @@ public class TerrainEditorWindow : EditorWindow
     {
         if (currentAsset == null) return;
         
+        // Ensure the asset's lists are ready for the new data
+        currentAsset.LevelData.AllTiles.Clear();
+        currentAsset.LevelData.DwarfSpawnPoints.Clear();
+        currentAsset.LevelData.DwarfSpawnPoints.AddRange(currentTerrainData.DwarfSpawnPoints);
+        
         // Transfer data from our editor's TerrainData back to the asset's serializable format
         for (int y = 0; y < currentTerrainData.Height; y++)
         {
             for (int x = 0; x < currentTerrainData.Width; x++)
             {
-                int index = y * currentTerrainData.Width + x;
                 var tile = currentTerrainData.GetTile(x, y);
-                currentAsset.LevelData.AllTiles[index] = new SavedTileData
+                // Instead of trying to access by index, we add to the cleared list.
+                currentAsset.LevelData.AllTiles.Add(new SavedTileData
                 {
                     MaterialGuid = tile.GetMaterial()?.Guid,
                     MiningState = tile.GetMiningState(),
                     SpecialProperty = tile.GetSpecialProperty()
-                };
+                });
             }
         }
         

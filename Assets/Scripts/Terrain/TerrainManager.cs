@@ -9,6 +9,7 @@ using Pathfinding;
 public class TerrainManager : MonoBehaviour
 {
     public static TerrainManager Instance { get; private set; }
+    public bool IsTerrainReady { get; private set; } = false;
     
     [Header("Level Data")]
     [Tooltip("The terrain level asset to load when the game starts.")]
@@ -62,6 +63,8 @@ public class TerrainManager : MonoBehaviour
         {
             terrainRenderer.RenderTerrain(currentTerrainData, grassDatabase);
         }
+
+        IsTerrainReady = true;
         
         // Notify all listeners that the terrain is ready.
         TerrainEvents.OnTerrainGenerated?.Invoke(currentTerrainData);

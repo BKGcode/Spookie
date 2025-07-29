@@ -25,6 +25,8 @@ namespace Core
         private float _currentTimeOfDay;
         private bool _isNight;
 
+        public bool IsNight => _isNight;
+
         public float DayCycleDuration => _dayCycleDuration;
         public float NightCycleDuration => _nightCycleDuration;
 
