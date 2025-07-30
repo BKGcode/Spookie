@@ -33,6 +33,12 @@ namespace Dwarfs
             TimeManager.OnDayStart += HandleDayStart;
             TimeManager.OnNightStart += HandleNightStart;
             Debug.Log($"Dwarf {name} subscribed to time events.");
+            
+            // If the dwarf spawns after the day has already started, initialize its budgets immediately.
+            if (TimeManager.Instance != null && !TimeManager.Instance.IsNight)
+            {
+                HandleDayStart();
+            }
         }
 
         private void OnDisable()

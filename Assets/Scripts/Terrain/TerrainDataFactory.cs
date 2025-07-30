@@ -27,6 +27,10 @@ public static class TerrainDataFactory
         {
             terrainData.DwarfSpawnPoints.AddRange(saveData.DwarfSpawnPoints);
         }
+        if (saveData.BedSpawnPoints != null)
+        {
+            terrainData.BedSpawnPoints.AddRange(saveData.BedSpawnPoints);
+        }
 
         if (saveData.AllTiles == null || saveData.AllTiles.Count != saveData.Width * saveData.Height)
         {

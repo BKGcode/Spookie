@@ -23,6 +23,9 @@ public class TerrainGridRenderer
         // Draw Dwarf Spawn Points on top
         DrawDwarfSpawners(gridRect, data);
 
+        // Draw Bed Spawn Points on top
+        DrawBedSpawners(gridRect, data);
+
         Handles.EndGUI();
     }
 
@@ -65,6 +68,27 @@ public class TerrainGridRenderer
             Vector2 center = tileRect.center;
             float radius = Mathf.Min(tileRect.width, tileRect.height) * 0.25f; // 25% of the tile size
             Handles.DrawSolidDisc(center, Vector3.forward, radius);
+        }
+    }
+
+    private void DrawBedSpawners(Rect gridRect, TerrainData data)
+    {
+        if (data.BedSpawnPoints == null) return;
+
+        Handles.color = new Color(0.8f, 0.6f, 1f, 0.7f); // Lavender color for beds
+        foreach (var spawnPoint in data.BedSpawnPoints)
+        {
+            Rect tileRect1 = GetTileRect(gridRect, spawnPoint.x, spawnPoint.y, data);
+            Rect tileRect2 = GetTileRect(gridRect, spawnPoint.x, spawnPoint.y + 1, data);
+            
+            // Create a single rectangle that covers both tiles
+            Rect bedRect = new Rect(tileRect1.x, tileRect1.y, tileRect1.width, tileRect1.height * 2);
+            
+            Handles.DrawSolidRectangleWithOutline(bedRect, Handles.color, Color.black);
+            
+            // Optionally, draw a small icon or letter
+            GUIStyle style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.black } };
+            GUI.Label(bedRect, "B", style);
         }
     }
 

@@ -24,6 +24,7 @@ public class TerrainSaveData
     public int Height;
     public List<SavedTileData> AllTiles { get; private set; } = new List<SavedTileData>();
     public List<Vector2Int> DwarfSpawnPoints { get; private set; } = new List<Vector2Int>();
+    public List<Vector2Int> BedSpawnPoints { get; private set; } = new List<Vector2Int>();
 
     // Parameterless constructor for serialization
     public TerrainSaveData() {}
@@ -36,5 +37,6 @@ public class TerrainSaveData
         GameVersion = createdBy;
         AllTiles = new List<SavedTileData>(width * height);
         DwarfSpawnPoints = new List<Vector2Int>();
+        BedSpawnPoints = new List<Vector2Int>();
     }
 } 

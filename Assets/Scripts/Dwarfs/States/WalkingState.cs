@@ -5,24 +5,38 @@ namespace Dwarfs.States
     public class WalkingState : DwarfBaseState
     {
         private Vector3 _destination;
+        private WalkPurpose _purpose;
 
         public WalkingState(DwarfBrain brain, DwarfData data, DwarfMovement movement) : base(brain, data, movement) { }
 
-        public void SetDestination(Vector3 destination)
+        public void SetDestination(Vector3 destination, WalkPurpose purpose)
         {
             _destination = destination;
+            _purpose = purpose;
         }
 
         public override void EnterState()
         {
-            Debug.Log($"{_data.name} is now Walking to {_destination}.");
+            Debug.Log($"{_data.name} is now Walking to {_destination} for the purpose of {_purpose}.");
             _movement.OnArrival += HandleArrival;
             _movement.GoToTarget(_destination);
         }
 
         public override void UpdateState()
         {
-            // Movement is handled by the coroutine. The brain will interrupt if needed.
+            // Consume the correct time budget based on the purpose of the walk
+            switch (_purpose)
+            {
+                case WalkPurpose.Work:
+                    _data.ConsumeWorkTime(Time.deltaTime);
+                    break;
+                case WalkPurpose.Leisure:
+                    _data.ConsumeLivingTime(Time.deltaTime);
+                    break;
+                case WalkPurpose.GoToBed:
+                    // No budget is consumed for going to bed, it's a high-priority need.
+                    break;
+            }
         }
 
         public override void ExitState()

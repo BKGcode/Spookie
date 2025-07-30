@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Pathfinding;
+using World;
 
 /// <summary>
 /// Singleton manager that coordinates all terrain-related systems.
@@ -19,6 +20,7 @@ public class TerrainManager : MonoBehaviour
     [SerializeField] private MaterialDatabase materialDatabase;
     [SerializeField] private FeedbackMessagesSO feedbackMessages;
     [SerializeField] private GrassDatabaseSO grassDatabase;
+    [SerializeField] private GameObject bedPrefab; // Reference to the bed prefab
 
     // Internal component references
     // The TerrainGenerator is no longer a component and is not used by the manager at runtime.
@@ -64,6 +66,8 @@ public class TerrainManager : MonoBehaviour
             terrainRenderer.RenderTerrain(currentTerrainData, grassDatabase);
         }
 
+        SpawnBeds(); // Spawn beds after terrain is rendered
+
         IsTerrainReady = true;
         
         // Notify all listeners that the terrain is ready.
@@ -94,6 +98,31 @@ public class TerrainManager : MonoBehaviour
         Debug.Log("TerrainManager: Level loaded successfully.");
     }
     
+    private void SpawnBeds()
+    {
+        if (bedPrefab == null)
+        {
+            Debug.LogWarning("TerrainManager: Bed Prefab is not assigned. No beds will be spawned.");
+            return;
+        }
+
+        if (currentTerrainData.BedSpawnPoints == null) return;
+
+        foreach (var spawnPoint in currentTerrainData.BedSpawnPoints)
+        {
+            // The bed pivot is at its base. We spawn it at the first tile's position.
+            Vector3 spawnPosition = new Vector3(spawnPoint.x, 0.5f, spawnPoint.y);
+            Instantiate(bedPrefab, spawnPosition, Quaternion.identity, transform);
+
+            // A bed occupies two tiles: its spawn point and the one next to it along the Z axis.
+            // Mark both nodes as not walkable.
+            PathfindingGrid.Instance.UpdateNodeWalkability(spawnPosition, false);
+            PathfindingGrid.Instance.UpdateNodeWalkability(new Vector3(spawnPoint.x, 0, spawnPoint.y + 1), false);
+            
+            Debug.Log($"Spawned bed at {spawnPosition} and blocked pathfinding for its 1x2 area.");
+        }
+    }
+
     #region Public API
 
     /// <summary>
@@ -178,4 +207,4 @@ public class TerrainManager : MonoBehaviour
 // HandlesEvents: None
 // TriggersEvents: TerrainEvents.OnTileMined
 // UsesSO: TerrainDataAsset, MaterialDatabase, FeedbackMessagesSO, GrassDatabaseSO
-// NeedsSetup: Assign the 'Level To Load' asset and other dependencies in the Inspector. 
+// NeedsSetup: Assign the 'Level To Load' asset and other dependencies in the Inspector. Assign the 'Bed Prefab'. 

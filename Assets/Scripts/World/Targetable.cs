@@ -12,6 +12,10 @@ namespace World
         // Static list to keep track of all available targets
         private static readonly List<Targetable> allTargetables = new List<Targetable>();
 
+        [Header("Targeting Settings")]
+        [Tooltip("When finding the closest target, how many of the top candidates should be considered for a random pick?")]
+        [SerializeField, Range(1, 10)] private int randomCandidateCount = 3;
+
         public bool IsOccupied { get; private set; }
         public event Action<bool> OnOccupancyChanged;
 
@@ -63,8 +67,7 @@ namespace World
         /// <returns>The closest Targetable component, or null if none are available.</returns>
         public static Targetable FindClosest(Vector3 position, HashSet<Targetable> blacklist)
         {
-            Targetable bestTarget = null;
-            float closestDistanceSqr = Mathf.Infinity;
+            List<(Targetable target, float distanceSqr)> candidates = new List<(Targetable, float)>();
 
             allTargetables.RemoveAll(item => item == null); // Clean up destroyed targets
 
@@ -77,18 +80,28 @@ namespace World
 
                 Vector3 directionToTarget = target.transform.position - position;
                 float dSqrToTarget = directionToTarget.sqrMagnitude;
-                if (dSqrToTarget < closestDistanceSqr)
-                {
-                    closestDistanceSqr = dSqrToTarget;
-                    bestTarget = target;
-                }
+                candidates.Add((target, dSqrToTarget));
             }
 
-            return bestTarget;
+            if (candidates.Count == 0)
+            {
+                return null;
+            }
+
+            // Sort candidates by distance
+            candidates.Sort((a, b) => a.distanceSqr.CompareTo(b.distanceSqr));
+
+            // Determine the range of candidates to choose from
+            int range = Mathf.Min(allTargetables[0].randomCandidateCount, candidates.Count);
+            
+            // Pick a random target from the top candidates
+            int randomIndex = UnityEngine.Random.Range(0, range);
+            
+            return candidates[randomIndex].target;
         }
     }
 }
 
 // ScriptRole: Marks an object as a potential target for AI, managing its occupied/free state.
 // TriggersEvents: OnOccupancyChanged(bool), OnTargetOccupied(Targetable)
-// NeedsSetup: Attach to any GameObject that should be interactable (e.g., rocks, beds). 
+// NeedsSetup: Attach to any GameObject that should be interactable (e.g., rocks, beds). 'Random Candidate Count' can be tweaked. 

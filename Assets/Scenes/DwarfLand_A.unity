@@ -540,6 +540,7 @@ MonoBehaviour:
   materialDatabase: {fileID: 11400000, guid: b598a5d38cf0bd547a85636f5450ff72, type: 2}
   feedbackMessages: {fileID: 11400000, guid: 39f02c3527e7960439d26f920859ac35, type: 2}
   grassDatabase: {fileID: 11400000, guid: a6cbcfb276357fa499782c9b5fe34eb5, type: 2}
+  bedPrefab: {fileID: 1725372175690166546, guid: e073fa4ead947ee47a813ff4b33c5fec, type: 3}
 --- !u!224 &546490639 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 420548076942406346, guid: 763c336a8a19ba645b19cb4f856aa3a5, type: 3}
@@ -1078,7 +1079,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -159, y: -183.99023}
+  m_AnchoredPosition: {x: -159, y: -183.99219}
   m_SizeDelta: {x: 228.861, y: 367.978}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1212959142

@@ -8,11 +8,8 @@ namespace Dwarfs.States
 
         public override void EnterState()
         {
-            Debug.Log($"{_data.name} is now Sleeping.");
+            Debug.Log($"{_data.name} is now Sleeping in bed.");
             _movement.StopMoving();
-            _brain.DirectiveQueue.Clear();
-            _brain.BlacklistedTargets.Clear();
-            _brain.CurrentTargetable = null;
         }
 
         public override void UpdateState()
@@ -23,6 +20,12 @@ namespace Dwarfs.States
         public override void ExitState()
         {
             Debug.Log($"{_data.name} is waking up.");
+            // Free up the bed when waking up
+            if (_brain.ReservedBed != null)
+            {
+                _brain.ReservedBed.SetOccupancy(false);
+                _brain.ReservedBed = null;
+            }
         }
     }
 }

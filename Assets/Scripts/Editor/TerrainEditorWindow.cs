@@ -262,7 +262,9 @@ public class TerrainEditorWindow : EditorWindow
         // Ensure the asset's lists are ready for the new data
         currentAsset.LevelData.AllTiles.Clear();
         currentAsset.LevelData.DwarfSpawnPoints.Clear();
+        currentAsset.LevelData.BedSpawnPoints.Clear();
         currentAsset.LevelData.DwarfSpawnPoints.AddRange(currentTerrainData.DwarfSpawnPoints);
+        currentAsset.LevelData.BedSpawnPoints.AddRange(currentTerrainData.BedSpawnPoints);
         
         // Transfer data from our editor's TerrainData back to the asset's serializable format
         for (int y = 0; y < currentTerrainData.Height; y++)

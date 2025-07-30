@@ -7,7 +7,7 @@ using System.Linq;
 /// </summary>
 public class TerrainPaintTool
 {
-    private enum PaintMode { Material, SpecialProperty, DwarfSpawner }
+    private enum PaintMode { Material, SpecialProperty, DwarfSpawner, BedSpawner }
     private PaintMode currentPaintMode = PaintMode.Material;
     
     // Brush settings
@@ -33,12 +33,16 @@ public class TerrainPaintTool
         {
             DrawPropertyPainterUI();
         }
-        else // currentPaintMode == PaintMode.DwarfSpawner
+        else if (currentPaintMode == PaintMode.DwarfSpawner)
         {
             DrawDwarfSpawnerUI();
         }
+        else // currentPaintMode == PaintMode.BedSpawner
+        {
+            DrawBedSpawnerUI();
+        }
 
-        if (currentPaintMode != PaintMode.DwarfSpawner)
+        if (currentPaintMode != PaintMode.DwarfSpawner && currentPaintMode != PaintMode.BedSpawner)
         {
             brushSize = EditorGUILayout.IntSlider("Brush Size:", brushSize, 1, 5);
         }
@@ -66,6 +70,11 @@ public class TerrainPaintTool
         EditorGUILayout.HelpBox("Click on a walkable tile to add or remove a dwarf spawn point.", MessageType.Info);
     }
 
+    private void DrawBedSpawnerUI()
+    {
+        EditorGUILayout.HelpBox("Click on a walkable tile to place a 1x2 bed. The bed will occupy this tile and the one above it.", MessageType.Info);
+    }
+
     /// <summary>
     /// Applies the painting action to the terrain data.
     /// </summary>
@@ -76,6 +85,11 @@ public class TerrainPaintTool
         if (currentPaintMode == PaintMode.DwarfSpawner)
         {
             PaintDwarfSpawn(terrainData, centerCoords.x, centerCoords.y);
+            return; // Exit after handling the single tile
+        }
+        else if (currentPaintMode == PaintMode.BedSpawner)
+        {
+            PaintBedSpawn(terrainData, centerCoords.x, centerCoords.y);
             return; // Exit after handling the single tile
         }
         
@@ -172,6 +186,50 @@ public class TerrainPaintTool
         {
             Debug.LogWarning($"Cannot place spawn point at {coords}. Tile is not walkable (not mined).");
         }
+    }
+
+    private void PaintBedSpawn(TerrainData terrainData, int x, int y)
+    {
+        Vector2Int coords = new Vector2Int(x, y);
+        Vector2Int adjacentCoords = new Vector2Int(x, y + 1);
+
+        // Check if the bed is already at this position to allow removal
+        if (terrainData.BedSpawnPoints.Contains(coords))
+        {
+            terrainData.BedSpawnPoints.Remove(coords);
+            Debug.Log($"Removed bed spawn point at {coords}");
+            return;
+        }
+
+        // --- Placement Validation ---
+        // 1. Check if adjacent tile is valid
+        if (!terrainData.IsValidPosition(adjacentCoords.x, adjacentCoords.y))
+        {
+            Debug.LogWarning($"Cannot place bed at {coords}. The adjacent tile {adjacentCoords} is out of bounds.");
+            return;
+        }
+
+        // 2. Check if both tiles are walkable
+        TerrainTile baseTile = terrainData.GetTile(coords.x, coords.y);
+        TerrainTile adjacentTile = terrainData.GetTile(adjacentCoords.x, adjacentCoords.y);
+        if (baseTile.GetMiningState() != MiningState.Mined || adjacentTile.GetMiningState() != MiningState.Mined)
+        {
+            Debug.LogWarning($"Cannot place bed at {coords}. Both this tile and {adjacentCoords} must be walkable (mined).");
+            return;
+        }
+
+        // 3. Check if the space is already occupied by another spawner
+        if (terrainData.DwarfSpawnPoints.Contains(coords) || terrainData.DwarfSpawnPoints.Contains(adjacentCoords) ||
+            terrainData.BedSpawnPoints.Contains(adjacentCoords)) // Check if another bed starts on the second tile
+        {
+            Debug.LogWarning($"Cannot place bed at {coords}. The space is already occupied by another spawn point.");
+            return;
+        }
+        
+        // --- End of Validation ---
+
+        terrainData.BedSpawnPoints.Add(coords);
+        Debug.Log($"Added bed spawn point at {coords}. It will occupy {coords} and {adjacentCoords}.");
     }
 }
 

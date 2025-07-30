@@ -22,8 +22,13 @@ namespace Dwarfs
         public LivingState LivingState { get; private set; }
         
         public Targetable CurrentTargetable { get; set; }
+        public Bed ReservedBed { get; set; }
         public Queue<PlayerDirective> DirectiveQueue { get; private set; } = new Queue<PlayerDirective>();
-        public HashSet<Targetable> BlacklistedTargets { get; private set; } = new HashSet<Targetable>();
+        
+        [Header("AI Settings")]
+        [SerializeField, Tooltip("How many seconds a target remains blacklisted if unreachable.")]
+        private float _blacklistCooldown = 10f;
+        private Dictionary<Targetable, float> _blacklistedTargets = new Dictionary<Targetable, float>();
 
         private void Awake()
         {
@@ -74,9 +79,33 @@ namespace Dwarfs
         private DwarfBaseState DecideNextAction()
         {
             // Priority 1: Biological needs (Sleep)
-            if (TimeManager.Instance.IsNight) 
+            if (TimeManager.Instance.IsNight)
             {
-                return SleepingState;
+                // If we are at the reserved bed, sleep.
+                if (ReservedBed != null && IsAdjacentToTarget(ReservedBed.transform.position))
+                {
+                    return SleepingState;
+                }
+                
+                // If it's night and we don't have a bed, find one.
+                if (ReservedBed == null)
+                {
+                    ReservedBed = Bed.ReserveClosestBed(transform.position);
+                }
+
+                // If we found a bed, go to it.
+                if (ReservedBed != null)
+                {
+                    Vector3? destination = FindWalkableAdjacentNode(ReservedBed.transform.position);
+                    if (destination.HasValue)
+                    {
+                        WalkingState.SetDestination(destination.Value, WalkPurpose.GoToBed);
+                        return WalkingState;
+                    }
+                }
+                
+                // If no beds are available or reachable, just be idle.
+                return IdleState;
             }
 
             // Priority 2: Player Directives
@@ -92,7 +121,9 @@ namespace Dwarfs
             {
                 if (CurrentTargetable == null)
                 {
-                    CurrentTargetable = Targetable.FindClosest(transform.position, BlacklistedTargets);
+                    PruneBlacklist();
+                    var currentBlacklist = new HashSet<Targetable>(_blacklistedTargets.Keys);
+                    CurrentTargetable = Targetable.FindClosest(transform.position, currentBlacklist);
                 }
                 
                 if (CurrentTargetable != null)
@@ -122,11 +153,12 @@ namespace Dwarfs
                 Vector3? destination = FindWalkableAdjacentNode(CurrentTargetable.transform.position);
                 if (destination.HasValue)
                 {
-                    WalkingState.SetDestination(destination.Value);
+                    WalkingState.SetDestination(destination.Value, WalkPurpose.Work);
                     return WalkingState;
                 }
                 // If no walkable node, blacklist and go idle to force re-evaluation
-                BlacklistedTargets.Add(CurrentTargetable);
+                Debug.LogWarning($"{name} could not find a walkable path to {CurrentTargetable.name}. Blacklisting it for {_blacklistCooldown} seconds.");
+                _blacklistedTargets[CurrentTargetable] = Time.time + _blacklistCooldown;
                 CurrentTargetable = null;
                 return IdleState;
             }
@@ -149,7 +181,7 @@ namespace Dwarfs
         {
             DirectiveQueue.Clear();
             DirectiveQueue.Enqueue(directive);
-            BlacklistedTargets.Clear();
+            ClearBlacklist();
             
             // The brain will now pick this up in the next Update cycle.
             Debug.Log($"New directive assigned for {name} to target {directive.Target.name}. Brain will re-evaluate.");
@@ -159,7 +191,9 @@ namespace Dwarfs
         {
             // Clear directives from previous day.
             DirectiveQueue.Clear();
+            ClearBlacklist();
             CurrentTargetable = null;
+            ReservedBed = null; // Forget reserved bed
         }
         
         private void HandleNightStart()
@@ -181,6 +215,30 @@ namespace Dwarfs
                 TransitionToState(IdleState); // Go idle to immediately re-evaluate for a new task.
             }
         }
+        
+        public void ClearBlacklist()
+        {
+            _blacklistedTargets.Clear();
+        }
+
+        private void PruneBlacklist()
+        {
+            if (_blacklistedTargets.Count == 0) return;
+
+            var keysToRemove = new List<Targetable>();
+            foreach (var pair in _blacklistedTargets)
+            {
+                if (Time.time > pair.Value)
+                {
+                    keysToRemove.Add(pair.Key);
+                }
+            }
+
+            foreach (var key in keysToRemove)
+            {
+                _blacklistedTargets.Remove(key);
+            }
+        }
 
         private bool IsAdjacentToTarget(Vector3 targetPosition)
         {
@@ -192,7 +250,27 @@ namespace Dwarfs
             PathNode targetNode = PathfindingGrid.Instance.WorldPointToNode(targetPosition);
             if (targetNode == null) return null;
 
-            List<PathNode> neighbors = PathfindingGrid.Instance.GetNeighbours(targetNode);
+            List<PathNode> neighbors;
+
+            // If the target is a bed, its "neighbors" are the walkable nodes adjacent to *any* of its tiles.
+            if (ReservedBed != null && targetPosition == ReservedBed.transform.position)
+            {
+                neighbors = new List<PathNode>();
+                var bedTile2Pos = new Vector3(targetPosition.x, 0, targetPosition.z + 1);
+                PathNode bedNode2 = PathfindingGrid.Instance.WorldPointToNode(bedTile2Pos);
+
+                neighbors.AddRange(PathfindingGrid.Instance.GetNeighbours(targetNode));
+                if (bedNode2 != null)
+                {
+                    neighbors.AddRange(PathfindingGrid.Instance.GetNeighbours(bedNode2));
+                }
+                // Remove duplicates
+                neighbors = neighbors.Distinct().ToList();
+            }
+            else
+            {
+                neighbors = PathfindingGrid.Instance.GetNeighbours(targetNode);
+            }
             
             PathNode bestNode = null;
             float closestDist = float.MaxValue;
