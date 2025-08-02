@@ -9,81 +9,78 @@ namespace Pathfinding
 
         [Header("Grid Settings")]
         [SerializeField] private LayerMask unwalkableMask;
+        [SerializeField] private bool showDebugVisuals;
 
-        private PathNode[,,] _grid;
-        private int _gridSizeX, _gridSizeY, _gridSizeZ;
+        private PathNode[,] _grid;
+        private int _gridSizeX, _gridSizeZ;
         
         private const float NodeRadius = 0.5f;
         private float _nodeDiameter;
-        private Vector3 _worldBottomLeft;
 
         private void Awake()
         {
             if (Instance != null && Instance != this)
             {
+                Debug.LogWarning($"Multiple PathfindingGrid instances found. Destroying duplicate on {gameObject.name}");
                 Destroy(gameObject);
+                return;
             }
-            else
-            {
-                Instance = this;
-            }
+            Instance = this;
         }
 
-        public void InitializeGrid(TerrainData terrainData)
+        public void InitializeGrid(int width, int height, HashSet<Vector2Int> rockPositions)
         {
             _nodeDiameter = NodeRadius * 2;
             
-            // The grid is now effectively 2D, with a single layer centered at y=0.
-            Vector3 worldSize = new Vector3(terrainData.Width, 1, terrainData.Height);
+            // Convertir dimensiones del mundo a tamaño de grid
+            _gridSizeX = Mathf.RoundToInt(width / _nodeDiameter);
+            _gridSizeZ = Mathf.RoundToInt(height / _nodeDiameter);
             
-            _gridSizeX = Mathf.RoundToInt(worldSize.x / _nodeDiameter);
-            _gridSizeY = 1; // Force a single vertical layer
-            _gridSizeZ = Mathf.RoundToInt(worldSize.z / _nodeDiameter);
-            
-            CreateGrid(worldSize);
+            CreateGrid(rockPositions);
+            Debug.Log($"PathfindingGrid initialized with dimensions: {_gridSizeX}x{_gridSizeZ}");
         }
 
-        private void CreateGrid(Vector3 worldSize)
+        private void CreateGrid(HashSet<Vector2Int> rockPositions)
         {
-            _grid = new PathNode[_gridSizeX, _gridSizeY, _gridSizeZ];
-            _worldBottomLeft = transform.position - Vector3.right * worldSize.x / 2 - Vector3.up * worldSize.y / 2 - Vector3.forward * worldSize.z / 2;
+            _grid = new PathNode[_gridSizeX, _gridSizeZ];
 
             for (int x = 0; x < _gridSizeX; x++)
             {
-                for (int y = 0; y < _gridSizeY; y++)
+                for (int z = 0; z < _gridSizeZ; z++)
                 {
-                    for (int z = 0; z < _gridSizeZ; z++)
-                    {
-                        // Check for obstacles at block-height (Y=0.5)
-                        Vector3 collisionCheckPoint = new Vector3(x, 0.5f, z);
-                        bool isWalkable = !Physics.CheckSphere(collisionCheckPoint, NodeRadius, unwalkableMask);
+                    Vector3 worldPosition = new Vector3(x * _nodeDiameter, 0, z * _nodeDiameter);
+                    Vector3 collisionCheckPoint = worldPosition + Vector3.up * 0.5f;
+                    
+                    bool hasObstacle = Physics.CheckSphere(collisionCheckPoint, NodeRadius, unwalkableMask);
+                    bool hasRock = rockPositions.Contains(new Vector2Int(x, z));
+                    bool isWalkable = !hasObstacle && !hasRock;
 
-                        // But create the actual path node at floor-height (Y=0)
-                        Vector3 nodeWorldPosition = new Vector3(x, 0, z);
-                        
-                        if (!isWalkable)
-                        {
-                            Debug.DrawRay(collisionCheckPoint, Vector3.up * 2, Color.red, 10f);
-                        }
-                        _grid[x, y, z] = new PathNode(x, y, z, nodeWorldPosition, isWalkable);
-                    }
+                    _grid[x, z] = new PathNode(isWalkable, worldPosition, x, z);
                 }
             }
-            Debug.Log($"Pathfinding grid created. Size: {_gridSizeX}x{_gridSizeY}x{_gridSizeZ}");
         }
 
         public PathNode WorldPointToNode(Vector3 worldPosition)
         {
-            // We can now safely use integer coordinates as the grid matches the world.
-            int x = Mathf.RoundToInt(worldPosition.x);
-            int y = 0; // Always use the single layer
-            int z = Mathf.RoundToInt(worldPosition.z);
+            float percentX = worldPosition.x / (_gridSizeX * _nodeDiameter);
+            float percentZ = worldPosition.z / (_gridSizeZ * _nodeDiameter);
             
-            // Boundary check
-            x = Mathf.Clamp(x, 0, _gridSizeX - 1);
-            z = Mathf.Clamp(z, 0, _gridSizeZ - 1);
+            percentX = Mathf.Clamp01(percentX);
+            percentZ = Mathf.Clamp01(percentZ);
 
-            return _grid[x, y, z];
+            int x = Mathf.RoundToInt((_gridSizeX - 1) * percentX);
+            int z = Mathf.RoundToInt((_gridSizeZ - 1) * percentZ);
+
+            // CRÍTICO: Validar que las coordenadas estén dentro del rango
+            if (x < 0 || x >= _gridSizeX || z < 0 || z >= _gridSizeZ)
+            {
+                Debug.LogWarning($"PathfindingGrid: World position {worldPosition} maps to invalid grid coordinates ({x}, {z}). Grid size: {_gridSizeX}x{_gridSizeZ}");
+                return null;
+            }
+
+            var node = _grid[x, z];
+            Debug.Log($"PathfindingGrid: World position {worldPosition} maps to grid node ({x}, {z}) - Walkable: {node.walkable}");
+            return node;
         }
 
         public void UpdateNodeWalkability(Vector3 worldPosition, bool isWalkable)
@@ -91,13 +88,14 @@ namespace Pathfinding
             PathNode node = WorldPointToNode(worldPosition);
             if (node != null)
             {
-                node.isWalkable = isWalkable;
+                node.UpdateWalkable(isWalkable);
             }
         }
         
         public List<PathNode> GetNeighbours(PathNode node)
         {
             List<PathNode> neighbours = new List<PathNode>();
+            
             for (int x = -1; x <= 1; x++)
             {
                 for (int z = -1; z <= 1; z++)
@@ -105,20 +103,83 @@ namespace Pathfinding
                     if (x == 0 && z == 0) continue;
 
                     int checkX = node.gridX + x;
-                    int checkY = 0; // Always on the same plane
                     int checkZ = node.gridZ + z;
 
                     if (checkX >= 0 && checkX < _gridSizeX && checkZ >= 0 && checkZ < _gridSizeZ)
                     {
-                        neighbours.Add(_grid[checkX, checkY, checkZ]);
+                        neighbours.Add(_grid[checkX, checkZ]);
                     }
                 }
             }
             return neighbours;
         }
+
+        public PathNode FindNearestWalkableNode(Vector3 worldPosition)
+        {
+            PathNode targetNode = WorldPointToNode(worldPosition);
+            if (targetNode != null && targetNode.walkable)
+            {
+                return targetNode;
+            }
+
+            // Si el nodo de destino no es walkable, buscar el más cercano
+            Debug.Log($"PathfindingGrid: Target at {worldPosition} is not walkable, searching for nearest walkable node");
+            
+            // Obtener las coordenadas de grid del punto objetivo usando WorldPointToNode
+            PathNode centerNode = WorldPointToNode(worldPosition);
+            if (centerNode == null) return null;
+            
+            int centerX = centerNode.gridX;
+            int centerZ = centerNode.gridZ;
+            
+            int searchRadius = 1;
+            int maxSearchRadius = 15; // Aumentado para mayor cobertura
+            
+            while (searchRadius <= maxSearchRadius)
+            {
+                // Buscar en espiral desde el centro hacia afuera
+                for (int x = centerX - searchRadius; x <= centerX + searchRadius; x++)
+                {
+                    for (int z = centerZ - searchRadius; z <= centerZ + searchRadius; z++)
+                    {
+                        // Solo verificar los bordes del radio actual
+                        if (x == centerX - searchRadius || x == centerX + searchRadius || 
+                            z == centerZ - searchRadius || z == centerZ + searchRadius)
+                        {
+                            // Verificar que las coordenadas estén dentro de los límites
+                            if (x >= 0 && x < _gridSizeX && z >= 0 && z < _gridSizeZ)
+                            {
+                                PathNode searchNode = _grid[x, z];
+                                if (searchNode.walkable)
+                                {
+                                    Debug.Log($"PathfindingGrid: Found nearest walkable node at grid ({x}, {z}) world {searchNode.worldPosition} (distance: {searchRadius})");
+                                    return searchNode;
+                                }
+                            }
+                        }
+                    }
+                }
+                searchRadius++;
+            }
+            
+            Debug.LogWarning($"PathfindingGrid: No walkable node found within {maxSearchRadius} radius of {worldPosition}");
+            return null;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!showDebugVisuals || _grid == null) return;
+
+            foreach (PathNode node in _grid)
+            {
+                Gizmos.color = node.walkable ? Color.white : Color.red;
+                Gizmos.DrawWireCube(node.worldPosition + Vector3.up * 0.5f, Vector3.one * (_nodeDiameter - 0.1f));
+            }
+        }
     }
 }
 
-// ScriptRole: Manages the 3D grid of PathNodes representing the walkable world.
-// Dependencies: None.
-// NeedsSetup: Attach to a single GameObject in the scene (like TimeManager). Define the 'worldSize' to match your playable area. 
+// ScriptRole: Manages the 2D grid of PathNodes representing the walkable world.
+// Dependencies: Requires a LayerMask for unwalkable objects.
+// NeedsSetup: Attach to a GameObject in the scene, configure unwalkableMask in inspector.
+// RelatedScripts: PathNode, TerrainManager

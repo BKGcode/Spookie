@@ -4,7 +4,8 @@ namespace Dwarfs
     {
         Work,
         Leisure,
-        GoToBed
+        GoToBed,
+        Wander
     }
 }
 

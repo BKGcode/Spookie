@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 1870580599426573634}
   - component: {fileID: 5086942144183541862}
   m_Layer: 0
-  m_Name: t
+  m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -310,6 +310,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _stats: {fileID: 11400000, guid: c2ee4d3f088060342b07708c28df20c4, type: 2}
+  customization: {fileID: 11400000, guid: 5ecf20f53b063f34098f240684f799ad, type: 2}
+  _timeBudgets: {fileID: 11400000, guid: 1945c3db2e4817a4f8b8b9b0a7db33b9, type: 2}
 --- !u!114 &7374316452234664361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,6 +340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b495ae8d30b51034288b88230a37bb4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _blacklistCooldown: 10
+  _maxPathAttempts: 3
 --- !u!1 &7016439443944466277
 GameObject:
   m_ObjectHideFlags: 0

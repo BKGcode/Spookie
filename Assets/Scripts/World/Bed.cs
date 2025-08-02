@@ -1,15 +1,15 @@
+using System;
 using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace World
 {
     [RequireComponent(typeof(Targetable))]
     public class Bed : MonoBehaviour
     {
-        private static readonly List<Bed> allBeds = new List<Bed>();
-
+        public event Action<Bed> OnFreed;
+        
         public bool IsOccupied { get; private set; }
+        public GameObject OccupiedBy { get; private set; }
         private Targetable _targetable;
 
         private void Awake()
@@ -19,43 +19,47 @@ namespace World
 
         private void OnEnable()
         {
-            if (!allBeds.Contains(this))
+            if (BedManager.Instance != null)
             {
-                allBeds.Add(this);
+                BedManager.Instance.RegisterBed(this);
             }
         }
 
         private void OnDisable()
         {
-            allBeds.Remove(this);
-        }
-
-        public void SetOccupancy(bool isOccupied)
-        {
-            IsOccupied = isOccupied;
-            _targetable.SetOccupancy(isOccupied); // Also update the underlying targetable
-            Debug.Log($"Bed {name} is now {(isOccupied ? "Occupied" : "Free")}.");
-        }
-
-        public static Bed ReserveClosestBed(Vector3 position)
-        {
-            allBeds.RemoveAll(item => item == null);
-
-            Bed closestBed = allBeds
-                .Where(b => !b.IsOccupied)
-                .OrderBy(b => Vector3.SqrMagnitude(b.transform.position - position))
-                .FirstOrDefault();
-
-            if (closestBed != null)
+            if (BedManager.Instance != null)
             {
-                closestBed.SetOccupancy(true);
+                BedManager.Instance.UnregisterBed(this);
             }
+        }
 
-            return closestBed;
+        public void Occupy(GameObject occupier)
+        {
+            if (IsOccupied) return;
+            
+            IsOccupied = true;
+            OccupiedBy = occupier;
+            _targetable.SetOccupancy(true, occupier);
+            Debug.Log($"Bed {name} is now Occupied by {occupier.name}.");
+        }
+
+        public void Vacate()
+        {
+            if (!IsOccupied) return;
+
+            GameObject previousOccupier = OccupiedBy;
+            IsOccupied = false;
+            OccupiedBy = null;
+            _targetable.SetOccupancy(false);
+            
+            OnFreed?.Invoke(this);
+            
+            Debug.Log($"Bed {name} is now Free. Was occupied by {previousOccupier?.name}.");
         }
     }
 }
 
-// ScriptRole: Identifies a GameObject as a bed and manages its occupancy.
+// ScriptRole: Manages the state of a bed and notifies when it becomes free.
 // Dependencies: Targetable
-// NeedsSetup: Attach to a 'Bed' prefab alongside a 'Targetable' component. 
+// TriggersEvents: OnFreed
+// NeedsSetup: Attach to a 'Bed' prefab alongside a 'Targetable' component.

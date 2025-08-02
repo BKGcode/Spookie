@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10465a70f73b40438e2e26ddfb46467, type: 3}
+  m_Name: TerrainEditorSettings
+  m_EditorClassIdentifier: 
+  materialDatabase: {fileID: 11400000, guid: b598a5d38cf0bd547a85636f5450ff72, type: 2}
+  dwarfSpawnerColor: {r: 0, g: 1, b: 1, a: 1}
+  bedSpawnerColor: {r: 0.8, g: 0.6, b: 1, a: 1}
+  emptySpaceColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  treasureSpaceColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  enemySpaceColor: {r: 1, g: 0, b: 0, a: 1}
+  zoomSpeed: 0.1
+  minZoom: 0.5
+  maxZoom: 3
+  panSpeed: 1

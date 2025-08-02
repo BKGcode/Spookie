@@ -1,241 +1,289 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using Terrain;
+using Terrain.Data;
+using SO;
 
-/// <summary>
-/// Provides tools for "painting" properties onto the terrain grid in the editor.
-/// </summary>
-public class TerrainPaintTool
+namespace EditorScripts
 {
-    private enum PaintMode { Material, SpecialProperty, DwarfSpawner, BedSpawner }
-    private PaintMode currentPaintMode = PaintMode.Material;
-    
-    // Brush settings
-    private int brushSize = 1;
-    
-    // Material paint settings
-    private int selectedMaterialIndex = 0;
-    
-    // Property paint settings
-    private SpaceType selectedSpaceType = SpaceType.None;
-
-    public void DrawUI(MaterialDatabase materialDatabase)
+    public class TerrainPaintTool
     {
-        GUILayout.Label("Paint Tool", EditorStyles.boldLabel);
+        private enum PaintMode { Material, SpecialProperty, DwarfSpawner, BedSpawner }
+        private PaintMode currentPaintMode = PaintMode.Material;
         
-        currentPaintMode = (PaintMode)EditorGUILayout.EnumPopup("Paint Mode:", currentPaintMode);
-        
-        if (currentPaintMode == PaintMode.Material)
-        {
-            DrawMaterialPainterUI(materialDatabase);
-        }
-        else if (currentPaintMode == PaintMode.SpecialProperty)
-        {
-            DrawPropertyPainterUI();
-        }
-        else if (currentPaintMode == PaintMode.DwarfSpawner)
-        {
-            DrawDwarfSpawnerUI();
-        }
-        else // currentPaintMode == PaintMode.BedSpawner
-        {
-            DrawBedSpawnerUI();
-        }
+        private int brushSize = 1;
+        private int selectedMaterialIndex = 0;
+        private SpaceType selectedSpaceType = SpaceType.None;
+        private string[] tabNames = { "Materials", "Properties", "Spawners" };
+        private int selectedTab = 0;
 
-        if (currentPaintMode != PaintMode.DwarfSpawner && currentPaintMode != PaintMode.BedSpawner)
+        public void DrawUI(MaterialDatabase materialDatabase)
         {
-            brushSize = EditorGUILayout.IntSlider("Brush Size:", brushSize, 1, 5);
-        }
-    }
+            GUILayout.Label("Paint Tool", EditorStyles.boldLabel);
+            selectedTab = GUILayout.Toolbar(selectedTab, tabNames);
+            EditorGUILayout.Space();
 
-    private void DrawMaterialPainterUI(MaterialDatabase materialDatabase)
-    {
-        if (materialDatabase == null || materialDatabase.GetAllMaterials().Count == 0)
-        {
-            EditorGUILayout.HelpBox("Assign a Material Database with materials to paint.", MessageType.Warning);
-            return;
-        }
-
-        string[] materialNames = materialDatabase.GetAllMaterials().Select(m => m.MaterialName).ToArray();
-        selectedMaterialIndex = EditorGUILayout.Popup("Material:", selectedMaterialIndex, materialNames);
-    }
-    
-    private void DrawPropertyPainterUI()
-    {
-        selectedSpaceType = (SpaceType)EditorGUILayout.EnumPopup("Space Type:", selectedSpaceType);
-    }
-
-    private void DrawDwarfSpawnerUI()
-    {
-        EditorGUILayout.HelpBox("Click on a walkable tile to add or remove a dwarf spawn point.", MessageType.Info);
-    }
-
-    private void DrawBedSpawnerUI()
-    {
-        EditorGUILayout.HelpBox("Click on a walkable tile to place a 1x2 bed. The bed will occupy this tile and the one above it.", MessageType.Info);
-    }
-
-    /// <summary>
-    /// Applies the painting action to the terrain data.
-    /// </summary>
-    public void Paint(TerrainData terrainData, Vector2Int centerCoords, MaterialDatabase materialDatabase)
-    {
-        if (terrainData == null) return;
-
-        if (currentPaintMode == PaintMode.DwarfSpawner)
-        {
-            PaintDwarfSpawn(terrainData, centerCoords.x, centerCoords.y);
-            return; // Exit after handling the single tile
-        }
-        else if (currentPaintMode == PaintMode.BedSpawner)
-        {
-            PaintBedSpawn(terrainData, centerCoords.x, centerCoords.y);
-            return; // Exit after handling the single tile
-        }
-        
-        int extent = (brushSize - 1) / 2;
-        for (int y = -extent; y <= extent; y++)
-        {
-            for (int x = -extent; x <= extent; x++)
+            switch (selectedTab)
             {
-                int targetX = centerCoords.x + x;
-                int targetY = centerCoords.y + y;
-                
-                if (terrainData.IsValidPosition(targetX, targetY))
-                {
-                    if (currentPaintMode == PaintMode.Material)
-                    {
-                        PaintMaterial(terrainData, targetX, targetY, materialDatabase);
-                    }
-                    else if (currentPaintMode == PaintMode.SpecialProperty)
-                    {
-                        PaintProperty(terrainData, targetX, targetY, materialDatabase);
-                    }
-                    // This is now handled above
-                    // else // DwarfSpawner
-                    // {
-                    //     PaintDwarfSpawn(terrainData, targetX, targetY);
-                    // }
-                }
+                case 0:
+                    currentPaintMode = PaintMode.Material;
+                    DrawMaterialPainterUI(materialDatabase);
+                    DrawBrushSettings(true);
+                    break;
+
+                case 1:
+                    currentPaintMode = PaintMode.SpecialProperty;
+                    DrawPropertyPainterUI();
+                    DrawBrushSettings(true);
+                    break;
+
+                case 2:
+                    DrawSpawnerUI();
+                    DrawBrushSettings(false);
+                    break;
             }
         }
-    }
-    
-    private void PaintMaterial(TerrainData terrainData, int x, int y, MaterialDatabase materialDatabase)
-    {
-        if (materialDatabase == null || materialDatabase.GetAllMaterials().Count == 0) return;
-        
-        MaterialSO selectedMaterial = materialDatabase.GetAllMaterials()[selectedMaterialIndex];
-        
-        // When painting a material, we overwrite the tile's state completely
-        // to ensure it becomes a full, solid block of the selected type.
-        TerrainTile tile = terrainData.GetTile(x, y);
-        tile.SetMaterial(selectedMaterial);
-        tile.SetMiningState(MiningState.Intact);
-        tile.SetSpecialProperty(SpaceType.None);
-        
-        terrainData.SetTile(x, y, tile);
-    }
-    
-    private void PaintProperty(TerrainData terrainData, int x, int y, MaterialDatabase materialDatabase)
-    {
-        TerrainTile tile = terrainData.GetTile(x, y);
 
-        switch (selectedSpaceType)
+        private void DrawBrushSettings(bool allowSizeChange)
         {
-            case SpaceType.Empty:
-                // When painting 'Empty', we effectively mine the tile and ensure it has the base material.
-                tile.SetMiningState(MiningState.Mined);
-                tile.SetMaterial(materialDatabase.GetBaseMaterial());
-                break;
-            
-            case SpaceType.None:
-                // When clearing a property, we just reset the property itself, leaving mining state as is.
-                break;
-
-            default: // Treasure, Enemy, etc.
-                // Ensure the tile is solid before placing a marker on it.
-                tile.SetMiningState(MiningState.Intact);
-                break;
-        }
-
-        tile.SetSpecialProperty(selectedSpaceType);
-        terrainData.SetTile(x, y, tile);
-    }
-
-    private void PaintDwarfSpawn(TerrainData terrainData, int x, int y)
-    {
-        TerrainTile tile = terrainData.GetTile(x, y);
-        Vector2Int coords = new Vector2Int(x, y);
-
-        // Can only place spawners on walkable ground (mined tiles)
-        if (tile.GetMiningState() == MiningState.Mined)
-        {
-            if (terrainData.DwarfSpawnPoints.Contains(coords))
+            EditorGUILayout.Space();
+            if (allowSizeChange)
             {
-                terrainData.DwarfSpawnPoints.Remove(coords);
-                Debug.Log($"Removed dwarf spawn point at {coords}");
+                brushSize = EditorGUILayout.IntSlider("Brush Size:", brushSize, 1, 5);
             }
             else
             {
-                terrainData.DwarfSpawnPoints.Add(coords);
-                Debug.Log($"Added dwarf spawn point at {coords}");
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.IntField("Brush Size:", 1);
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.HelpBox("Spawners use fixed brush size of 1", MessageType.Info);
             }
         }
-        else
-        {
-            Debug.LogWarning($"Cannot place spawn point at {coords}. Tile is not walkable (not mined).");
-        }
-    }
 
-    private void PaintBedSpawn(TerrainData terrainData, int x, int y)
-    {
-        Vector2Int coords = new Vector2Int(x, y);
-        Vector2Int adjacentCoords = new Vector2Int(x, y + 1);
-
-        // Check if the bed is already at this position to allow removal
-        if (terrainData.BedSpawnPoints.Contains(coords))
+        private void DrawMaterialPainterUI(MaterialDatabase materialDatabase)
         {
-            terrainData.BedSpawnPoints.Remove(coords);
-            Debug.Log($"Removed bed spawn point at {coords}");
-            return;
-        }
+            if (materialDatabase == null || materialDatabase.GetAllMaterials().Count == 0)
+            {
+                EditorGUILayout.HelpBox("Assign a Material Database with materials to paint.", MessageType.Warning);
+                return;
+            }
 
-        // --- Placement Validation ---
-        // 1. Check if adjacent tile is valid
-        if (!terrainData.IsValidPosition(adjacentCoords.x, adjacentCoords.y))
-        {
-            Debug.LogWarning($"Cannot place bed at {coords}. The adjacent tile {adjacentCoords} is out of bounds.");
-            return;
-        }
-
-        // 2. Check if both tiles are walkable
-        TerrainTile baseTile = terrainData.GetTile(coords.x, coords.y);
-        TerrainTile adjacentTile = terrainData.GetTile(adjacentCoords.x, adjacentCoords.y);
-        if (baseTile.GetMiningState() != MiningState.Mined || adjacentTile.GetMiningState() != MiningState.Mined)
-        {
-            Debug.LogWarning($"Cannot place bed at {coords}. Both this tile and {adjacentCoords} must be walkable (mined).");
-            return;
-        }
-
-        // 3. Check if the space is already occupied by another spawner
-        if (terrainData.DwarfSpawnPoints.Contains(coords) || terrainData.DwarfSpawnPoints.Contains(adjacentCoords) ||
-            terrainData.BedSpawnPoints.Contains(adjacentCoords)) // Check if another bed starts on the second tile
-        {
-            Debug.LogWarning($"Cannot place bed at {coords}. The space is already occupied by another spawn point.");
-            return;
+            var materials = materialDatabase.GetAllMaterials();
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            for (int i = 0; i < materials.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.GetControlRect(GUILayout.Width(20), GUILayout.Height(20));
+                EditorGUI.DrawRect(rect, materials[i].EditorColor);
+                
+                if (GUILayout.Toggle(selectedMaterialIndex == i, materials[i].MaterialName, EditorStyles.miniButton))
+                {
+                    selectedMaterialIndex = i;
+                }
+                
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.EndVertical();
         }
         
-        // --- End of Validation ---
+        private void DrawPropertyPainterUI()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            foreach (SpaceType type in System.Enum.GetValues(typeof(SpaceType)))
+            {
+                EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.GetControlRect(GUILayout.Width(20), GUILayout.Height(20));
+                EditorGUI.DrawRect(rect, GetColorForSpaceType(type));
+                
+                if (GUILayout.Toggle(selectedSpaceType == type, type.ToString(), EditorStyles.miniButton))
+                {
+                    selectedSpaceType = type;
+                }
+                
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.EndVertical();
+        }
 
-        terrainData.BedSpawnPoints.Add(coords);
-        Debug.Log($"Added bed spawn point at {coords}. It will occupy {coords} and {adjacentCoords}.");
+        private void DrawSpawnerUI()
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Toggle(currentPaintMode == PaintMode.DwarfSpawner, "Dwarf Spawner", EditorStyles.miniButtonLeft))
+                currentPaintMode = PaintMode.DwarfSpawner;
+            if (GUILayout.Toggle(currentPaintMode == PaintMode.BedSpawner, "Bed Spawner", EditorStyles.miniButtonRight))
+                currentPaintMode = PaintMode.BedSpawner;
+            EditorGUILayout.EndHorizontal();
+
+            string message = currentPaintMode == PaintMode.DwarfSpawner
+                ? "Click on a walkable tile to add/remove a dwarf spawn point."
+                : "Click on a walkable tile to add/remove a bed (occupies 2 vertical tiles).";
+            
+            EditorGUILayout.HelpBox(message, MessageType.Info);
+        }
+
+        private Color GetColorForSpaceType(SpaceType type)
+        {
+            switch (type)
+            {
+                case SpaceType.Empty: return Color.gray;
+                case SpaceType.Treasure: return Color.yellow;
+                case SpaceType.Enemy: return Color.red;
+                default: return Color.white;
+            }
+        }
+
+        public void Paint(Terrain.TerrainData terrainData, Vector2Int centerCoords, MaterialDatabase materialDatabase)
+        {
+            if (terrainData == null) return;
+
+            // Para spawners, forzamos brush size 1
+            int actualBrushSize = (currentPaintMode == PaintMode.DwarfSpawner || currentPaintMode == PaintMode.BedSpawner) ? 1 : brushSize;
+            
+            int extent = (actualBrushSize - 1) / 2;
+            for (int y = -extent; y <= extent; y++)
+            {
+                for (int x = -extent; x <= extent; x++)
+                {
+                    int targetX = centerCoords.x + x;
+                    int targetY = centerCoords.y + y;
+                    
+                    if (terrainData.IsValidPosition(targetX, targetY))
+                    {
+                        PaintSingleTile(terrainData, new Vector2Int(targetX, targetY), materialDatabase);
+                    }
+                }
+            }
+        }
+
+        private void PaintSingleTile(Terrain.TerrainData terrainData, Vector2Int coords, MaterialDatabase materialDatabase)
+        {
+            TerrainTile tile = terrainData.GetTile(coords.x, coords.y);
+
+            switch (currentPaintMode)
+            {
+                case PaintMode.Material:
+                    if (materialDatabase?.GetAllMaterials().Count > 0)
+                    {
+                        MaterialSO selectedMaterial = materialDatabase.GetAllMaterials()[selectedMaterialIndex];
+                        tile.SetMaterial(selectedMaterial);
+                        tile.SetMiningState(MiningState.Intact);
+                        tile.SetSpecialProperty(SpaceType.None);
+                        terrainData.SetTile(coords.x, coords.y, tile);
+                    }
+                    break;
+
+                case PaintMode.SpecialProperty:
+                    if (selectedSpaceType == SpaceType.Empty)
+                    {
+                        ClearTileCompletely(terrainData, coords.x, coords.y, materialDatabase);
+                    }
+                    else
+                    {
+                        if (selectedSpaceType != SpaceType.None)
+                        {
+                            tile.SetMiningState(MiningState.Intact);
+                        }
+                        tile.SetSpecialProperty(selectedSpaceType);
+                        terrainData.SetTile(coords.x, coords.y, tile);
+                    }
+                    break;
+
+                case PaintMode.DwarfSpawner:
+                    if (tile.IsWalkable())
+                    {
+                        if (terrainData.DwarfSpawnPoints.Contains(coords))
+                        {
+                            terrainData.DwarfSpawnPoints.Remove(coords);
+                            Debug.Log($"Removed dwarf spawn point at {coords}");
+                        }
+                        else if (!IsTileOccupied(terrainData, coords))
+                        {
+                            terrainData.DwarfSpawnPoints.Add(coords);
+                            Debug.Log($"Added dwarf spawn point at {coords}");
+                        }
+                    }
+                    break;
+
+                case PaintMode.BedSpawner:
+                    HandleBedSpawner(terrainData, coords);
+                    break;
+            }
+        }
+
+        private void HandleBedSpawner(Terrain.TerrainData terrainData, Vector2Int coords)
+        {
+            Vector2Int topCoords = new Vector2Int(coords.x, coords.y + 1);
+
+            // Si hay una cama, la removemos
+            if (terrainData.BedSpawnPoints.Contains(coords))
+            {
+                terrainData.BedSpawnPoints.Remove(coords);
+                Debug.Log($"Removed bed at {coords}");
+                return;
+            }
+
+            // Validaciones para colocar nueva cama
+            if (!terrainData.IsValidPosition(topCoords.x, topCoords.y))
+            {
+                Debug.LogWarning($"Cannot place bed at {coords}. Top tile is out of bounds.");
+                return;
+            }
+
+            TerrainTile baseTile = terrainData.GetTile(coords.x, coords.y);
+            TerrainTile topTile = terrainData.GetTile(topCoords.x, topCoords.y);
+
+            if (!baseTile.IsWalkable() || !topTile.IsWalkable())
+            {
+                Debug.LogWarning($"Cannot place bed at {coords}. Both tiles must be walkable.");
+                return;
+            }
+
+            if (IsTileOccupied(terrainData, coords) || IsTileOccupied(terrainData, topCoords))
+            {
+                Debug.LogWarning($"Cannot place bed at {coords}. Space is occupied.");
+                return;
+            }
+
+            terrainData.BedSpawnPoints.Add(coords);
+            Debug.Log($"Added bed at {coords}");
+        }
+
+        private bool IsTileOccupied(Terrain.TerrainData terrainData, Vector2Int coords)
+        {
+            return terrainData.DwarfSpawnPoints.Contains(coords) || 
+                   terrainData.BedSpawnPoints.Contains(coords) ||
+                   terrainData.BedSpawnPoints.Any(bed => bed.y + 1 == coords.y && bed.x == coords.x);
+        }
+
+        private void ClearTileCompletely(Terrain.TerrainData terrainData, int x, int y, MaterialDatabase materialDatabase)
+        {
+            Vector2Int pos = new Vector2Int(x, y);
+            
+            TerrainTile tile = terrainData.GetTile(x, y);
+            tile.SetMiningState(MiningState.Mined);
+            tile.SetMaterial(materialDatabase.GetBaseMaterial());
+            tile.SetSpecialProperty(SpaceType.Empty);
+            terrainData.SetTile(x, y, tile);
+
+            terrainData.DwarfSpawnPoints?.Remove(pos);
+            terrainData.BedSpawnPoints?.Remove(pos);
+
+            // Check if this tile is the top part of a bed
+            Vector2Int lowerPos = new Vector2Int(x, y - 1);
+            if (terrainData.BedSpawnPoints?.Contains(lowerPos) == true)
+            {
+                terrainData.BedSpawnPoints.Remove(lowerPos);
+            }
+        }
     }
 }
 
-// ScriptRole: Provides UI and logic for the terrain painting tool in the editor.
-// Dependencies: TerrainData, TerrainEnums, MaterialDatabase, MaterialSO
-// HandlesEvents: None
-// TriggersEvents: None
+// ScriptRole: Provides UI and logic for the terrain painting tool in the editor
+// Dependencies: TerrainData, TerrainEnums, MaterialDatabase
 // UsesSO: MaterialDatabase, MaterialSO
-// NeedsSetup: Instantiated by TerrainEditorWindow. 
+// NeedsSetup: Instantiated by TerrainEditorWindow

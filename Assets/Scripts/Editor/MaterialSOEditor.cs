@@ -1,20 +1,24 @@
 using UnityEditor;
 using UnityEngine;
+using SO;
 
-/// <summary>
-/// Custom editor for MaterialSO to make the GUID field read-only.
-/// </summary>
-[CustomEditor(typeof(MaterialSO))]
-public class MaterialSOEditor : Editor
+namespace EditorScripts
 {
-    public override void OnInspectorGUI()
+    /// <summary>
+    /// Custom editor for MaterialSO to make the GUID field read-only.
+    /// </summary>
+    [CustomEditor(typeof(MaterialSO))]
+    public class MaterialSOEditor : UnityEditor.Editor
     {
-        MaterialSO materialSO = (MaterialSO)target;
+        public override void OnInspectorGUI()
+        {
+            MaterialSO materialSO = (MaterialSO)target;
 
-        // Draw the GUID field as a read-only label
-        EditorGUILayout.LabelField("GUID", materialSO.Guid);
+            // Draw the GUID field as a read-only label
+            EditorGUILayout.LabelField("GUID", materialSO.Guid);
 
-        // Draw the rest of the default inspector
-        DrawDefaultInspector();
+            // Draw the rest of the default inspector
+            DrawDefaultInspector();
+        }
     }
-} 
+}

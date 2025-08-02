@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412fc8a6a37bb4048a0824856a47ab1c, type: 3}
+  m_Name: DwarfCustomization
+  m_EditorClassIdentifier: 
+  maleCustomization:
+    names:
+    - Thorin
+    - Balin
+    - Gloin
+    - Oin
+    icons:
+    - icon: {fileID: -1207387583, guid: 4336651ef8511174a8a4f237a4a767e8, type: 3}
+    - icon: {fileID: 1229973517, guid: 4336651ef8511174a8a4f237a4a767e8, type: 3}
+    - icon: {fileID: -193981183, guid: 4336651ef8511174a8a4f237a4a767e8, type: 3}
+    - icon: {fileID: 211966916, guid: 4336651ef8511174a8a4f237a4a767e8, type: 3}
+  femaleCustomization:
+    names:
+    - Helga
+    - Sigrid
+    - Thyra
+    - Astrid
+    icons:
+    - icon: {fileID: 522816362, guid: 7a7739b061a144a4ca56df9c225b3cc3, type: 3}
+    - icon: {fileID: 1537347853, guid: 7a7739b061a144a4ca56df9c225b3cc3, type: 3}
+    - icon: {fileID: 922211881, guid: 7a7739b061a144a4ca56df9c225b3cc3, type: 3}
+    - icon: {fileID: 2145452953, guid: 7a7739b061a144a4ca56df9c225b3cc3, type: 3}

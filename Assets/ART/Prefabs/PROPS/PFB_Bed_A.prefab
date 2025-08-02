@@ -227,6 +227,7 @@ GameObject:
   - component: {fileID: 7699429400021943676}
   - component: {fileID: 6948840395830694648}
   - component: {fileID: 2761714427816189744}
+  - component: {fileID: 812048096641270613}
   m_Layer: 0
   m_Name: PFB_Bed_A
   m_TagString: Untagged
@@ -267,6 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90996464e90ee7e4485abc72ec7ca247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isWorkable: 1
   randomCandidateCount: 3
 --- !u!114 &2761714427816189744
 MonoBehaviour:
@@ -280,6 +282,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c420238246dbe84386e46d1f488fe8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &812048096641270613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725372175690166546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90996464e90ee7e4485abc72ec7ca247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWorkable: 0
+  randomCandidateCount: 3
 --- !u!1 &5193929766861936690
 GameObject:
   m_ObjectHideFlags: 0

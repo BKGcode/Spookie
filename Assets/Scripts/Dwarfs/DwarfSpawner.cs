@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Shared;
+using Terrain;
+using Core;
 
 namespace Dwarfs
 {
@@ -13,6 +16,9 @@ namespace Dwarfs
         [SerializeField] private GameObject dwarfPrefab;
         [SerializeField] private float delayBetweenSpawns = 0.5f;
         private bool hasSpawned = false;
+
+        // Evento para notificar cuando se crea un nuevo enano
+        public static event System.Action<DwarfData, DwarfBrain> OnDwarfSpawned;
 
         private void Start()
         {
@@ -35,7 +41,7 @@ namespace Dwarfs
             TerrainEvents.OnTerrainGenerated.RemoveListener(SpawnDwarfs);
         }
 
-        private void SpawnDwarfs(TerrainData terrainData)
+        private void SpawnDwarfs(Terrain.TerrainData terrainData)
         {
             if (hasSpawned) return;
             hasSpawned = true;
@@ -63,8 +69,16 @@ namespace Dwarfs
                 // We place the dwarf at Y=0.5 to be correctly positioned on top of the floor tile.
                 Vector3 spawnPosition = new Vector3(point.x, 0.5f, point.y);
                 
-                Instantiate(dwarfPrefab, spawnPosition, Quaternion.identity, this.transform);
+                GameObject dwarfGO = Instantiate(dwarfPrefab, spawnPosition, Quaternion.identity, this.transform);
                 Debug.Log($"Spawned dwarf at {spawnPosition}");
+
+                // Notificar a través del evento que se ha creado un nuevo enano
+                var dwarfData = dwarfGO.GetComponent<DwarfData>();
+                var dwarfBrain = dwarfGO.GetComponent<DwarfBrain>();
+                if (dwarfData != null && dwarfBrain != null)
+                {
+                    OnDwarfSpawned?.Invoke(dwarfData, dwarfBrain);
+                }
 
                 yield return new WaitForSeconds(delayBetweenSpawns);
             }
@@ -79,4 +93,4 @@ namespace Dwarfs
 // HandlesEvents: TerrainEvents.OnTerrainGenerated
 // TriggersEvents: None
 // UsesSO: None
-// NeedsSetup: Attach to a GameObject in the scene (e.g., a 'Spawners' manager). Assign the 'Dwarf Prefab' and configure the spawn delay. 
+// NeedsSetup: Attach to a GameObject in the scene (e.g., a 'Spawners' manager). Assign the 'Dwarf Prefab' and configure the spawn delay.

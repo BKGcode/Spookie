@@ -36,6 +36,9 @@ namespace Dwarfs.States
                 case WalkPurpose.GoToBed:
                     // No budget is consumed for going to bed, it's a high-priority need.
                     break;
+                case WalkPurpose.Wander:
+                    _data.ConsumeLivingTime(Time.deltaTime);
+                    break;
             }
         }
 
@@ -50,6 +53,13 @@ namespace Dwarfs.States
         {
             // Simply notify that we've arrived. The brain will decide what to do next in its Update.
             Debug.Log($"{_data.name} has arrived at destination.");
+            
+            // Si era deambulación, volver a LivingState para continuar deambulando
+            if (_purpose == WalkPurpose.Wander)
+            {
+                Debug.Log($"{_data.name} finished wandering, returning to LivingState");
+                _brain.TransitionToState(_brain.LivingState);
+            }
         }
     }
 }

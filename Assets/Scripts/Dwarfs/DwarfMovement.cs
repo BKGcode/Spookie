@@ -44,7 +44,8 @@ namespace Dwarfs
             else
             {
                 Debug.LogWarning($"{name} could not find a path to {targetPosition}.");
-                OnArrival?.Invoke(); 
+                // Don't invoke OnArrival when pathfinding fails - let the brain handle it
+                // OnArrival?.Invoke(); // REMOVED: This was causing contradictory logs
             }
         }
         
@@ -64,7 +65,7 @@ namespace Dwarfs
             {
                 Vector3 startPosition = transform.position;
                 // The node's worldPosition contains the correct floor-level Y coordinate.
-                Vector3 targetPosition = new Vector3(node.worldPosition.x, transform.position.y, node.worldPosition.z);
+                Vector3 targetPosition = node.worldPosition;
                 
                 // Instantly face the target direction on the horizontal plane.
                 Vector3 direction = targetPosition - startPosition;

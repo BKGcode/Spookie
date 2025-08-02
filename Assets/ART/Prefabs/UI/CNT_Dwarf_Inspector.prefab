@@ -821,7 +821,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8153671233368652760}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: DwarfInspectorPanel_UI, Assembly-CSharp
         m_MethodName: ClosePanel
         m_Mode: 1
@@ -1210,7 +1210,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 420548076942406346}
-  - component: {fileID: 8153671233368652760}
   m_Layer: 5
   m_Name: CNT_Dwarf_Inspector
   m_TagString: Untagged
@@ -1238,27 +1237,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -50}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8153671233368652760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5880069114246988180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79010a92072c0cc479b2ceffcd945fe7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelRoot: {fileID: 6706140225683726347}
-  dwarfIcon: {fileID: 8987980939593861023}
-  nameText: {fileID: 5443244427271914471}
-  ageText: {fileID: 3927135537997353304}
-  statusText: {fileID: 6867337696760897566}
-  staminaSlider: {fileID: 335085694310748936}
-  closeButton: {fileID: 1711594233822896056}
-  feedbackMessages: {fileID: 0}
-  autoCloseDelay: 5
 --- !u!1 &6212607638477960377
 GameObject:
   m_ObjectHideFlags: 0

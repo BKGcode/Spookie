@@ -1,38 +1,42 @@
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using SO;
 
-/// <summary>
-/// Editor script that ensures every MaterialSO has a unique GUID.
-/// It runs automatically when assets are modified.
-/// </summary>
-[InitializeOnLoad]
-public class MaterialSOGuidAssigner
+namespace EditorScripts
 {
-    static MaterialSOGuidAssigner()
+    /// <summary>
+    /// Editor script that ensures every MaterialSO has a unique GUID.
+    /// It runs automatically when assets are modified.
+    /// </summary>
+    [InitializeOnLoad]
+    public class MaterialSOGuidAssigner
     {
-        EditorApplication.delayCall += AssignGuidsToAllMaterials;
-    }
-
-    [MenuItem("Spookie/Tools/Assign Missing Material GUIDs")]
-    private static void AssignGuidsToAllMaterials()
-    {
-        string[] guids = AssetDatabase.FindAssets("t:MaterialSO");
-        foreach (string guid in guids)
+        static MaterialSOGuidAssigner()
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            MaterialSO materialSO = AssetDatabase.LoadAssetAtPath<MaterialSO>(path);
+            EditorApplication.delayCall += AssignGuidsToAllMaterials;
+        }
 
-            if (materialSO != null)
+        [MenuItem("Spookie/Tools/Assign Missing Material GUIDs")]
+        private static void AssignGuidsToAllMaterials()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:MaterialSO");
+            foreach (string guid in guids)
             {
-                if (string.IsNullOrEmpty(materialSO.Guid))
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                MaterialSO materialSO = AssetDatabase.LoadAssetAtPath<MaterialSO>(path);
+
+                if (materialSO != null)
                 {
-                    materialSO.GenerateGuid();
-                    EditorUtility.SetDirty(materialSO);
-                    Debug.Log($"Assigned new GUID to {materialSO.name}");
+                    if (string.IsNullOrEmpty(materialSO.Guid))
+                    {
+                        materialSO.GenerateGuid();
+                        EditorUtility.SetDirty(materialSO);
+                        Debug.Log($"Assigned new GUID to {materialSO.name}");
+                    }
                 }
             }
+            AssetDatabase.SaveAssets();
         }
-        AssetDatabase.SaveAssets();
     }
-} 
+}

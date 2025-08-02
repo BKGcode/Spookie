@@ -1,5 +1,6 @@
 using UnityEngine;
 using Pathfinding;
+using Terrain;
 
 namespace Dwarfs.States
 {
@@ -19,7 +20,7 @@ namespace Dwarfs.States
             
             Debug.Log($"{_data.name} is now Working on {_brain.CurrentTargetable.name}.");
             _workTimer = 0f;
-            _brain.CurrentTargetable.SetOccupancy(true);
+            _brain.CurrentTargetable.SetOccupancy(true, _brain.gameObject);
         }
 
         public override void UpdateState()
@@ -35,12 +36,15 @@ namespace Dwarfs.States
             }
         }
 
-        public override void ExitState()
+                public override void ExitState()
         {
             if (_brain.CurrentTargetable != null)
             {
                 // Unset occupancy only if this dwarf was the one working on it.
-                _brain.CurrentTargetable.SetOccupancy(false);
+                if (_brain.CurrentTargetable.IsOccupiedBy(_brain.gameObject))
+                {
+                    _brain.CurrentTargetable.SetOccupancy(false);
+                }
             }
         }
 
@@ -54,10 +58,9 @@ namespace Dwarfs.States
             
             // This assumes the targetable is on a tile that can be mined.
             TerrainManager.Instance.MineTileAt(Mathf.RoundToInt(targetPosition.x), Mathf.RoundToInt(targetPosition.z));
-            PathfindingGrid.Instance.UpdateNodeWalkability(targetPosition, true);
             
             // Remove the completed directive if it was one.
-            if (_brain.DirectiveQueue.Count > 0 && _brain.DirectiveQueue.Peek().Target == _brain.CurrentTargetable)
+            if (_brain.DirectiveQueue.Count > 0 && ReferenceEquals(_brain.DirectiveQueue.Peek().Target, _brain.CurrentTargetable))
             {
                 _brain.DirectiveQueue.Dequeue();
             }
@@ -69,4 +72,4 @@ namespace Dwarfs.States
 }
 
 // ScriptRole: Manages the dwarf's behavior while it's actively working on a target.
-// UsesSO: DwarfStatsSO (indirectly via DwarfData) 
+// UsesSO: DwarfStatsSO (indirectly via DwarfData)
