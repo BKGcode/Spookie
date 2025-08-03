@@ -23,7 +23,7 @@ public class FeedbackMessagesSO : ScriptableObject
         InitializeDictionary();
     }
 
-    private void InitializeDictionary()
+    public void InitializeDictionary()
     {
         messageDictionary = new Dictionary<string, string>();
         
