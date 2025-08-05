@@ -306,15 +306,19 @@ public static class FPSSystemMenu
     {
         Debug.Log("Validating scene components...");
         
-        // Check for FirstPersonController
-        FirstPersonController controller = Object.FindFirstObjectByType<FirstPersonController>();
-        if (controller == null)
+        // Check for Player Components
+        FPSPlayerMovement playerMovement = Object.FindFirstObjectByType<FPSPlayerMovement>();
+        PlayerCamera playerCamera = Object.FindFirstObjectByType<PlayerCamera>();
+        PlayerInteraction playerInteraction = Object.FindFirstObjectByType<PlayerInteraction>();
+        PlayerInput playerInput = Object.FindFirstObjectByType<PlayerInput>();
+        
+        if (playerMovement == null || playerCamera == null || playerInteraction == null || playerInput == null)
         {
-            Debug.LogWarning("No FirstPersonController found in scene. Add one to test the system.");
+            Debug.LogWarning("Missing player components in scene. Add FPSPlayerMovement, PlayerCamera, PlayerInteraction, and PlayerInput to test the system.");
         }
         else
         {
-            Debug.Log("✓ FirstPersonController found");
+            Debug.Log("✓ All player components found");
         }
         
         // Check for InteractableObjects

@@ -65,12 +65,12 @@ public static class InputSetupHelper
    - Set Behavior to 'Invoke Unity Events'
 
 6. Connect events in Inspector:
-   - Move -> FirstPersonController.OnMove
-   - Look -> FirstPersonController.OnLook
-   - Jump -> FirstPersonController.OnJump
-   - Run -> FirstPersonController.OnRun
-   - Interact -> FirstPersonController.OnInteract
-   - ToggleCursor -> FirstPersonController.OnToggleCursor
+   - Move -> PlayerInput.OnMove
+   - Look -> PlayerInput.OnLook
+   - Jump -> PlayerInput.OnJump
+   - Run -> PlayerInput.OnRun
+   - Interact -> PlayerInput.OnInteract
+   - ToggleCursor -> PlayerInput.OnToggleCursor
 ";
     }
 }

@@ -69,7 +69,10 @@ Assets/
 ### Player Prefab Incluye:
 - ✅ **CharacterController** configurado
 - ✅ **Camera** en posición correcta
-- ✅ **FirstPersonController** con todos los scripts
+- ✅ **FPSPlayerMovement** con movimiento y física
+- ✅ **PlayerCamera** con rotación de cámara
+- ✅ **PlayerInteraction** con sistema de interacción
+- ✅ **PlayerInput** con manejo de input
 - ✅ **PlayerInput** configurado
 - ✅ **InputManager** para gestión de input
 - ✅ **CursorManager** para gestión de cursor

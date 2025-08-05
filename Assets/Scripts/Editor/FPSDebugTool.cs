@@ -144,20 +144,23 @@ public class FPSDebugTool : EditorWindow
     {
         Debug.Log("=== CHECKING SCENE SETUP ===");
         
-        // Check for Player
-        FirstPersonController player = Object.FindFirstObjectByType<FirstPersonController>();
-        if (player != null)
+        // Check for Player Components
+        FPSPlayerMovement playerMovement = Object.FindFirstObjectByType<FPSPlayerMovement>();
+        PlayerCamera playerCamera = Object.FindFirstObjectByType<PlayerCamera>();
+        PlayerInteraction playerInteraction = Object.FindFirstObjectByType<PlayerInteraction>();
+        PlayerInput playerInput = Object.FindFirstObjectByType<PlayerInput>();
+        
+        if (playerMovement != null && playerCamera != null && playerInteraction != null && playerInput != null)
         {
-            Debug.Log("✓ FirstPersonController found in scene");
+            Debug.Log("✓ All player components found in scene");
             
             // Check components
-            CharacterController characterController = player.GetComponent<CharacterController>();
+            CharacterController characterController = playerMovement.GetComponent<CharacterController>();
             if (characterController != null)
                 Debug.Log("✓ CharacterController found");
             else
                 Debug.LogError("✗ CharacterController missing!");
                 
-            PlayerInput playerInput = player.GetComponent<PlayerInput>();
             if (playerInput != null)
                 Debug.Log("✓ PlayerInput found");
             else
@@ -165,7 +168,7 @@ public class FPSDebugTool : EditorWindow
         }
         else
         {
-            Debug.LogError("✗ FirstPersonController not found in scene");
+            Debug.LogError("✗ Missing player components in scene");
         }
         
         // Check for InteractableObjects

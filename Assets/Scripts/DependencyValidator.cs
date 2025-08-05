@@ -3,38 +3,112 @@ using System.Collections.Generic;
 
 public static class DependencyValidator
 {
-    public static bool ValidateFirstPersonController(FirstPersonController controller)
+    public static bool ValidatePlayerMovement(FPSPlayerMovement movement)
     {
         List<string> missingDependencies = new List<string>();
         
-        if (controller == null)
+        if (movement == null)
         {
-            Debug.LogError("FirstPersonController is null!");
+            ErrorHandler.LogError("FPSPlayerMovement is null!");
+            return false;
+        }
+        
+        // Check CharacterController
+        var characterController = movement.GetComponent<CharacterController>();
+        if (characterController == null)
+        {
+            missingDependencies.Add("CharacterController");
+        }
+        
+        // Check PlayerSettingsSO using reflection (temporary until we add public property)
+        var playerSettingsField = typeof(FPSPlayerMovement).GetField("playerSettings", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var playerSettings = playerSettingsField?.GetValue(movement) as PlayerSettingsSO;
+        if (playerSettings == null)
+        {
+            missingDependencies.Add("PlayerSettingsSO");
+        }
+        
+        if (missingDependencies.Count > 0)
+        {
+            ErrorHandler.LogError($"FPSPlayerMovement missing dependencies: {string.Join(", ", missingDependencies)}", movement);
+            return false;
+        }
+        
+        Debug.Log("FPSPlayerMovement dependencies validated successfully");
+        return true;
+    }
+    
+    public static bool ValidatePlayerCamera(PlayerCamera camera)
+    {
+        List<string> missingDependencies = new List<string>();
+        
+        if (camera == null)
+        {
+            ErrorHandler.LogError("PlayerCamera is null!");
             return false;
         }
         
         // Check PlayerSettingsSO
-        var playerSettingsField = typeof(FirstPersonController).GetField("playerSettings", 
+        var playerSettingsField = typeof(PlayerCamera).GetField("playerSettings", 
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var playerSettings = playerSettingsField?.GetValue(controller) as PlayerSettingsSO;
+        var playerSettings = playerSettingsField?.GetValue(camera) as PlayerSettingsSO;
+        if (playerSettings == null)
+        {
+            missingDependencies.Add("PlayerSettingsSO");
+        }
+        
+        // Check Player Body Transform
+        var playerBodyField = typeof(PlayerCamera).GetField("playerBody", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var playerBody = playerBodyField?.GetValue(camera) as Transform;
+        if (playerBody == null)
+        {
+            missingDependencies.Add("Player Body Transform");
+        }
+        
+        if (missingDependencies.Count > 0)
+        {
+            ErrorHandler.LogError($"PlayerCamera missing dependencies: {string.Join(", ", missingDependencies)}", camera);
+            return false;
+        }
+        
+        Debug.Log("PlayerCamera dependencies validated successfully");
+        return true;
+    }
+    
+    public static bool ValidatePlayerInteraction(PlayerInteraction interaction)
+    {
+        List<string> missingDependencies = new List<string>();
+        
+        if (interaction == null)
+        {
+            ErrorHandler.LogError("PlayerInteraction is null!");
+            return false;
+        }
+        
+        // Check PlayerSettingsSO
+        var playerSettingsField = typeof(PlayerInteraction).GetField("playerSettings", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var playerSettings = playerSettingsField?.GetValue(interaction) as PlayerSettingsSO;
         if (playerSettings == null)
         {
             missingDependencies.Add("PlayerSettingsSO");
         }
         
         // Check FeedbackMessagesSO
-        var feedbackField = typeof(FirstPersonController).GetField("feedbackMessages", 
+        var feedbackField = typeof(PlayerInteraction).GetField("feedbackMessages", 
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var feedbackMessages = feedbackField?.GetValue(controller) as FeedbackMessagesSO;
+        var feedbackMessages = feedbackField?.GetValue(interaction) as FeedbackMessagesSO;
         if (feedbackMessages == null)
         {
             missingDependencies.Add("FeedbackMessagesSO");
         }
         
         // Check Camera Transform
-        var cameraField = typeof(FirstPersonController).GetField("cameraTransform", 
+        var cameraField = typeof(PlayerInteraction).GetField("cameraTransform", 
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var cameraTransform = cameraField?.GetValue(controller) as Transform;
+        var cameraTransform = cameraField?.GetValue(interaction) as Transform;
         if (cameraTransform == null)
         {
             missingDependencies.Add("Camera Transform");
@@ -42,11 +116,11 @@ public static class DependencyValidator
         
         if (missingDependencies.Count > 0)
         {
-            Debug.LogError($"FirstPersonController missing dependencies: {string.Join(", ", missingDependencies)}");
+            ErrorHandler.LogError($"PlayerInteraction missing dependencies: {string.Join(", ", missingDependencies)}", interaction);
             return false;
         }
         
-        Debug.Log("FirstPersonController dependencies validated successfully");
+        Debug.Log("PlayerInteraction dependencies validated successfully");
         return true;
     }
     
@@ -56,7 +130,7 @@ public static class DependencyValidator
         
         if (interactable == null)
         {
-            Debug.LogError("InteractableObject is null!");
+            ErrorHandler.LogError("InteractableObject is null!");
             return false;
         }
         
@@ -80,7 +154,7 @@ public static class DependencyValidator
         
         if (missingDependencies.Count > 0)
         {
-            Debug.LogError($"InteractableObject missing dependencies: {string.Join(", ", missingDependencies)}");
+            ErrorHandler.LogError($"InteractableObject missing dependencies: {string.Join(", ", missingDependencies)}", interactable);
             return false;
         }
         
@@ -94,7 +168,7 @@ public static class DependencyValidator
         
         if (interactionUI == null)
         {
-            Debug.LogError("InteractionUI is null!");
+            ErrorHandler.LogError("InteractionUI is null!");
             return false;
         }
         
@@ -118,7 +192,7 @@ public static class DependencyValidator
         
         if (missingDependencies.Count > 0)
         {
-            Debug.LogError($"InteractionUI missing dependencies: {string.Join(", ", missingDependencies)}");
+            ErrorHandler.LogError($"InteractionUI missing dependencies: {string.Join(", ", missingDependencies)}", interactionUI);
             return false;
         }
         
@@ -128,5 +202,5 @@ public static class DependencyValidator
 }
 
 // ScriptRole: Static utility class for validating script dependencies
-// Dependencies: None
+// Dependencies: ErrorHandler
 // UsesSO: None 

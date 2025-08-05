@@ -17,6 +17,9 @@ public class InteractableObject : MonoBehaviour, IInteractable
     [SerializeField] private TextMeshProUGUI interactionText;
     [SerializeField] private FeedbackMessagesSO feedbackMessages;
     
+    [Header("Events")]
+    [SerializeField] private GameEvents gameEvents;
+    
     private bool isHighlighted = false;
     private bool hasBeenInteracted = false;
     private bool wasLookingAt = false;
@@ -81,6 +84,12 @@ public class InteractableObject : MonoBehaviour, IInteractable
             
         Debug.Log($"Interacted with {gameObject.name}: {message}");
         
+        // Trigger game events
+        if (gameEvents != null)
+        {
+            gameEvents.TriggerInteractableInteracted(this);
+        }
+        
         // Here you can add specific interaction logic
         // For example: open doors, collect items, trigger events, etc.
     }
@@ -119,5 +128,5 @@ public class InteractableObject : MonoBehaviour, IInteractable
 
 // ScriptRole: Example interactable object with visual feedback and UI integration
 // Dependencies: Renderer, TextMeshProUGUI
-// UsesSO: FeedbackMessagesSO
-// NeedsSetup: objectRenderer, highlightMaterial, interactionText, feedbackMessages 
+// UsesSO: FeedbackMessagesSO, GameEvents
+// NeedsSetup: objectRenderer, highlightMaterial, interactionText, feedbackMessages, gameEvents 

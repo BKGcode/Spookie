@@ -31,8 +31,8 @@ public class AutoSetupManager : MonoBehaviour
         // Find ScriptableObjects first
         FindScriptableObjects();
         
-        // Setup FirstPersonController
-        SetupFirstPersonController();
+        // Setup Player Components
+        SetupPlayerComponents();
         
         // Setup InteractableObjects
         SetupInteractableObjects();
@@ -66,58 +66,73 @@ public class AutoSetupManager : MonoBehaviour
         }
     }
     
-    private void SetupFirstPersonController()
+    private void SetupPlayerComponents()
     {
-        FirstPersonController controller = FindObjectOfType<FirstPersonController>();
-        if (controller != null)
+        // Setup FPSPlayerMovement
+        FPSPlayerMovement playerMovement = FindFirstObjectByType<FPSPlayerMovement>();
+        if (playerMovement != null)
         {
-            // Assign PlayerSettingsSO if found
             if (defaultPlayerSettings != null)
             {
-                var playerSettingsField = typeof(FirstPersonController).GetField("playerSettings", 
+                var playerSettingsField = typeof(FPSPlayerMovement).GetField("playerSettings", 
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (playerSettingsField?.GetValue(controller) == null)
+                if (playerSettingsField?.GetValue(playerMovement) == null)
                 {
-                    playerSettingsField?.SetValue(controller, defaultPlayerSettings);
-                    Debug.Log("Assigned PlayerSettingsSO to FirstPersonController");
+                    playerSettingsField?.SetValue(playerMovement, defaultPlayerSettings);
+                    Debug.Log("Assigned PlayerSettingsSO to FPSPlayerMovement");
+                }
+            }
+        }
+        
+        // Setup PlayerCamera
+        PlayerCamera playerCamera = FindObjectOfType<PlayerCamera>();
+        if (playerCamera != null)
+        {
+            if (defaultPlayerSettings != null)
+            {
+                var playerSettingsField = typeof(PlayerCamera).GetField("playerSettings", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (playerSettingsField?.GetValue(playerCamera) == null)
+                {
+                    playerSettingsField?.SetValue(playerCamera, defaultPlayerSettings);
+                    Debug.Log("Assigned PlayerSettingsSO to PlayerCamera");
+                }
+            }
+        }
+        
+        // Setup PlayerInteraction
+        PlayerInteraction playerInteraction = FindObjectOfType<PlayerInteraction>();
+        if (playerInteraction != null)
+        {
+            if (defaultPlayerSettings != null)
+            {
+                var playerSettingsField = typeof(PlayerInteraction).GetField("playerSettings", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (playerSettingsField?.GetValue(playerInteraction) == null)
+                {
+                    playerSettingsField?.SetValue(playerInteraction, defaultPlayerSettings);
+                    Debug.Log("Assigned PlayerSettingsSO to PlayerInteraction");
                 }
             }
             
-            // Assign FeedbackMessagesSO if found
             if (defaultFeedbackMessages != null)
             {
-                var feedbackField = typeof(FirstPersonController).GetField("feedbackMessages", 
+                var feedbackField = typeof(PlayerInteraction).GetField("feedbackMessages", 
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (feedbackField?.GetValue(controller) == null)
+                if (feedbackField?.GetValue(playerInteraction) == null)
                 {
-                    feedbackField?.SetValue(controller, defaultFeedbackMessages);
-                    Debug.Log("Assigned FeedbackMessagesSO to FirstPersonController");
+                    feedbackField?.SetValue(playerInteraction, defaultFeedbackMessages);
+                    Debug.Log("Assigned FeedbackMessagesSO to PlayerInteraction");
                 }
             }
-            
-            // Assign camera if not set
-            if (controller.GetComponentInChildren<Camera>() != null)
-            {
-                var cameraField = typeof(FirstPersonController).GetField("cameraTransform", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (cameraField?.GetValue(controller) == null)
-                {
-                    cameraField?.SetValue(controller, controller.GetComponentInChildren<Camera>().transform);
-                    Debug.Log("Assigned camera transform to FirstPersonController");
                 }
-            }
-            
-            Debug.Log("FirstPersonController auto setup completed");
-        }
-        else
-        {
-            Debug.LogWarning("No FirstPersonController found in scene");
-        }
+        
+        Debug.Log("Player components auto setup completed");
     }
     
     private void SetupInteractableObjects()
     {
-        InteractableObject[] interactables = FindObjectsOfType<InteractableObject>();
+        InteractableObject[] interactables = FindObjectsByType<InteractableObject>(FindObjectsSortMode.None);
         foreach (var interactable in interactables)
         {
             // Assign renderer if not set
@@ -201,15 +216,27 @@ public class AutoSetupManager : MonoBehaviour
     {
         Debug.Log("Validating all components...");
         
-        // Validate FirstPersonController
-        FirstPersonController controller = FindObjectOfType<FirstPersonController>();
-        if (controller != null)
+        // Validate Player Components
+        FPSPlayerMovement playerMovement = FindFirstObjectByType<FPSPlayerMovement>();
+        if (playerMovement != null)
         {
-            DependencyValidator.ValidateFirstPersonController(controller);
+            DependencyValidator.ValidatePlayerMovement(playerMovement);
+        }
+        
+        PlayerCamera playerCamera = FindFirstObjectByType<PlayerCamera>();
+        if (playerCamera != null)
+        {
+            DependencyValidator.ValidatePlayerCamera(playerCamera);
+        }
+        
+        PlayerInteraction playerInteraction = FindFirstObjectByType<PlayerInteraction>();
+        if (playerInteraction != null)
+        {
+            DependencyValidator.ValidatePlayerInteraction(playerInteraction);
         }
         
         // Validate InteractableObjects
-        InteractableObject[] interactables = FindObjectsOfType<InteractableObject>();
+        InteractableObject[] interactables = FindObjectsByType<InteractableObject>(FindObjectsSortMode.None);
         foreach (var interactable in interactables)
         {
             DependencyValidator.ValidateInteractableObject(interactable);

@@ -8,6 +8,7 @@ public class FPSSystemTools : EditorWindow
     [Header("Required Assets")]
     private PlayerSettingsSO playerSettings;
     private FeedbackMessagesSO feedbackMessages;
+    private GameEvents gameEvents;
     private InputActionAsset inputActions;
     
     [Header("Prefab Settings")]
@@ -40,6 +41,7 @@ public class FPSSystemTools : EditorWindow
         GUILayout.Label("Required Assets", EditorStyles.boldLabel);
         playerSettings = (PlayerSettingsSO)EditorGUILayout.ObjectField("Player Settings", playerSettings, typeof(PlayerSettingsSO), false);
         feedbackMessages = (FeedbackMessagesSO)EditorGUILayout.ObjectField("Feedback Messages", feedbackMessages, typeof(FeedbackMessagesSO), false);
+        gameEvents = (GameEvents)EditorGUILayout.ObjectField("Game Events", gameEvents, typeof(GameEvents), false);
         inputActions = (InputActionAsset)EditorGUILayout.ObjectField("Input Actions (Uses existing)", inputActions, typeof(InputActionAsset), false);
         
         GUILayout.Space(10);
@@ -198,15 +200,21 @@ public class FPSSystemTools : EditorWindow
         camera.tag = "MainCamera";
         
         // Add all required components
-        FirstPersonController fpsController = playerObj.AddComponent<FirstPersonController>();
+        FPSPlayerMovement playerMovement = playerObj.AddComponent<FPSPlayerMovement>();
+        PlayerCamera playerCamera = cameraObj.AddComponent<PlayerCamera>();
+        PlayerInteraction playerInteraction = playerObj.AddComponent<PlayerInteraction>();
         PlayerInput playerInput = playerObj.AddComponent<PlayerInput>();
+        
+        // Add Unity's Input System PlayerInput component
+        UnityEngine.InputSystem.PlayerInput unityPlayerInput = playerObj.AddComponent<UnityEngine.InputSystem.PlayerInput>();
+        
         InputManager inputManager = playerObj.AddComponent<InputManager>();
         CursorManager cursorManager = playerObj.AddComponent<CursorManager>();
         InteractionUI interactionUI = playerObj.AddComponent<InteractionUI>();
         
         // Assign references using reflection
-        AssignReferencesToFirstPersonController(fpsController);
-        AssignReferencesToPlayerInput(playerInput);
+        AssignReferencesToPlayerComponents(playerMovement, playerCamera, playerInteraction);
+        AssignReferencesToPlayerInput(playerInput, unityPlayerInput);
         AssignReferencesToInputManager(inputManager);
         
         // Create prefab
@@ -410,49 +418,125 @@ public class FPSSystemTools : EditorWindow
         Debug.Log("4. Assign the GameUI to your CursorManager component");
     }
     
-    private void AssignReferencesToFirstPersonController(FirstPersonController fpsController)
+    private void AssignReferencesToPlayerComponents(FPSPlayerMovement playerMovement, PlayerCamera playerCamera, PlayerInteraction playerInteraction)
     {
-        // Find camera transform
-        Transform cameraTransform = fpsController.transform.Find("Camera");
-        if (cameraTransform != null)
-        {
-            var field = typeof(FirstPersonController).GetField("cameraTransform", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
-            {
-                field.SetValue(fpsController, cameraTransform);
-            }
-        }
-        
-        // Assign ScriptableObjects
+        // Assign PlayerSettingsSO to FPSPlayerMovement
         if (playerSettings != null)
         {
-            var playerSettingsField = typeof(FirstPersonController).GetField("playerSettings", 
+            var playerSettingsField = typeof(FPSPlayerMovement).GetField("playerSettings", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (playerSettingsField != null)
             {
-                playerSettingsField.SetValue(fpsController, playerSettings);
+                playerSettingsField.SetValue(playerMovement, playerSettings);
+            }
+        }
+        
+        // Assign PlayerSettingsSO to PlayerCamera
+        if (playerSettings != null)
+        {
+            var playerSettingsField = typeof(PlayerCamera).GetField("playerSettings", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (playerSettingsField != null)
+            {
+                playerSettingsField.SetValue(playerCamera, playerSettings);
+            }
+        }
+        
+        // Assign PlayerSettingsSO and FeedbackMessagesSO to PlayerInteraction
+        if (playerSettings != null)
+        {
+            var playerSettingsField = typeof(PlayerInteraction).GetField("playerSettings", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (playerSettingsField != null)
+            {
+                playerSettingsField.SetValue(playerInteraction, playerSettings);
             }
         }
         
         if (feedbackMessages != null)
         {
-            var feedbackMessagesField = typeof(FirstPersonController).GetField("feedbackMessages", 
+            var feedbackField = typeof(PlayerInteraction).GetField("feedbackMessages", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (feedbackMessagesField != null)
+            if (feedbackField != null)
             {
-                feedbackMessagesField.SetValue(fpsController, feedbackMessages);
+                feedbackField.SetValue(playerInteraction, feedbackMessages);
             }
         }
+        
+        // Assign GameEvents to FPSPlayerMovement and PlayerInteraction
+        if (gameEvents != null)
+        {
+            var gameEventsField = typeof(FPSPlayerMovement).GetField("gameEvents", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (gameEventsField != null)
+            {
+                gameEventsField.SetValue(playerMovement, gameEvents);
+            }
+            
+            var gameEventsField2 = typeof(PlayerInteraction).GetField("gameEvents", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (gameEventsField2 != null)
+            {
+                gameEventsField2.SetValue(playerInteraction, gameEvents);
+            }
+        }
+        
+        // Assign Camera Transform to PlayerInteraction
+        var cameraField = typeof(PlayerInteraction).GetField("cameraTransform", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (cameraField != null)
+        {
+            cameraField.SetValue(playerInteraction, playerCamera.transform);
+        }
+        
+        // Assign Player Body Transform to PlayerCamera
+        var playerBodyField = typeof(PlayerCamera).GetField("playerBody", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (playerBodyField != null)
+        {
+            playerBodyField.SetValue(playerCamera, playerMovement.transform);
+        }
+        
+        Debug.Log("Assigned references to Player Components");
     }
     
-    private void AssignReferencesToPlayerInput(PlayerInput playerInput)
+    private void AssignReferencesToPlayerInput(PlayerInput playerInput, UnityEngine.InputSystem.PlayerInput unityPlayerInput)
     {
+        // Configure Unity's Input System PlayerInput component
         if (inputActions != null)
         {
-            playerInput.actions = inputActions;
-            playerInput.defaultActionMap = "Player";
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+            unityPlayerInput.actions = inputActions;
+            unityPlayerInput.defaultActionMap = "Player";
+            unityPlayerInput.notificationBehavior = UnityEngine.InputSystem.PlayerNotifications.InvokeCSharpEvents;
+        }
+        
+        // Configure our custom PlayerInput script references
+        if (playerInput != null)
+        {
+            // Assign references to our custom PlayerInput script using reflection
+            var playerMovementField = typeof(PlayerInput).GetField("playerMovement", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (playerMovementField != null)
+            {
+                var playerMovement = playerInput.GetComponent<FPSPlayerMovement>();
+                playerMovementField.SetValue(playerInput, playerMovement);
+            }
+            
+            var playerCameraField = typeof(PlayerInput).GetField("playerCamera", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (playerCameraField != null)
+            {
+                var playerCamera = playerInput.GetComponentInChildren<PlayerCamera>();
+                playerCameraField.SetValue(playerInput, playerCamera);
+            }
+            
+            var playerInteractionField = typeof(PlayerInput).GetField("playerInteraction", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (playerInteractionField != null)
+            {
+                var playerInteraction = playerInput.GetComponent<PlayerInteraction>();
+                playerInteractionField.SetValue(playerInput, playerInteraction);
+            }
         }
     }
     
@@ -505,6 +589,17 @@ public class FPSSystemTools : EditorWindow
             if (feedbackMessagesField != null)
             {
                 feedbackMessagesField.SetValue(interactable, feedbackMessages);
+            }
+        }
+        
+        // Assign GameEvents
+        if (gameEvents != null)
+        {
+            var gameEventsField = typeof(InteractableObject).GetField("gameEvents", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (gameEventsField != null)
+            {
+                gameEventsField.SetValue(interactable, gameEvents);
             }
         }
     }
@@ -580,4 +675,5 @@ public class FPSSystemTools : EditorWindow
 // ScriptRole: Editor tool to generate complete FPS system automatically
 // Dependencies: All FPS system components
 // UsesSO: PlayerSettingsSO, FeedbackMessagesSO, InputActionAsset
+// NeedsSetup: Assign ScriptableObjects in tool window before generating 
 // NeedsSetup: Assign ScriptableObjects in tool window before generating 

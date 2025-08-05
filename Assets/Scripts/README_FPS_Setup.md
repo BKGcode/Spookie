@@ -3,7 +3,10 @@
 ## Scripts Creados
 
 ### Core Scripts
-- **FirstPersonController.cs**: Controlador principal del jugador
+- **PlayerMovement.cs**: Manejo de movimiento del jugador
+- **PlayerCamera.cs**: Control de cámara y rotación
+- **PlayerInteraction.cs**: Sistema de interacción con objetos
+- **PlayerInput.cs**: Manejo de input del jugador
 - **IInteractable.cs**: Interfaz para objetos interactuables
 - **InteractableObject.cs**: Ejemplo de objeto interactuable
 - **FeedbackMessagesSO.cs**: ScriptableObject para mensajes
@@ -55,7 +58,10 @@
 ```
 Player (GameObject)
 ├── CharacterController
-├── FirstPersonController
+├── PlayerMovement
+├── PlayerCamera
+├── PlayerInteraction
+├── PlayerInput
 ├── PlayerInput
 ├── InputManager
 ├── CursorManager
@@ -65,22 +71,31 @@ Player (GameObject)
 
 #### Configuración de Componentes
 
-**FirstPersonController:**
+**FPSPlayerMovement:**
 - Player Settings: Asignar PlayerSettingsSO
-- Camera Transform: Asignar Main Camera
+- Game Events: Asignar GameEvents
+
+**PlayerCamera:**
+- Player Settings: Asignar PlayerSettingsSO
+- Player Body: Asignar transform del jugador
+
+**PlayerInteraction:**
+- Player Settings: Asignar PlayerSettingsSO
 - Feedback Messages: Asignar FeedbackMessagesSO
+- Game Events: Asignar GameEvents
+- Camera Transform: Asignar Main Camera
 - Interactable Layer: Configurar layer para objetos interactuables
 
 **PlayerInput:**
 - Actions: Asignar PlayerInput asset
 - Behavior: Invoke Unity Events
 - Connect events:
-  - Move → FirstPersonController.OnMove
-  - Look → FirstPersonController.OnLook
-  - Jump → FirstPersonController.OnJump
-  - Run → FirstPersonController.OnRun
-  - Interact → FirstPersonController.OnInteract
-  - ToggleCursor → CursorManager.OnToggleCursor
+  - Move → PlayerInput.OnMove
+  - Look → PlayerInput.OnLook
+  - Jump → PlayerInput.OnJump
+  - Run → PlayerInput.OnRun
+  - Interact → PlayerInput.OnInteract
+  - ToggleCursor → PlayerInput.OnToggleCursor
 
 **InputManager:**
 - Input Actions: Asignar PlayerInput asset
