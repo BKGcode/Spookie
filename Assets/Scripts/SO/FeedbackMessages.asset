@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1c7ce1f12644a34a997c7aee5ffd610, type: 3}
+  m_Name: FeedbackMessages
+  m_EditorClassIdentifier: 
+  messages:
+  - key: time_remaining
+    message: "Time Remaining: {0}"
+  - key: status_day
+    message: "Day - Explore and investigate"
+  - key: status_night
+    message: "Night - Return to spawn to rest"
+  - key: status_exhausted
+    message: "Exhausted - Return to spawn quickly!"
+  - key: status_sleeping
+    message: "Sleeping..."
+  - key: status_fainted
+    message: "Fainted - You will be penalized"
+  - key: exhaustion_warning
+    message: "Warning: Exhaustion approaching!"
+  - key: exhaustion_active
+    message: "You are exhausted! Return to spawn!"
+  - key: new_day_started
+    message: "A new day has begun!"
+  - key: night_falling
+    message: "Night is falling..."
+  - key: exhaustion_penalty
+    message: "You are exhausted! Speed reduced."
+  - key: fainted_penalty
+    message: "You fainted! Severe speed penalty applied."
+  - key: slept_correctly
+    message: "You slept well and feel refreshed!"
+  - key: fainted
+    message: "You fainted from exhaustion!"
+  - key: safe_at_spawn
+    message: "You are safe at the spawn point"
+  - key: return_to_spawn
+    message: "Return to spawn point to rest"
+  - key: spawn_too_far
+    message: "Spawn point is too far away!"
+  - key: day_exploration
+    message: "Day - Time to explore and investigate"
+  - key: night_rest
+    message: "Night - Time to rest at spawn"
+  - key: urgency_warning
+    message: "URGENT: Return to spawn immediately!"
+  - key: penalty_active
+    message: "Penalty active - Movement restricted"
+  - key: night_warning
+    message: "Night is approaching - return to spawn"
+  - key: rest_complete
+    message: "Rest complete - you feel refreshed"
+  - key: spawn_reminder
+    message: "Remember to return to spawn before night"
+  showDebugLogs: 1

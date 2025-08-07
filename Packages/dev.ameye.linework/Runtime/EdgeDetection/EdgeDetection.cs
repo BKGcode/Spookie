@@ -255,14 +255,16 @@ namespace Linework.EdgeDetection
                 outline.SetColor(ShaderPropertyId.HeightFadeColor, edgeDetectionSettings.heightFadeColor);
                 
                 // Masks.
-                if (settings.maskInfluence.HasFlag(MaskInfluence.Sections)) outline.EnableKeyword(ShaderFeature.SectionsMask);
-                else outline.DisableKeyword(ShaderFeature.SectionsMask);
                 if (settings.maskInfluence.HasFlag(MaskInfluence.Depth)) outline.EnableKeyword(ShaderFeature.DepthMask);
                 else outline.DisableKeyword(ShaderFeature.DepthMask);
                 if (settings.maskInfluence.HasFlag(MaskInfluence.Normals)) outline.EnableKeyword(ShaderFeature.NormalsMask);
                 else outline.DisableKeyword(ShaderFeature.NormalsMask);
                 if (settings.maskInfluence.HasFlag(MaskInfluence.Luminance)) outline.EnableKeyword(ShaderFeature.LuminanceMask);
                 else outline.DisableKeyword(ShaderFeature.LuminanceMask);
+                
+                // Fill.
+                if (edgeDetectionSettings.fill) outline.EnableKeyword(ShaderFeature.Fill);
+                else outline.DisableKeyword(ShaderFeature.Fill);
                 
                 outline.SetColor(ShaderPropertyId.BackgroundColor, edgeDetectionSettings.backgroundColor);
                 outline.SetColor(CommonShaderPropertyId.OutlineColor, edgeDetectionSettings.outlineColor);
@@ -329,7 +331,8 @@ namespace Linework.EdgeDetection
                         context.cmd.DrawRendererList(data.SectionRendererListHandle);
 
                         // Section mask pass.
-                        if (settings.SectionMaskRenderingLayer != 0 && settings.maskInfluence != MaskInfluence.Nothing)
+                        // NOTE: The section mask can only be used to mask out other discontinuities if sectioning itself is not used as an input.
+                        if (!settings.discontinuityInput.HasFlag(DiscontinuityInput.Sections) && settings.SectionMaskRenderingLayer != 0 && settings.maskInfluence != MaskInfluence.Nothing)
                         {
                             context.cmd.DrawRendererList(data.SectionMaskRendererListHandle);
                         }
@@ -374,7 +377,7 @@ namespace Linework.EdgeDetection
                 var lightData = frameData.Get<UniversalLightData>();
                 
                 var sortingCriteria = cameraData.defaultOpaqueSortFlags;
-                var renderQueueRange = RenderQueueRange.opaque;
+                var renderQueueRange = RenderQueueRange.all;
                 var drawingSettings = RenderingUtils.CreateDrawingSettings(RenderUtils.DefaultShaderTagIds, universalRenderingData, cameraData, lightData, sortingCriteria);
                 var filteringSettings = new FilteringSettings(renderQueueRange, -1, settings.SectionRenderingLayer);
                 var renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
@@ -491,7 +494,7 @@ namespace Linework.EdgeDetection
                     sectionCmd.Clear();
 
                     var sortingCriteria = renderingData.cameraData.defaultOpaqueSortFlags;
-                    var renderQueueRange = RenderQueueRange.opaque;
+                    var renderQueueRange = RenderQueueRange.all;
                     var drawingSettings = RenderingUtils.CreateDrawingSettings(RenderUtils.DefaultShaderTagIds, ref renderingData, sortingCriteria);
                     var filteringSettings = new FilteringSettings(renderQueueRange, -1, settings.SectionRenderingLayer);
                     var renderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);

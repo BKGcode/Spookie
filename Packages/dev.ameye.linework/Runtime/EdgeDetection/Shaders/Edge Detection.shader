@@ -31,6 +31,7 @@
         [Toggle(OVERRIDE_SHADOW)] _OverrideShadow ("Override Outline Color In Shadow", Float) = 0
         _OutlineColorShadow ("Outline Color Shadow", Color) = (1, 1, 1, 1)
         _BackgroundColor ("Background Color", Color) = (0, 0, 0, 0)
+        [Toggle(FILL)] _Fill ("Fill", Float) = 0
         _FillColor ("Fill Color", Color) = (0, 0, 0, 1)
         [Toggle(FADE_BY_DISTANCE)] _FadeByDistance ("Fade Outline by Distance", Float) = 0
         _DistanceFadeStart ("Distance Fade Start", Float) = 100
@@ -57,20 +58,20 @@
         Cull Off
 
         HLSLINCLUDE
-        #pragma multi_compile_local _ DEPTH
-        #pragma multi_compile_local _ NORMALS
-        #pragma multi_compile_local _ LUMINANCE
-        #pragma multi_compile_local _ SECTIONS
+        #pragma multi_compile _ DEPTH
+        #pragma multi_compile _ NORMALS
+        #pragma multi_compile _ LUMINANCE
+        #pragma multi_compile _ SECTIONS
 
-        #pragma multi_compile_local _ OVERRIDE_SHADOW
-        #pragma multi_compile_local _ SCALE_WITH_RESOLUTION
-        #pragma multi_compile_local _ FADE_BY_DISTANCE
-        #pragma multi_compile_local _ FADE_BY_HEIGHT
-        #pragma multi_compile_local _ SECTIONS_MASK
-        #pragma multi_compile_local _ DEPTH_MASK
-        #pragma multi_compile_local _ NORMALS_MASK
-        #pragma multi_compile_local _ LUMINANCE_MASK
-        #pragma multi_compile_local OPERATOR_CROSS OPERATOR_SOBEL
+        #pragma multi_compile _ OVERRIDE_SHADOW
+        #pragma multi_compile _ SCALE_WITH_RESOLUTION
+        #pragma multi_compile _ FILL
+        #pragma multi_compile _ FADE_BY_DISTANCE
+        #pragma multi_compile _ FADE_BY_HEIGHT
+        #pragma multi_compile _ DEPTH_MASK
+        #pragma multi_compile _ NORMALS_MASK
+        #pragma multi_compile _ LUMINANCE_MASK
+        #pragma multi_compile OPERATOR_CROSS OPERATOR_SOBEL
 
         #pragma shader_feature_local _ DEBUG_DEPTH DEBUG_NORMALS DEBUG_LUMINANCE DEBUG_SECTIONS
         #pragma shader_feature_local _ DEBUG_SECTIONS_RAW_VALUES
@@ -264,11 +265,7 @@
                 #endif
 
                 #if defined(SECTIONS)
-                #if defined(SECTIONS_MASK)
                 edge_section = mask ? 0 : RobertsCross(section_samples);
-                #else
-                edge_section = RobertsCross(section_samples);
-                #endif
                 #endif
 
                 #elif defined(OPERATOR_SOBEL)
@@ -331,11 +328,7 @@
                 #endif
 
                 #if defined(SECTIONS)
-                #if defined(SECTIONS_MASK)
                 edge_section = mask ? 0 : Sobel(section_samples);
-                #else
-                edge_section = Sobel(section_samples);
-                #endif
                 #endif
 
                 #endif
@@ -414,7 +407,9 @@
                 /// COMPOSITE EDGES
                 ///
 
-                // if (fill) return _FillColor;
+                #if defined(FILL)
+                if (fill) return _FillColor;
+                #endif
                 
                 float4 line_color = _OutlineColor;
                 
@@ -430,8 +425,8 @@
                 #endif
 
                 #if defined(FADE_BY_DISTANCE)
-                float distance = length(positionWS - _WorldSpaceCameraPos);
-                float distance_fade = 1.0 - saturate(1.0 - (distance - _DistanceFadeStart) / _DistanceFadeDistance);
+                float worldSpaceDistance = length(positionWS - _WorldSpaceCameraPos);
+                float distance_fade = 1.0 - saturate(1.0 - (worldSpaceDistance - _DistanceFadeStart) / _DistanceFadeDistance);
                 line_color = lerp(line_color, _DistanceFadeColor * _DistanceFadeColor.a, distance_fade);
                 #endif
 

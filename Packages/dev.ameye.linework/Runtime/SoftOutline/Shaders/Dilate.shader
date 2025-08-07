@@ -52,12 +52,12 @@ Shader "Hidden/Outlines/Soft Outline/Dilate"
                     float2 offset = float2(x, 0) * _BlitTexture_TexelSize.xy * scale;
                     float4 sample = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, IN.texcoord + offset);
 
-                    int distance = abs(x);
-                    float falloff = 1.0f - distance / _KernelSize;
+                    int pixelDistance = abs(x);
+                    float falloff = 1.0f - pixelDistance / _KernelSize;
                     sum += sample.a * falloff;
 
-                    if (distance < shortestActivePixelDistance && sample.a >= 1.0) {
-                        shortestActivePixelDistance = distance;
+                    if (pixelDistance < shortestActivePixelDistance && sample.a >= 1.0) {
+                        shortestActivePixelDistance = pixelDistance;
                         nearestActivePixelColor = sample.xyz;
                     }
                 }
@@ -93,8 +93,8 @@ Shader "Hidden/Outlines/Soft Outline/Dilate"
                     float2 offset = float2(0, y) * _BlitTexture_TexelSize.xy * scale;
                     float4 sample = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, IN.texcoord + offset);
 
-                    int distance = abs(y);
-                    float falloff = 1.0f - distance / _KernelSize;
+                    int pixelDistance = abs(y);
+                    float falloff = 1.0f - pixelDistance / _KernelSize;
                     float weightedValue = sample.a * falloff;
                     sum += weightedValue;
 

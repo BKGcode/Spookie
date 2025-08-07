@@ -14,6 +14,7 @@ namespace Linework.Editor.Common.Utils
             public static readonly GUIContent InjectionPoint = EditorGUIUtility.TrTextContent("Stage", "Controls when the render pass executes.");
             public static readonly GUIContent ShowInSceneView = EditorGUIUtility.TrTextContent("Show In Scene View", "Sets whether to render the pass in the scene view.");
             public static readonly GUIContent DebugStage = EditorGUIUtility.TrTextContent("Debug", "Which stage to render as a debug view.");
+            public static readonly GUIContent ClearStencil = EditorGUIUtility.TrTextContent("Clear Stencil", "Clear the stencil buffer before rendering the outline.");
             public static readonly GUIContent Scaling = EditorGUIUtility.TrTextContent("Scaling", "How to scale the width of the outline.");
             public static readonly GUIContent MinWidth = EditorGUIUtility.TrTextContent("Min Width", "The minimum width of the outline.");
             public static readonly GUIContent ClosedLoop = EditorGUIUtility.TrTextContent("Closed Loop", "Whether to render a closed loop outline.");
@@ -106,6 +107,7 @@ namespace Linework.Editor.Common.Utils
             public static readonly GUIContent OverrideShadow = EditorGUIUtility.TrTextContent("Override Shadow", "The color of the outline when it is in an area that lies within a shadow.");
             public static readonly GUIContent OutlineFillColor = EditorGUIUtility.TrTextContent("Fill Color", "The color of the outline for fill in regions in the section map.");
             public static readonly GUIContent FadeByDistance = EditorGUIUtility.TrTextContent("Fade By Distance", "Fade the edges by distance.");
+            public static readonly GUIContent Fill = EditorGUIUtility.TrTextContent("Fill", "Color the filled regions of the section mask.");
             public static readonly GUIContent FadeStart = EditorGUIUtility.TrTextContent("Start (meters)", "The distance/height from which to start fading the edges.");
             public static readonly GUIContent FadeDistance = EditorGUIUtility.TrTextContent("Distance (meters)", "The distance/height over which the edges are faded.");
             public static readonly GUIContent FadeByHeight = EditorGUIUtility.TrTextContent("Fade By Height", "Fade the edges by height.");
