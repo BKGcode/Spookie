@@ -10,9 +10,12 @@ namespace DayNightSystem
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private CanvasGroup messageCanvas;
         
-        [Header("Animation Settings")]
+        [Header("Audio")]
+        [SerializeField] private AudioManager audioManager;
+        
+        [Header("Settings")]
+        [SerializeField] private float defaultDuration = 3f;
         [SerializeField] private float fadeInDuration = 0.5f;
-        [SerializeField] private float displayDuration = 3f;
         [SerializeField] private float fadeOutDuration = 0.5f;
         
         [Header("Debug")]
@@ -39,12 +42,17 @@ namespace DayNightSystem
         {
             if (messageText == null)
             {
-                Debug.LogError("[MessageSystem] Message Text reference is missing!");
+                Debug.LogError("[MessageSystem] MessageText reference is missing!");
             }
             
             if (messageCanvas == null)
             {
-                Debug.LogError("[MessageSystem] Message Canvas reference is missing!");
+                Debug.LogError("[MessageSystem] MessageCanvas reference is missing!");
+            }
+            
+            if (audioManager == null)
+            {
+                Debug.LogWarning("[MessageSystem] AudioManager reference is missing - no notification sounds");
             }
         }
         
@@ -60,7 +68,7 @@ namespace DayNightSystem
                 Debug.Log("[MessageSystem] Initialized message system");
         }
         
-        public void ShowMessage(string message, float customDuration = -1f)
+        public void ShowMessage(string message, float customDuration = 0f)
         {
             if (string.IsNullOrEmpty(message))
             {
@@ -68,16 +76,41 @@ namespace DayNightSystem
                 return;
             }
             
-            // Stop current message if running
+            // Stop any current message
             if (currentMessageCoroutine != null)
             {
                 StopCoroutine(currentMessageCoroutine);
             }
             
+            // Play notification sound
+            if (audioManager != null)
+            {
+                audioManager.PlayMessageNotification();
+            }
+            
+            // Start new message
             currentMessageCoroutine = StartCoroutine(ShowMessageCoroutine(message, customDuration));
             
             if (showDebugLogs)
                 Debug.Log($"[MessageSystem] Showing message: {message}");
+        }
+        
+        public void ShowNightMessage()
+        {
+            string nightMessage = "...a strange night passes...";
+            ShowMessage(nightMessage, 3f);
+            
+            if (showDebugLogs)
+                Debug.Log("[MessageSystem] Showing night message");
+        }
+        
+        public void ShowNightMessage(string customMessage = null, float duration = 3f)
+        {
+            string nightMessage = customMessage ?? "...a strange night passes...";
+            ShowMessage(nightMessage, duration);
+            
+            if (showDebugLogs)
+                Debug.Log($"[MessageSystem] Showing night message: {nightMessage}");
         }
         
         private IEnumerator ShowMessageCoroutine(string message, float customDuration)
@@ -101,7 +134,7 @@ namespace DayNightSystem
             yield return StartCoroutine(FadeCanvasGroup(0f, 1f, fadeInDuration));
             
             // Display duration
-            float displayTime = customDuration > 0f ? customDuration : displayDuration;
+            float displayTime = customDuration > 0f ? customDuration : defaultDuration;
             yield return new WaitForSeconds(displayTime);
             
             // Fade out
@@ -241,7 +274,7 @@ namespace DayNightSystem
 }
 
 // ScriptRole: Manages UI messages and integrates with day/night transitions
-// RelatedScripts: DayNightManager, GameStateManager
+// RelatedScripts: DayNightManager, GameStateManager, AudioManager
 // UsesSO: None
 // ReceivesFrom: DayNightManager (transition requests)
-// SendsTo: TextMeshProUGUI, CanvasGroup
+// SendsTo: TextMeshProUGUI, CanvasGroup, AudioManager (notification sounds)

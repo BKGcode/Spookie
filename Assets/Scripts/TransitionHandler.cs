@@ -16,6 +16,9 @@ namespace DayNightSystem
         [Header("References")]
         [SerializeField] private CanvasGroup fadeCanvas;
         
+        [Header("Audio")]
+        [SerializeField] private AudioManager audioManager;
+        
         [Header("Transition Settings")]
         [SerializeField] private float fadeDuration = 1f;
         [SerializeField] private float sleepTransitionDuration = 2f;
@@ -65,6 +68,11 @@ namespace DayNightSystem
             if (fadeCanvas == null)
             {
                 Debug.LogError("[TransitionHandler] Fade Canvas reference is missing!");
+            }
+            
+            if (audioManager == null)
+            {
+                Debug.LogError("[TransitionHandler] AudioManager reference is missing!");
             }
         }
         
@@ -264,38 +272,96 @@ namespace DayNightSystem
         
         private IEnumerator SleepTransitionCoroutine(System.Action onComplete)
         {
-            // Fade to black quickly
-            yield return StartCoroutine(FadeCoroutine(fadeCanvas.alpha, 1f, 0.5f, null));
-            
-            // Hold black for sleep duration
-            yield return new WaitForSeconds(sleepTransitionDuration);
-            
-            // Fade from black
-            yield return StartCoroutine(FadeCoroutine(1f, 0f, 0.5f, null));
-            
-            currentTransition = null;
-            onComplete?.Invoke();
-            
+            if (showDebugLogs)
+                Debug.Log("[TransitionHandler] Starting sleep transition");
+
+            // Play sleep sound effect
+            if (audioManager != null)
+            {
+                audioManager.PlaySleepSound();
+            }
+
+            // Phase 1: Fade to black (falling asleep)
+            yield return StartCoroutine(FadeCoroutine(fadeCanvas.alpha, 1f, sleepTransitionDuration * 0.4f, null));
+
+            // Phase 2: Hold black screen (sleeping)
+            yield return new WaitForSeconds(sleepTransitionDuration * 0.2f);
+
+            // Phase 3: Fade from black to normal (waking up)
+            yield return StartCoroutine(FadeCoroutine(1f, 0f, sleepTransitionDuration * 0.4f, null));
+
             if (showDebugLogs)
                 Debug.Log("[TransitionHandler] Sleep transition completed");
+
+            onComplete?.Invoke();
+        }
+        
+        private IEnumerator WakeUpTransitionCoroutine(System.Action onComplete)
+        {
+            if (showDebugLogs)
+                Debug.Log("[TransitionHandler] Starting wake up transition");
+
+            // Play wake up sound effect
+            if (audioManager != null)
+            {
+                audioManager.PlayWakeUpSound();
+            }
+
+            // Phase 1: Quick flash of light (eyes opening)
+            yield return StartCoroutine(FadeCoroutine(0f, 0.3f, 0.2f, null));
+            yield return StartCoroutine(FadeCoroutine(0.3f, 0f, 0.2f, null));
+
+            // Phase 2: Gradual fade to normal (adjusting to light)
+            yield return StartCoroutine(FadeCoroutine(0f, 0.1f, 0.5f, null));
+            yield return StartCoroutine(FadeCoroutine(0.1f, 0f, 0.8f, null));
+
+            // Play morning ambient sound
+            if (audioManager != null)
+            {
+                audioManager.PlayMorningAmbient();
+            }
+
+            if (showDebugLogs)
+                Debug.Log("[TransitionHandler] Wake up transition completed");
+
+            onComplete?.Invoke();
         }
         
         private IEnumerator FaintTransitionCoroutine(System.Action onComplete)
         {
-            // Quick fade to black
-            yield return StartCoroutine(FadeCoroutine(fadeCanvas.alpha, 1f, faintTransitionDuration, null));
+            if (showDebugLogs)
+                Debug.Log("[TransitionHandler] Starting dramatic faint transition");
             
-            // Hold black briefly
-            yield return new WaitForSeconds(0.2f);
+            // Play faint sound effect
+            if (audioManager != null)
+            {
+                audioManager.PlayFaintSound();
+            }
             
-            // Quick fade from black
-            yield return StartCoroutine(FadeCoroutine(1f, 0f, faintTransitionDuration, null));
+            // Phase 1: Quick fade to black (simulating loss of consciousness)
+            yield return StartCoroutine(FadeCoroutine(fadeCanvas.alpha, 1f, faintTransitionDuration * 0.3f, null));
+            
+            // Phase 2: Hold black briefly (unconscious state)
+            yield return new WaitForSeconds(0.5f);
+            
+            // Phase 3: Quick flash of light (brief consciousness)
+            yield return StartCoroutine(FadeCoroutine(1f, 0.3f, 0.1f, null));
+            yield return new WaitForSeconds(0.1f);
+            
+            // Phase 4: Final fade to black (complete unconsciousness)
+            yield return StartCoroutine(FadeCoroutine(0.3f, 1f, faintTransitionDuration * 0.4f, null));
+            
+            // Phase 5: Hold black longer (extended unconscious state)
+            yield return new WaitForSeconds(0.8f);
+            
+            // Phase 6: Gradual fade from black (waking up)
+            yield return StartCoroutine(FadeCoroutine(1f, 0f, faintTransitionDuration * 0.8f, null));
             
             currentTransition = null;
             onComplete?.Invoke();
             
             if (showDebugLogs)
-                Debug.Log("[TransitionHandler] Faint transition completed");
+                Debug.Log("[TransitionHandler] Dramatic faint transition completed");
         }
         
         private void ForceCompleteTransition()
@@ -365,11 +431,88 @@ namespace DayNightSystem
         {
             return fadeCanvas != null ? fadeCanvas.alpha : 0f;
         }
+        
+        // Public methods for audio configuration
+        public void SetFaintSound(AudioClip sound)
+        {
+            // This method is no longer needed as audio is managed by AudioManager
+            Debug.LogWarning("[TransitionHandler] SetFaintSound is deprecated. Use AudioManager instead.");
+        }
+        
+        public void SetSleepSound(AudioClip sound)
+        {
+            // This method is no longer needed as audio is managed by AudioManager
+            Debug.LogWarning("[TransitionHandler] SetSleepSound is deprecated. Use AudioManager instead.");
+        }
+        
+        public void SetAudioSource(AudioSource audioSource)
+        {
+            // This method is no longer needed as audio is managed by AudioManager
+            Debug.LogWarning("[TransitionHandler] SetAudioSource is deprecated. Use AudioManager instead.");
+        }
+        
+        // Public method to test faint transition
+        [ContextMenu("Test Faint Transition")]
+        public void TestFaintTransition()
+        {
+            if (!IsTransitioning())
+            {
+                FaintTransition(() => {
+                    if (showDebugLogs)
+                        Debug.Log("[TransitionHandler] Test faint transition completed");
+                });
+            }
+            else
+            {
+                Debug.LogWarning("[TransitionHandler] Cannot test faint transition - another transition is active");
+            }
+        }
+        
+        // Public method to test sleep transition
+        [ContextMenu("Test Sleep Transition")]
+        public void TestSleepTransition()
+        {
+            if (!IsTransitioning())
+            {
+                SleepTransition(() => {
+                    if (showDebugLogs)
+                        Debug.Log("[TransitionHandler] Test sleep transition completed");
+                });
+            }
+            else
+            {
+                Debug.LogWarning("[TransitionHandler] Cannot test sleep transition - another transition is active");
+            }
+        }
+
+        public void StartWakeUpTransition(System.Action onComplete = null)
+        {
+            if (currentTransition != null)
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("[TransitionHandler] Transition already in progress, ignoring wake up request");
+                return;
+            }
+
+            currentTransition = StartCoroutine(WakeUpTransitionCoroutine(onComplete));
+            
+            if (showDebugLogs)
+                Debug.Log("[TransitionHandler] Started wake up transition");
+        }
+
+        [ContextMenu("Test Wake Up Transition")]
+        public void TestWakeUpTransition()
+        {
+            StartWakeUpTransition(() => {
+                if (showDebugLogs)
+                    Debug.Log("[TransitionHandler] Test wake up transition completed");
+            });
+        }
     }
 }
 
-// ScriptRole: Handles visual transitions with specific types for sleep/faint scenarios
+// ScriptRole: Handles visual and audio transitions with specific types for sleep/faint scenarios
 // RelatedScripts: DayNightManager, GameStateManager
 // UsesSO: None
 // ReceivesFrom: DayNightManager events
-// SendsTo: CanvasGroup (fade effects)
+// SendsTo: CanvasGroup (fade effects), AudioManager (sound effects)

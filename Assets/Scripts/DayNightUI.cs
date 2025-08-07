@@ -11,12 +11,17 @@ namespace DayNightSystem
         [SerializeField] private TextMeshProUGUI statusDisplay;
         [SerializeField] private Image warningIcon;
         [SerializeField] private Image spawnProximityIcon;
+        
+        [Header("References")]
         [SerializeField] private FeedbackMessagesSO feedbackMessages;
         
-        [Header("UI Settings")]
+        [Header("Audio")]
+        [SerializeField] private AudioManager audioManager;
+        
+        [Header("Settings")]
+        [SerializeField] private float warningBlinkRate = 0.5f;
         [SerializeField] private bool showWarningIcon = true;
         [SerializeField] private bool showSpawnProximity = true;
-        [SerializeField] private float warningBlinkRate = 0.5f;
         [SerializeField] private float proximityUpdateRate = 0.5f;
         
         [Header("Debug")]
@@ -47,12 +52,16 @@ namespace DayNightSystem
                 dayNightManager.OnExhaustionStarted += OnExhaustionStarted;
                 dayNightManager.OnPlayerSlept += OnPlayerSlept;
                 dayNightManager.OnPlayerFainted += OnPlayerFainted;
+                dayNightManager.OnNightBlocked += OnNightBlocked;
             }
             
             if (SpawnPoint.Current != null)
             {
                 SpawnPoint.Current.OnPlayerEnteredSafeArea += OnPlayerEnteredSafeArea;
                 SpawnPoint.Current.OnPlayerLeftSafeArea += OnPlayerLeftSafeArea;
+                SpawnPoint.Current.OnPlayerEnteredWarningZone += OnPlayerEnteredWarningZone;
+                SpawnPoint.Current.OnPlayerLeftWarningZone += OnPlayerLeftWarningZone;
+                SpawnPoint.Current.OnDistanceChanged += OnDistanceChanged;
             }
         }
         
@@ -66,12 +75,16 @@ namespace DayNightSystem
                 dayNightManager.OnExhaustionStarted -= OnExhaustionStarted;
                 dayNightManager.OnPlayerSlept -= OnPlayerSlept;
                 dayNightManager.OnPlayerFainted -= OnPlayerFainted;
+                dayNightManager.OnNightBlocked -= OnNightBlocked;
             }
             
             if (SpawnPoint.Current != null)
             {
                 SpawnPoint.Current.OnPlayerEnteredSafeArea -= OnPlayerEnteredSafeArea;
                 SpawnPoint.Current.OnPlayerLeftSafeArea -= OnPlayerLeftSafeArea;
+                SpawnPoint.Current.OnPlayerEnteredWarningZone -= OnPlayerEnteredWarningZone;
+                SpawnPoint.Current.OnPlayerLeftWarningZone -= OnPlayerLeftWarningZone;
+                SpawnPoint.Current.OnDistanceChanged -= OnDistanceChanged;
             }
             
             StopWarningBlink();
@@ -82,27 +95,32 @@ namespace DayNightSystem
         {
             if (timeDisplay == null)
             {
-                Debug.LogError("[DayNightUI] Time Display reference is missing!");
+                Debug.LogError("[DayNightUI] TimeDisplay reference is missing!");
             }
             
             if (statusDisplay == null)
             {
-                Debug.LogWarning("[DayNightUI] Status Display reference is missing - status messages disabled");
+                Debug.LogError("[DayNightUI] StatusDisplay reference is missing!");
             }
             
             if (warningIcon == null)
             {
-                Debug.LogWarning("[DayNightUI] Warning Icon reference is missing - exhaustion warnings disabled");
+                Debug.LogWarning("[DayNightUI] WarningIcon reference is missing!");
             }
             
             if (spawnProximityIcon == null)
             {
-                Debug.LogWarning("[DayNightUI] Spawn Proximity Icon reference is missing - proximity indicator disabled");
+                Debug.LogWarning("[DayNightUI] SpawnProximityIcon reference is missing!");
             }
             
             if (feedbackMessages == null)
             {
-                Debug.LogWarning("[DayNightUI] Feedback Messages reference is missing - using default messages");
+                Debug.LogWarning("[DayNightUI] FeedbackMessagesSO reference is missing!");
+            }
+            
+            if (audioManager == null)
+            {
+                Debug.LogWarning("[DayNightUI] AudioManager reference is missing - no warning sounds");
             }
         }
         
@@ -132,7 +150,38 @@ namespace DayNightSystem
         
         private void OnExhaustionWarning(float secondsRemaining)
         {
-            ShowExhaustionWarning(secondsRemaining);
+            if (statusDisplay != null)
+            {
+                string warningMessage = GetMessage("exhaustion_warning", $"Warning: You will faint in {secondsRemaining:F1}s!");
+                ShowStatusMessage(warningMessage);
+            }
+            
+            // Play warning sound
+            if (audioManager != null)
+            {
+                audioManager.PlayWarningSound();
+            }
+            
+            // Show fainting timer if active
+            if (dayNightManager != null && dayNightManager.IsFaintingTimerActive())
+            {
+                ShowFaintingTimer(secondsRemaining);
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"[DayNightUI] Exhaustion warning - {secondsRemaining:F1}s remaining");
+        }
+        
+        private void ShowFaintingTimer(float secondsRemaining)
+        {
+            if (statusDisplay != null)
+            {
+                string faintingMessage = GetMessage("fainting_timer", $"You will faint in {secondsRemaining:F1}s! Return to spawn!");
+                ShowStatusMessage(faintingMessage);
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"[DayNightUI] Showing fainting timer - {secondsRemaining:F1}s remaining");
         }
         
         private void OnExhaustionStarted()
@@ -145,6 +194,7 @@ namespace DayNightSystem
         {
             HideExhaustionWarning();
             HideProximityIndicator();
+            HidePenaltyIndicator();
             UpdateStatusDisplay();
             
             if (showDebugLogs)
@@ -161,27 +211,104 @@ namespace DayNightSystem
         
         private void OnPlayerFainted()
         {
-            ShowStatusMessage(GetMessage("fainted", "You fainted from exhaustion!"));
+            if (statusDisplay != null)
+            {
+                string faintedMessage = GetMessage("fainting_occurred", "You fainted from exhaustion!");
+                ShowStatusMessage(faintedMessage);
+            }
+            
+            // Play penalty sound
+            if (audioManager != null)
+            {
+                audioManager.PlayPenaltySound();
+            }
+            
+            // Show penalty indicator
+            ShowPenaltyIndicator();
             
             if (showDebugLogs)
-                Debug.Log("[DayNightUI] Player fainted");
+                Debug.Log("[DayNightUI] Player fainted - showing penalty message and indicator");
+        }
+        
+        private void ShowPenaltyIndicator()
+        {
+            if (warningIcon != null)
+            {
+                warningIcon.gameObject.SetActive(true);
+                warningIcon.color = Color.red; // Red for fainted penalty
+                
+                // Start blinking effect
+                if (warningBlinkCoroutine == null)
+                {
+                    warningBlinkCoroutine = StartCoroutine(WarningBlinkCoroutine());
+                }
+                
+                if (showDebugLogs)
+                    Debug.Log("[DayNightUI] Showing penalty indicator");
+            }
+        }
+        
+        private void OnNightBlocked()
+        {
+            ShowStatusMessage(GetMessage("night_blocked", "Night has fallen - you cannot move until dawn"));
+            
+            if (showDebugLogs)
+                Debug.Log("[DayNightUI] Night blocked - showing restriction message");
         }
         
         private void OnPlayerEnteredSafeArea()
         {
             ShowProximityIndicator(true);
-            ShowStatusMessage(GetMessage("safe_at_spawn", "You are safe at the spawn point"));
             
-            if (showDebugLogs)
-                Debug.Log("[DayNightUI] Player entered safe area");
+            // Check if player returned during fainting timer
+            if (dayNightManager != null && dayNightManager.HasStartedFaintingTimer())
+            {
+                ShowStatusMessage(GetMessage("fainting_prevented", "You returned to spawn just in time!"));
+                
+                if (showDebugLogs)
+                    Debug.Log("[DayNightUI] Player returned to spawn just in time!");
+            }
+            else
+            {
+                ShowStatusMessage(GetMessage("safe_at_spawn", "You are safe at the spawn point"));
+                
+                if (showDebugLogs)
+                    Debug.Log("[DayNightUI] Player entered safe area");
+            }
         }
         
         private void OnPlayerLeftSafeArea()
         {
-            ShowProximityIndicator(false);
-            
             if (showDebugLogs)
                 Debug.Log("[DayNightUI] Player left safe area");
+            
+            HideProximityIndicator();
+            UpdateStatusDisplay();
+        }
+        
+        private void OnPlayerEnteredWarningZone()
+        {
+            if (showDebugLogs)
+                Debug.Log("[DayNightUI] Player entered warning zone");
+            
+            ShowWarningMessage(GetMessage("warning_zone_entered", "Warning: Getting far from spawn"));
+            UpdateStatusDisplay();
+        }
+        
+        private void OnPlayerLeftWarningZone()
+        {
+            if (showDebugLogs)
+                Debug.Log("[DayNightUI] Player left warning zone");
+            
+            UpdateStatusDisplay();
+        }
+        
+        private void OnDistanceChanged(float distance)
+        {
+            if (showDebugLogs)
+                Debug.Log($"[DayNightUI] Distance changed: {distance:F2}m");
+            
+            UpdateStatusDisplay();
         }
         
         private void UpdateTimeDisplay(float timeNormalized)
@@ -232,12 +359,40 @@ namespace DayNightSystem
                 }
             }
             
+            // Add penalty information if active
             if (playerPenalty != null && playerPenalty.CurrentPenaltyType != PenaltyType.None)
             {
-                statusMessage += $" - {playerPenalty.GetPenaltyDescription()}";
+                string penaltyInfo = GetPenaltyDescription(playerPenalty.CurrentPenaltyType);
+                statusMessage += $" - {penaltyInfo}";
+            }
+            
+            // Add distance information if available
+            if (SpawnPoint.Current != null)
+            {
+                float distance = SpawnPoint.GetDistanceToCurrentSpawn();
+                string distanceKey = SpawnPoint.Current.GetDistanceDescriptionWithMessages();
+                string distanceInfo = GetMessage(distanceKey, SpawnPoint.Current.GetDistanceDescription());
+                
+                if (distance < float.MaxValue)
+                {
+                    statusMessage += $" - {distanceInfo} ({distance:F1}m)";
+                }
             }
             
             statusDisplay.text = statusMessage;
+        }
+        
+        private string GetPenaltyDescription(PenaltyType penaltyType)
+        {
+            switch (penaltyType)
+            {
+                case PenaltyType.Exhaustion:
+                    return GetMessage("exhaustion_penalty", "Exhausted - Speed reduced");
+                case PenaltyType.Fainted:
+                    return GetMessage("fainted_penalty", "Fainted - Severe speed penalty");
+                default:
+                    return "";
+            }
         }
         
         private void ShowExhaustionWarning(float secondsRemaining)
@@ -298,6 +453,18 @@ namespace DayNightSystem
             ShowProximityIndicator(false);
         }
         
+        private void HidePenaltyIndicator()
+        {
+            if (warningIcon != null)
+            {
+                warningIcon.gameObject.SetActive(false);
+                StopWarningBlink();
+                
+                if (showDebugLogs)
+                    Debug.Log("[DayNightUI] Hiding penalty indicator");
+            }
+        }
+        
         private void ShowStatusMessage(string message)
         {
             if (statusDisplay != null)
@@ -306,6 +473,23 @@ namespace DayNightSystem
                 
                 if (showDebugLogs)
                     Debug.Log($"[DayNightUI] Status message: {message}");
+            }
+        }
+        
+        private void ShowWarningMessage(string message)
+        {
+            if (statusDisplay != null)
+            {
+                statusDisplay.text = message;
+                
+                if (showDebugLogs)
+                    Debug.Log($"[DayNightUI] Warning message: {message}");
+            }
+            
+            // Play warning sound
+            if (audioManager != null)
+            {
+                audioManager.PlayWarningSound();
             }
         }
         
@@ -408,4 +592,4 @@ namespace DayNightSystem
 // RelatedScripts: DayNightManager, PlayerPenalty, SpawnPoint, FeedbackMessagesSO
 // UsesSO: FeedbackMessagesSO
 // ReceivesFrom: DayNightManager events, SpawnPoint events
-// SendsTo: TextMeshProUGUI, Image (UI elements)
+// SendsTo: TextMeshProUGUI, Image (UI elements), AudioManager (warning sounds)

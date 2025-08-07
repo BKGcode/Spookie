@@ -123,6 +123,40 @@ namespace DayNightSystem
                 case "penalty_active":
                     return "Penalty active - Movement restricted";
                 
+                // Fainting timer messages
+                case "fainting_timer":
+                    return "You will faint in {0}s! Return to spawn!";
+                case "fainting_imminent":
+                    return "Fainting imminent! Return to spawn NOW!";
+                case "fainting_prevented":
+                    return "You returned to spawn just in time!";
+                case "fainting_occurred":
+                    return "You fainted from exhaustion!";
+                
+                // Night blocked messages
+                case "night_blocked":
+                    return "Night has fallen - you cannot move until dawn";
+                case "night_message":
+                    return "...a strange night passes...";
+                case "night_restricted":
+                    return "Movement restricted during night";
+                
+                // Distance and warning zone messages
+                case "warning_zone_entered":
+                    return "Warning: Getting far from spawn point";
+                case "warning_zone_left":
+                    return "You are closer to spawn now";
+                case "distance_update":
+                    return "Distance to spawn: {0}m";
+                case "safe_rest_area":
+                    return "Safe Rest Area";
+                case "spawn_range":
+                    return "Spawn Range";
+                case "warning_zone":
+                    return "Warning Zone";
+                case "far_from_spawn":
+                    return "Far from spawn";
+                
                 default:
                     return $"Message for '{key}' not found";
             }

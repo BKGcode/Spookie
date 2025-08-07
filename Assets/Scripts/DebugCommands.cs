@@ -73,7 +73,7 @@ namespace DayNightSystem
                 return;
             }
             
-            if (playerPenalty.HasExhaustionPenalty || playerPenalty.HasFaintedPenalty)
+            if (playerPenalty.CurrentPenaltyType != PenaltyType.None)
             {
                 playerPenalty.RemoveAllPenalties();
                 if (showDebugLogs)
@@ -212,9 +212,9 @@ namespace DayNightSystem
             
             if (playerPenalty != null)
             {
-                state += $"\nHas Exhaustion Penalty: {playerPenalty.HasExhaustionPenalty}";
-                state += $"\nHas Fainted Penalty: {playerPenalty.HasFaintedPenalty}";
                 state += $"\nCurrent Penalty Type: {playerPenalty.CurrentPenaltyType}";
+                state += $"\nCan Perform Action: {playerPenalty.CanPerformAction()}";
+                state += $"\nCan Sprint: {playerPenalty.CanSprint()}";
             }
             
             Debug.Log($"[DebugCommands] {state}");

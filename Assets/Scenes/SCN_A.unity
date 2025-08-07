@@ -350,6 +350,71 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
+--- !u!1 &438985733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 438985735}
+  - component: {fileID: 438985734}
+  m_Layer: 0
+  m_Name: AUDIO_MANAGER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &438985734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438985733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd5736302479922428a789b162cdf86a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  ambientSource: {fileID: 0}
+  dayMusic: {fileID: 0}
+  nightMusic: {fileID: 0}
+  dayAmbient: {fileID: 0}
+  nightAmbient: {fileID: 0}
+  dayToNightTransition: {fileID: 0}
+  nightToDayTransition: {fileID: 0}
+  sleepSound: {fileID: 0}
+  faintSound: {fileID: 0}
+  messageNotification: {fileID: 0}
+  warningSound: {fileID: 0}
+  penaltySound: {fileID: 0}
+  wakeUpSound: {fileID: 0}
+  morningAmbient: {fileID: 0}
+  musicVolume: 0.7
+  sfxVolume: 1
+  ambientVolume: 0.5
+  fadeDuration: 2
+  showDebugLogs: 1
+--- !u!4 &438985735
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438985733}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -214, y: -120.51354, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1125135542}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &447678416
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,9 +651,10 @@ MonoBehaviour:
   warningIcon: {fileID: 1543194533}
   spawnProximityIcon: {fileID: 712857665}
   feedbackMessages: {fileID: 11400000, guid: 09208263deb596e478d15aac57bbc865, type: 2}
+  audioManager: {fileID: 0}
+  warningBlinkRate: 0.5
   showWarningIcon: 1
   showSpawnProximity: 1
-  warningBlinkRate: 0.5
   proximityUpdateRate: 0.5
   showDebugLogs: 1
 --- !u!1 &541560867
@@ -627,6 +693,7 @@ RectTransform:
   - {fileID: 336345526}
   - {fileID: 101099637}
   - {fileID: 1673244209}
+  - {fileID: 649343713}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -846,6 +913,81 @@ Transform:
   m_Children: []
   m_Father: {fileID: 495906832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &649343712
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 649343713}
+  - component: {fileID: 649343715}
+  - component: {fileID: 649343714}
+  m_Layer: 5
+  m_Name: IMG_PenaltyIndicator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &649343713
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649343712}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 541560868}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &649343714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649343712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &649343715
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649343712}
+  m_CullTransparentMesh: 1
 --- !u!1 &712857663
 GameObject:
   m_ObjectHideFlags: 0
@@ -1410,7 +1552,8 @@ Transform:
   m_LocalPosition: {x: 214, y: 120.51354, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 438985735}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1125135543
@@ -1426,6 +1569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
+  feedbackMessages: {fileID: 11400000, guid: 09208263deb596e478d15aac57bbc865, type: 2}
   showDebugLogs: 1
 --- !u!114 &1125135544
 MonoBehaviour:
@@ -1440,6 +1584,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeCanvas: {fileID: 1863509614}
+  audioManager: {fileID: 438985734}
   fadeDuration: 1
   sleepTransitionDuration: 2
   faintTransitionDuration: 0.5
@@ -1459,8 +1604,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   messageText: {fileID: 1356065182}
   messageCanvas: {fileID: 104311176}
+  audioManager: {fileID: 0}
+  defaultDuration: 3
   fadeInDuration: 0.5
-  displayDuration: 3
   fadeOutDuration: 0.5
   showDebugLogs: 1
 --- !u!1 &1203905110
@@ -2427,6 +2573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeCanvas: {fileID: 1673244211}
+  audioManager: {fileID: 0}
   fadeDuration: 1
   sleepTransitionDuration: 2
   faintTransitionDuration: 0.5
@@ -3273,6 +3420,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRadius: 2
   safeRestRadius: 1.5
+  warningRadius: 3
+  showDistanceIndicator: 1
+  distanceUpdateInterval: 0.5
   showDebugLogs: 1
 --- !u!4 &2113382858
 Transform:
@@ -3304,6 +3454,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 299867334319735536, guid: 21ec4353a20203a4fbba761e555b8699, type: 3}
+      propertyPath: audioManager
+      value: 
+      objectReference: {fileID: 438985734}
     - target: {fileID: 3305064616217954360, guid: 21ec4353a20203a4fbba761e555b8699, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

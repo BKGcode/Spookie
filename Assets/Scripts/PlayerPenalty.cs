@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DayNightSystem
 {
@@ -12,15 +13,19 @@ namespace DayNightSystem
     public class PlayerPenalty : MonoBehaviour
     {
         [Header("Penalty Settings")]
-        [SerializeField] private float exhaustionSpeedMultiplier = 0.7f;
-        [SerializeField] private float faintedSpeedMultiplier = 0.5f;
-        [SerializeField] private bool disableSprintOnExhaustion = true;
-        [SerializeField] private bool disableSprintOnFainted = true;
+        [SerializeField] private float exhaustionSpeedMultiplier = 0.5f;
+        [SerializeField] private float faintedSpeedMultiplier = 0.25f;
+        [SerializeField] private bool disableSprintWhenExhausted = true;
+        [SerializeField] private bool disableSprintWhenFainted = true;
         
-        [Header("Progressive Penalty")]
-        [SerializeField] private bool useProgressivePenalty = true;
-        [SerializeField] private float progressivePenaltyDuration = 10f;
-        [SerializeField] private AnimationCurve progressiveSpeedCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0.5f);
+        [Header("Visual Feedback")]
+        [SerializeField] private Image penaltyIndicator;
+        [SerializeField] private Color exhaustionColor = Color.yellow;
+        [SerializeField] private Color faintedColor = Color.red;
+        [SerializeField] private float indicatorBlinkRate = 0.3f;
+        
+        [Header("Audio")]
+        [SerializeField] private AudioManager audioManager;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -28,15 +33,8 @@ namespace DayNightSystem
         // Private fields
         private PlayerController.PlayerMovement playerMovement;
         private DayNightManager dayNightManager;
-        private float originalWalkSpeed;
-        private float originalSprintSpeed;
-        private bool originalCanSprint = true;
-        private float progressivePenaltyTimer = 0f;
-        private bool isProgressivePenaltyActive = false;
         
         // Public properties
-        public bool HasExhaustionPenalty { get; private set; }
-        public bool HasFaintedPenalty { get; private set; }
         public PenaltyType CurrentPenaltyType { get; private set; }
         public float CurrentSpeedMultiplier { get; private set; } = 1f;
         
@@ -44,7 +42,6 @@ namespace DayNightSystem
         {
             ValidateReferences();
             FindDayNightManager();
-            StoreOriginalValues();
         }
         
         private void OnEnable()
@@ -85,10 +82,24 @@ namespace DayNightSystem
         
         private void ValidateReferences()
         {
-            playerMovement = GetComponent<PlayerController.PlayerMovement>();
             if (playerMovement == null)
             {
-                Debug.LogError("[PlayerPenalty] PlayerMovement component not found on this GameObject!");
+                Debug.LogError("[PlayerPenalty] PlayerMovement reference is missing!");
+            }
+            
+            if (dayNightManager == null)
+            {
+                Debug.LogError("[PlayerPenalty] DayNightManager reference is missing!");
+            }
+            
+            if (penaltyIndicator == null)
+            {
+                Debug.LogWarning("[PlayerPenalty] PenaltyIndicator reference is missing - no visual feedback");
+            }
+            
+            if (audioManager == null)
+            {
+                Debug.LogWarning("[PlayerPenalty] AudioManager reference is missing - no penalty sounds");
             }
         }
         
@@ -101,44 +112,12 @@ namespace DayNightSystem
             }
         }
         
-        private void StoreOriginalValues()
-        {
-            if (playerMovement != null)
-            {
-                // Store original values for restoration
-                originalWalkSpeed = playerMovement.GetCurrentSpeedValue();
-                originalSprintSpeed = originalWalkSpeed * 1.6f; // Estimate sprint speed
-                originalCanSprint = true;
-                
-                if (showDebugLogs)
-                    Debug.Log($"[PlayerPenalty] Stored original values - Walk: {originalWalkSpeed}, Sprint: {originalSprintSpeed}");
-            }
-        }
+
         
         private void UpdateProgressivePenalty()
         {
-            if (!useProgressivePenalty || !isProgressivePenaltyActive) return;
-            
-            progressivePenaltyTimer += Time.deltaTime;
-            float normalizedTime = Mathf.Clamp01(progressivePenaltyTimer / progressivePenaltyDuration);
-            
-            // Apply progressive penalty based on curve
-            float progressiveMultiplier = progressiveSpeedCurve.Evaluate(normalizedTime);
-            float finalMultiplier = Mathf.Min(CurrentSpeedMultiplier, progressiveMultiplier);
-            
-            if (playerMovement != null)
-            {
-                playerMovement.SetSpeedMultiplier(finalMultiplier);
-            }
-            
-            if (normalizedTime >= 1f)
-            {
-                isProgressivePenaltyActive = false;
-                progressivePenaltyTimer = 0f;
-                
-                if (showDebugLogs)
-                    Debug.Log("[PlayerPenalty] Progressive penalty completed");
-            }
+            // Progressive penalty system removed for simplicity
+            // This method is kept for compatibility but does nothing
         }
         
         private void OnDayStart()
@@ -153,11 +132,10 @@ namespace DayNightSystem
             }
             else
             {
-                // Player didn't sleep correctly - apply fainted penalty
-                ApplyFaintedPenalty();
-                
+                // Player didn't sleep correctly - but don't apply penalty here
+                // Penalty will be applied when player actually faints during night
                 if (showDebugLogs)
-                    Debug.Log("[PlayerPenalty] Day started - player didn't sleep correctly, applying fainted penalty");
+                    Debug.Log("[PlayerPenalty] Day started - player didn't sleep correctly, but no penalty applied yet");
             }
         }
         
@@ -169,7 +147,7 @@ namespace DayNightSystem
         
         private void OnExhaustionWarning(float secondsRemaining)
         {
-            if (secondsRemaining <= 0f && !HasExhaustionPenalty && !HasFaintedPenalty)
+            if (secondsRemaining <= 0f && CurrentPenaltyType == PenaltyType.None)
             {
                 ApplyExhaustionPenalty();
             }
@@ -177,7 +155,7 @@ namespace DayNightSystem
         
         private void OnExhaustionStarted()
         {
-            if (!HasExhaustionPenalty && !HasFaintedPenalty)
+            if (CurrentPenaltyType == PenaltyType.None)
             {
                 ApplyExhaustionPenalty();
             }
@@ -201,99 +179,136 @@ namespace DayNightSystem
                 Debug.Log("[PlayerPenalty] Player fainted - applied fainted penalty");
         }
         
+        // Public methods for applying penalties
         public void ApplyExhaustionPenalty()
         {
-            if (HasExhaustionPenalty) return;
+            if (CurrentPenaltyType == PenaltyType.Exhaustion) return;
             
-            HasExhaustionPenalty = true;
             CurrentPenaltyType = PenaltyType.Exhaustion;
             CurrentSpeedMultiplier = exhaustionSpeedMultiplier;
             
+            // Apply speed penalty
             if (playerMovement != null)
             {
-                // Apply speed penalty
                 playerMovement.SetSpeedMultiplier(exhaustionSpeedMultiplier);
-                playerMovement.SetCanSprint(!disableSprintOnExhaustion);
-                
-                if (showDebugLogs)
-                    Debug.Log($"[PlayerPenalty] Applied exhaustion penalty - Speed: {exhaustionSpeedMultiplier}, Sprint: {!disableSprintOnExhaustion}");
+                playerMovement.SetCanSprint(!disableSprintWhenExhausted);
             }
             
-            // Start progressive penalty if enabled
-            if (useProgressivePenalty)
+            // Show visual indicator
+            ShowPenaltyIndicator(exhaustionColor);
+            
+            // Play penalty sound
+            if (audioManager != null)
             {
-                StartProgressivePenalty();
+                audioManager.PlayPenaltySound();
             }
             
             // Save penalty state
-            SaveUtility.SavePlayerPenaltyState(true);
+            SavePenaltyState();
+            
+            if (showDebugLogs)
+                Debug.Log($"[PlayerPenalty] Applied exhaustion penalty - Speed: {exhaustionSpeedMultiplier}, Sprint: {!disableSprintWhenExhausted}");
         }
         
         public void ApplyFaintedPenalty()
         {
-            if (HasFaintedPenalty) return;
+            if (CurrentPenaltyType == PenaltyType.Fainted) return;
             
-            HasFaintedPenalty = true;
             CurrentPenaltyType = PenaltyType.Fainted;
             CurrentSpeedMultiplier = faintedSpeedMultiplier;
             
+            // Apply more severe speed penalty
             if (playerMovement != null)
             {
-                // Apply more severe speed penalty
                 playerMovement.SetSpeedMultiplier(faintedSpeedMultiplier);
-                playerMovement.SetCanSprint(!disableSprintOnFainted);
-                
-                if (showDebugLogs)
-                    Debug.Log($"[PlayerPenalty] Applied fainted penalty - Speed: {faintedSpeedMultiplier}, Sprint: {!disableSprintOnFainted}");
+                playerMovement.SetCanSprint(!disableSprintWhenFainted);
             }
             
-            // Start progressive penalty if enabled
-            if (useProgressivePenalty)
+            // Show visual indicator
+            ShowPenaltyIndicator(faintedColor);
+            
+            // Play penalty sound
+            if (audioManager != null)
             {
-                StartProgressivePenalty();
+                audioManager.PlayPenaltySound();
             }
             
             // Save penalty state
-            SaveUtility.SavePlayerPenaltyState(true);
-        }
-        
-        private void StartProgressivePenalty()
-        {
-            isProgressivePenaltyActive = true;
-            progressivePenaltyTimer = 0f;
+            SavePenaltyState();
             
             if (showDebugLogs)
-                Debug.Log("[PlayerPenalty] Started progressive penalty");
+                Debug.Log($"[PlayerPenalty] Applied fainted penalty - Speed: {faintedSpeedMultiplier}, Sprint: {!disableSprintWhenFainted}");
         }
+        
+
         
         public void RemoveAllPenalties()
         {
-            HasExhaustionPenalty = false;
-            HasFaintedPenalty = false;
+            if (CurrentPenaltyType == PenaltyType.None) return;
+            
             CurrentPenaltyType = PenaltyType.None;
             CurrentSpeedMultiplier = 1f;
-            isProgressivePenaltyActive = false;
-            progressivePenaltyTimer = 0f;
             
+            // Restore normal speed and sprint
             if (playerMovement != null)
             {
-                // Restore original values
                 playerMovement.SetSpeedMultiplier(1f);
                 playerMovement.SetCanSprint(true);
-                
-                if (showDebugLogs)
-                    Debug.Log("[PlayerPenalty] Removed all penalties - restored normal speed and sprint");
             }
             
+            // Hide visual indicator
+            HidePenaltyIndicator();
+            
             // Save penalty state
-            SaveUtility.SavePlayerPenaltyState(false);
+            SavePenaltyState();
+            
+            if (showDebugLogs)
+                Debug.Log("[PlayerPenalty] Removed all penalties - restored normal movement");
+        }
+        
+        private void ShowPenaltyIndicator(Color color)
+        {
+            if (penaltyIndicator != null)
+            {
+                penaltyIndicator.gameObject.SetActive(true);
+                penaltyIndicator.color = color;
+                
+                // Start blinking effect
+                StartCoroutine(PenaltyIndicatorBlink());
+                
+                if (showDebugLogs)
+                    Debug.Log($"[PlayerPenalty] Showing penalty indicator - Color: {color}");
+            }
+        }
+        
+        private void HidePenaltyIndicator()
+        {
+            if (penaltyIndicator != null)
+            {
+                penaltyIndicator.gameObject.SetActive(false);
+                
+                if (showDebugLogs)
+                    Debug.Log("[PlayerPenalty] Hiding penalty indicator");
+            }
+        }
+        
+        private System.Collections.IEnumerator PenaltyIndicatorBlink()
+        {
+            while (CurrentPenaltyType != PenaltyType.None && penaltyIndicator != null)
+            {
+                penaltyIndicator.enabled = true;
+                yield return new WaitForSeconds(indicatorBlinkRate);
+                
+                penaltyIndicator.enabled = false;
+                yield return new WaitForSeconds(indicatorBlinkRate);
+            }
         }
         
         private void LoadPenaltyState()
         {
             bool savedPenalty = SaveUtility.LoadPlayerPenaltyState();
             
-            if (savedPenalty && !HasExhaustionPenalty && !HasFaintedPenalty)
+            if (savedPenalty && CurrentPenaltyType == PenaltyType.None)
             {
                 // Apply fainted penalty by default when loading saved penalty
                 ApplyFaintedPenalty();
@@ -301,6 +316,15 @@ namespace DayNightSystem
                 if (showDebugLogs)
                     Debug.Log("[PlayerPenalty] Loaded saved penalty state");
             }
+        }
+        
+        private void SavePenaltyState()
+        {
+            bool hasPenalty = CurrentPenaltyType != PenaltyType.None;
+            SaveUtility.SavePlayerPenaltyState(hasPenalty);
+            
+            if (showDebugLogs)
+                Debug.Log($"[PlayerPenalty] Saved penalty state: {hasPenalty} (Type: {CurrentPenaltyType})");
         }
         
         // Public method to check if player can perform actions
@@ -321,9 +345,9 @@ namespace DayNightSystem
             switch (CurrentPenaltyType)
             {
                 case PenaltyType.Exhaustion:
-                    return !disableSprintOnExhaustion;
+                    return !disableSprintWhenExhausted;
                 case PenaltyType.Fainted:
-                    return !disableSprintOnFainted;
+                    return !disableSprintWhenFainted;
                 default:
                     return true;
             }
@@ -343,16 +367,59 @@ namespace DayNightSystem
             }
         }
         
-        // Public method to check if progressive penalty is active
-        public bool IsProgressivePenaltyActive()
+
+        
+        // Testing methods
+        [ContextMenu("Test Exhaustion Penalty")]
+        public void TestExhaustionPenalty()
         {
-            return isProgressivePenaltyActive;
+            ApplyExhaustionPenalty();
+        }
+        
+        [ContextMenu("Test Fainted Penalty")]
+        public void TestFaintedPenalty()
+        {
+            ApplyFaintedPenalty();
+        }
+        
+        [ContextMenu("Remove All Penalties")]
+        public void TestRemovePenalties()
+        {
+            RemoveAllPenalties();
+        }
+        
+        // Context menu methods for testing
+        [ContextMenu("Test Save Penalty State")]
+        public void TestSavePenaltyState()
+        {
+            SavePenaltyState();
+            Debug.Log($"[PlayerPenalty] Test save penalty state: {CurrentPenaltyType}");
+        }
+        
+        [ContextMenu("Test Load Penalty State")]
+        public void TestLoadPenaltyState()
+        {
+            LoadPenaltyState();
+            Debug.Log($"[PlayerPenalty] Test load penalty state: {CurrentPenaltyType}");
+        }
+        
+        [ContextMenu("Show Penalty Status")]
+        public void ShowPenaltyStatus()
+        {
+            string status = $"Penalty Status:\n" +
+                          $"Current Type: {CurrentPenaltyType}\n" +
+                          $"Current Speed Multiplier: {CurrentSpeedMultiplier:F2}\n" +
+                          $"Can Perform Action: {CanPerformAction()}\n" +
+                          $"Can Sprint: {CanSprint()}\n" +
+                          $"Indicator Active: {(penaltyIndicator != null ? penaltyIndicator.gameObject.activeInHierarchy.ToString() : "N/A")}";
+            
+            Debug.Log($"[PlayerPenalty] {status}");
         }
     }
 }
 
 // ScriptRole: Handles player penalties with differentiated types and progressive effects
-// RelatedScripts: PlayerMovement, DayNightManager
-// UsesSO: None (direct component interaction)
+// RelatedScripts: PlayerMovement, DayNightManager, AudioManager
+// UsesSO: None
 // ReceivesFrom: DayNightManager events
-// SendsTo: PlayerMovement (speed modifications)
+// SendsTo: PlayerMovement (speed/sprint modifications), AudioManager (penalty sounds), UI (visual indicators)

@@ -120,10 +120,66 @@ namespace DayNightSystem
         {
             return PlayerPrefs.GetInt(SLEPT_CORRECTLY_KEY, 1) == 1; // Default to true for new saves
         }
+        
+        // New: Validate save data consistency
+        public static bool ValidateSaveData()
+        {
+            if (!HasSaveData())
+            {
+                Debug.Log("[SaveUtility] No save data to validate");
+                return false;
+            }
+            
+            var saveData = LoadDayNightState();
+            bool isValid = true;
+            
+            // Validate time is reasonable
+            if (saveData.currentTime < 0f || saveData.currentTime > 86400f) // Max 24 hours
+            {
+                Debug.LogWarning($"[SaveUtility] Invalid time value: {saveData.currentTime}");
+                isValid = false;
+            }
+            
+            // Validate boolean values
+            if (saveData.isDay != true && saveData.isDay != false)
+            {
+                Debug.LogWarning($"[SaveUtility] Invalid isDay value: {saveData.isDay}");
+                isValid = false;
+            }
+            
+            if (saveData.playerSleptCorrectly != true && saveData.playerSleptCorrectly != false)
+            {
+                Debug.LogWarning($"[SaveUtility] Invalid playerSleptCorrectly value: {saveData.playerSleptCorrectly}");
+                isValid = false;
+            }
+            
+            if (isValid)
+            {
+                Debug.Log("[SaveUtility] Save data validation passed");
+            }
+            else
+            {
+                Debug.LogWarning("[SaveUtility] Save data validation failed - using defaults");
+            }
+            
+            return isValid;
+        }
+        
+        // New: Get save data summary for debugging
+        public static string GetSaveDataSummary()
+        {
+            if (!HasSaveData())
+            {
+                return "No save data found";
+            }
+            
+            var saveData = LoadDayNightState();
+            return $"Time: {saveData.currentTime:F1}s, IsDay: {saveData.isDay}, SleptCorrectly: {saveData.playerSleptCorrectly}, HasPenalty: {saveData.hasPenalty}";
+        }
     }
 }
 
-// ScriptRole: Static utility for saving and loading day/night system state with sleep tracking
+// ScriptRole: Static utility for saving and loading day/night system state with validation and consistency checks
 // RelatedScripts: DayNightManager, PlayerPenalty
 // UsesSO: None
 // ReceivesFrom: DayNightManager, PlayerPenalty
