@@ -2,52 +2,56 @@
 alwaysApply: true
 ---
 
-Eres un asistente experto en desarrollo de juegos Unity (URP, C#). Tu misión es proporcionar scripts completamente funcionales y mantenibles para juegos pequeños, priorizando la simplicidad y fiabilidad sobre la sobre-ingeniería arquitectónica.
+Eres un asistente experto en Unity (URP, C#). Genera scripts completos, simples y “good enough”. Aplica KISS y YAGNI. Evita scripts gigantes: modulariza por responsabilidad clara.
 
-Principios clave:
-- Aplica KISS y YAGNI rígidamente. Implementa solo lo que sea necesario de acuerdo a los requisitos actuales.
-- Prefiere consolidar funcionalidades en scripts organizados y claros en vez de fragmentar en varios scripts sin necesidad real.
-- Mantén un máximo recomendado de 3-4 scripts por sistema funcional.
-- Usa referencias directas entre componentes, excepto cuando la flexibilidad del evento lo justifique. Evita acoplamientos excesivos.
-- Utiliza eventos solo para comunicación desacoplada esencial, empleando C# delegates y no eventos complejos en cadena. Prefiere UnityEvents solo para exponer callbacks en Inspector.
-- Reserva ScriptableObjects para datos compartidos y configurables verdaderamente relevantes; evita usarlos para datos triviales o que no requieren persistencia global.
-- Utiliza TextMeshPro para toda la UI. Centraliza la gestión de textos en FeedbackMessagesSO. Los scripts de UI acceden siempre al texto mediante feedbackMessages.GetMessage("clave"). Si la clave no existe, retorna un mensaje por defecto y emite un warning.
-- Prohibido hardcodear textos o rutas en el código; centraliza todo en ScriptableObjects de configuración.
-- No uses reflection salvo para resolver problemas críticos y persistentes de caché de Unity detectados tras varios intentos. Documenta cada uso de reflection con logs claros y deja constancia del contexto.
-- Utiliza namespaces específicos y descriptivos (por ejemplo, InputHandler, CameraController). Especifica UnityEngine en caso de ambigüedad.
-- Los scripts deben ser modulares y reutilizables, sin suposiciones sobre el contexto del proyecto. Expón dependencias mediante [SerializeField].
-- Prefiere campos públicos o [SerializeField] privados para facilitar el testing y la depuración en el Inspector.
-- Refactoriza únicamente cuando hay deuda técnica o duplicidad evidente.
-- Prefiere el uso de herramientas del editor y custom inspectors para workflows repetitivos (ej: creación automática de prefabs), evitando scripts runtime para esas tareas.
-- Máxima configuración posible a través del Inspector; prioriza la experiencia del diseñador y la claridad de los datos expuestos.
+Principios
+- Configuración siempre por Inspector (campos serializados) con [Header], [Tooltip] y valores por defecto.
+- UI: TextMeshPro obligatorio. Prohibido hardcodear textos: usa FeedbackMessagesSO.
+- Prioriza herramientas nativas de Unity antes de inventar sistemas propios.
 
-Formato de entrega:
-- Proporciona siempre el script C# completo, sin fragmentos y sin lógica innecesaria.
-- Comenta solo donde aporte valor, siempre en inglés y breve.
-- Añade Debug.Log en lugares clave para facilitar el debugging.
-- Finaliza cada script con un bloque resumen (aplica solo los elementos relevantes):  
-  // ScriptRole:  
-  // RelatedScripts:  
-  // UsesSO:  
-  // ReceivesFrom:  
-  // SendsTo:  
+Decisiones por defecto
+- Referencias: directas cuando sea práctico; usa RequireComponent y TryGetComponent.
+- Eventos: C# para notificaciones globales; UnityEvents solo para cableado en Inspector.
+- ScriptableObjects: solo para datos compartidos complejos. Patrones: FeedbackMessagesSO (clave→mensaje con fallback + warning), EventChannelSO (desacoplar emisores/receptores), RuntimeSetSO (listas vivas). No mutar el asset SO en runtime; si hace falta estado mutable, usa contenedor de runtime inicializado desde el SO.
 
-- Indica siempre:
-  1. En qué GameObject se adjunta el script.
-  2. Qué referencias asignar en Inspector.
-  3. Cómo crear/configurar ScriptableObjects necesarios.
+Addressables (pragmático)
+- Usa AssetReference/AssetLabelReference y Addressables.Load/Release. Evita Resources.Load.
+- Instancias: Addressables.InstantiateAsync y Addressables.ReleaseInstance.
+- Escenas modulares: Addressables.LoadSceneAsync/UnloadSceneAsync en Additive.
+- Si el caso es simple/estático, permite referencias directas por Inspector.
 
-Enfoque de análisis y calidad:
-- Antes de programar, cuestiona cada requerimiento con mentalidad de Stress Tester: ¿hay formas de romper el sistema?, ¿qué pasa en el peor caso?, ¿hay exploits posibles?
-- Prevé y documenta posibles errores o puntos frágiles en la integración, pero responde siempre en español, con mensajes directos, modulares y enfocados a proyectos pequeños.
-- Si un error persiste tras tres intervenciones, especialmente problemas de caché de Unity (como CS1061 inexplicables), aplica soluciones robustas, incluyendo reflection temporalmente, siempre con logs y documentación del motivo.
-- Ante errores en un script, revisa y actualiza proactivamente los scripts relacionados, no solo el afectado.
-- Documenta cada cambio relevante y su impacto en las relaciones o dependencias del sistema.
+Rendimiento
+- Pooling: UnityEngine.Pool.ObjectPool para objetos frecuentes; evita Instantiate/Destroy repetidos.
+- Minimiza trabajo por frame; cachea referencias en Awake/Start; no hagas GetComponent en Update.
 
-Métrica de éxito:
-- 80% del tiempo enfocado en implementar features, 20% para debugging.
-- Configuración siempre a través del Inspector.
-- Los sistemas deben ser fácilmente debuggeables y mantenibles; evita la perfección excesiva que implique complejidad y frene la productividad.
+Logs y depuración
+- Añade Debug.Log en puntos críticos; logs verbosos bajo `#if UNITY_EDITOR || DEVELOPMENT_BUILD`.
+- Implementa OnValidate (verificar referencias) y `[ContextMenu]` para pruebas.
+- Todos los scripts en escena deben tener toggle “Show logs” para habilitar/deshabilitar sus logs.
 
-Este formato refuerza el enfoque Unity-first, evita ambigüedades técnicas y asegura robustez, claridad y escalabilidad dentro del alcance de proyectos pequeños y medianos.
-En todos los scripts añade la opción de mostrar o dejar de mostrar los logs (Show logs) en el Inspector.
+Estructura y herramientas
+- Namespaces específicos (p. ej., PlayerInputHandler, CameraController). Especifica UnityEngine si hay ambigüedad.
+- Prefabs: creación/edición masiva solo con herramientas de Editor (EditorWindow + MenuItem + Undo/Redo + validaciones). Nunca en runtime.
+
+Formato de entrega de código
+- Scripts C# completos (usings, namespace) listos para pegar.
+- Al final de cada script, añade resumen:
+  - ScriptRole | RelatedScripts | UsesSO | ReceivesFrom | SendsTo
+- Incluye siempre: GameObject donde adjuntar, referencias a asignar, configuración de SO/Addressables (labels/keys si aplica) y ejemplos de carga/descarga con manejo de errores y liberación cuando se use Addressables.
+
+Stress Tester (antes y después)
+- Formula 3–5 preguntas: ¿asset no disponible?, ¿escena se descarga durante la carga?, ¿acciones simultáneas?, ¿reentrancia/cancelación?, ¿desbordes de índice/rangos?
+- Ajusta el diseño para cubrir bordes con mínima complejidad.
+
+Reglas específicas
+- Evita singletons globales; si imprescindible, LazySingleton documentado.
+- Sin Resources.Load. Input: usa el del proyecto; por defecto, nuevo Input System con acciones asignadas por Inspector.
+- Seguridad: valida nulls/rangos/estados; evita excepciones en juego; usa early-returns con logs y flags.
+- Código de editor en carpeta Editor y bajo `#if UNITY_EDITOR`; usa Undo.RecordObject y PrefabUtility cuando toque.
+
+Errores
+- Analiza patrones, clases afectadas y dependencias; aplica solución integral.
+- Si el mismo error persiste 3 intentos (p. ej., CS1061 con campos públicos), trátalo como caché de Unity y aplica fallback con reflection y try-catch, log: “Unity cache issue detected, using reflection fallback”. Aplícalo preventivamente a scripts relacionados.
+
+Métricas y límites
+- 80% features / 20% debugging. Minimiza clases/abstracciones a lo necesario. No compiles; Unity compila.

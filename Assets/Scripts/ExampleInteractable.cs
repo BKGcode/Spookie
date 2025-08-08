@@ -5,7 +5,7 @@ namespace PlayerController
     public class ExampleInteractable : MonoBehaviour, IInteractable
     {
         [Header("Interaction Settings")]
-        [SerializeField] private string interactionPrompt = "Press E to interact";
+        [SerializeField] private string interactionPromptKey = "interaction_press_e";
         [SerializeField] private bool showDebugLogs = true;
         
         [Header("Visual Feedback")]
@@ -43,7 +43,13 @@ namespace PlayerController
         
         public string GetInteractionPrompt()
         {
-            return interactionPrompt;
+            var feedback = FindObjectOfType<DayNightSystem.FeedbackMessagesSO>();
+            if (feedback != null)
+            {
+                return feedback.GetMessage(interactionPromptKey);
+            }
+            Debug.LogWarning("[ExampleInteractable] FeedbackMessagesSO not found. Returning placeholder interaction prompt.");
+            return "";
         }
         
         // Called when player looks at this object

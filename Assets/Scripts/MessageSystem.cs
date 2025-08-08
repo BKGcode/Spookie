@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -97,8 +98,13 @@ namespace DayNightSystem
         
         public void ShowNightMessage()
         {
-            string nightMessage = "...a strange night passes...";
-            ShowMessage(nightMessage, 3f);
+            // Fetch from FeedbackMessagesSO if available in scene
+            var feedback = FindObjectOfType<DayNightSystem.FeedbackMessagesSO>();
+            string msg = feedback != null ? feedback.GetMessage("night_message") : string.Empty;
+            if (!string.IsNullOrEmpty(msg))
+            {
+                ShowMessage(msg, 3f);
+            }
             
             if (showDebugLogs)
                 Debug.Log("[MessageSystem] Showing night message");
@@ -106,8 +112,16 @@ namespace DayNightSystem
         
         public void ShowNightMessage(string customMessage = null, float duration = 3f)
         {
-            string nightMessage = customMessage ?? "...a strange night passes...";
-            ShowMessage(nightMessage, duration);
+            string nightMessage = customMessage;
+            if (string.IsNullOrEmpty(nightMessage))
+            {
+                var feedback = FindObjectOfType<DayNightSystem.FeedbackMessagesSO>();
+                nightMessage = feedback != null ? feedback.GetMessage("night_message") : string.Empty;
+            }
+            if (!string.IsNullOrEmpty(nightMessage))
+            {
+                ShowMessage(nightMessage, duration);
+            }
             
             if (showDebugLogs)
                 Debug.Log($"[MessageSystem] Showing night message: {nightMessage}");

@@ -1,4 +1,5 @@
 using UnityEngine;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -40,9 +41,12 @@ namespace DayNightSystem
         [SerializeField] private bool showDebugLogs = true;
         
         // Private fields
-        private DayNightManager dayNightManager;
+        private DayNightSystem.Core.DayNightManager dayNightManager;
         private GameStateManager gameStateManager;
         private bool isTransitioning = false;
+        [SerializeField] private AudioSystem.MusicController musicController; // Delegation (optional)
+        [SerializeField] private AudioSystem.AmbientController ambientController; // Delegation (optional)
+        [SerializeField] private AudioSystem.SfxController sfxController; // Delegation (optional)
         
         // Events
         public System.Action OnAudioTransitionComplete;
@@ -88,8 +92,11 @@ namespace DayNightSystem
         
         private void FindReferences()
         {
-            dayNightManager = FindObjectOfType<DayNightManager>();
+            dayNightManager = FindObjectOfType<DayNightSystem.Core.DayNightManager>();
             gameStateManager = FindObjectOfType<GameStateManager>();
+            if (musicController == null) { musicController = GetComponent<AudioSystem.MusicController>(); }
+            if (ambientController == null) { ambientController = GetComponent<AudioSystem.AmbientController>(); }
+            if (sfxController == null) { sfxController = GetComponent<AudioSystem.SfxController>(); }
             
             // Auto-setup audio sources if not assigned
             if (musicSource == null)
@@ -152,34 +159,54 @@ namespace DayNightSystem
             
             if (musicSource == null)
             {
-                Debug.LogError("[AudioManager] Music AudioSource is missing!");
+                Debug.LogError("[AudioManager] Music source is missing!");
             }
             
             if (sfxSource == null)
             {
-                Debug.LogError("[AudioManager] SFX AudioSource is missing!");
+                Debug.LogError("[AudioManager] SFX source is missing!");
             }
             
             if (ambientSource == null)
             {
-                Debug.LogError("[AudioManager] Ambient AudioSource is missing!");
+                Debug.LogError("[AudioManager] Ambient source is missing!");
             }
         }
         
         private void OnDayStart()
         {
+            if (isTransitioning) return;
+            
+            if (musicController != null)
+            {
+                StartCoroutine(musicController.TransitionToDay(musicSource, dayMusic, musicVolume, fadeDuration));
+                if (ambientController != null) { ambientController.PlayAmbient(ambientSource, dayAmbient, ambientVolume); }
+            }
+            else
+            {
+                StartCoroutine(TransitionToDayAudio());
+            }
+            
             if (showDebugLogs)
                 Debug.Log("[AudioManager] Day started - transitioning to day audio");
-            
-            StartCoroutine(TransitionToDayAudio());
         }
         
         private void OnNightStart()
         {
+            if (isTransitioning) return;
+            
+            if (musicController != null)
+            {
+                StartCoroutine(musicController.TransitionToNight(musicSource, nightMusic, musicVolume, fadeDuration));
+                if (ambientController != null) { ambientController.PlayAmbient(ambientSource, nightAmbient, ambientVolume); }
+            }
+            else
+            {
+                StartCoroutine(TransitionToNightAudio());
+            }
+            
             if (showDebugLogs)
                 Debug.Log("[AudioManager] Night started - transitioning to night audio");
-            
-            StartCoroutine(TransitionToNightAudio());
         }
         
         private void OnPlayerSlept()
@@ -194,52 +221,52 @@ namespace DayNightSystem
         
         private void OnGameStateChanged(GameState newState)
         {
+            // Handle game state changes that affect audio
             switch (newState)
             {
-                case GameState.NightBlocked:
-                    // Night is blocked - ensure night audio is playing
-                    if (showDebugLogs)
-                        Debug.Log("[AudioManager] Night blocked state - ensuring night audio");
+                case GameState.Paused:
+                    // Reduce volume when paused
+                    SetMusicVolume(musicVolume * 0.5f);
+                    SetAmbientVolume(ambientVolume * 0.5f);
                     break;
                     
                 case GameState.Playing:
-                    // Normal gameplay - audio should match current day/night state
-                    if (showDebugLogs)
-                        Debug.Log("[AudioManager] Playing state - audio should match day/night");
+                    // Restore volume when resuming
+                    SetMusicVolume(musicVolume);
+                    SetAmbientVolume(ambientVolume);
+                    break;
+                    
+                case GameState.NightBlocked:
+                    // Special audio for night blocked state
+                    if (ambientSource != null && nightAmbient != null)
+                    {
+                        ambientSource.clip = nightAmbient;
+                        ambientSource.Play();
+                    }
                     break;
             }
         }
         
         private System.Collections.IEnumerator TransitionToDayAudio()
         {
-            if (isTransitioning) yield break;
-            
             isTransitioning = true;
             
-            if (showDebugLogs)
-                Debug.Log("[AudioManager] Starting transition to day audio");
-            
-            // Play transition sound
-            if (nightToDayTransition != null && sfxSource != null)
+            // Fade out current music
+            if (musicSource != null && musicSource.isPlaying)
             {
-                sfxSource.PlayOneShot(nightToDayTransition);
+                yield return StartCoroutine(FadeAudioSource(musicSource, 0f, fadeDuration * 0.5f));
             }
             
-            // Fade out current music
-            yield return StartCoroutine(FadeAudioSource(musicSource, 0f, fadeDuration * 0.5f));
-            
-            // Change music to day
-            if (dayMusic != null && musicSource != null)
+            // Switch to day music
+            if (musicSource != null && dayMusic != null)
             {
                 musicSource.clip = dayMusic;
                 musicSource.Play();
+                yield return StartCoroutine(FadeAudioSource(musicSource, musicVolume, fadeDuration * 0.5f));
             }
             
-            // Fade in day music
-            yield return StartCoroutine(FadeAudioSource(musicSource, musicVolume, fadeDuration * 0.5f));
-            
-            // Change ambient to day
-            if (dayAmbient != null && ambientSource != null)
+            // Switch ambient audio
+            if (ambientSource != null && dayAmbient != null)
             {
                 ambientSource.clip = dayAmbient;
                 ambientSource.Play();
@@ -254,34 +281,24 @@ namespace DayNightSystem
         
         private System.Collections.IEnumerator TransitionToNightAudio()
         {
-            if (isTransitioning) yield break;
-            
             isTransitioning = true;
             
-            if (showDebugLogs)
-                Debug.Log("[AudioManager] Starting transition to night audio");
-            
-            // Play transition sound
-            if (dayToNightTransition != null && sfxSource != null)
+            // Fade out current music
+            if (musicSource != null && musicSource.isPlaying)
             {
-                sfxSource.PlayOneShot(dayToNightTransition);
+                yield return StartCoroutine(FadeAudioSource(musicSource, 0f, fadeDuration * 0.5f));
             }
             
-            // Fade out current music
-            yield return StartCoroutine(FadeAudioSource(musicSource, 0f, fadeDuration * 0.5f));
-            
-            // Change music to night
-            if (nightMusic != null && musicSource != null)
+            // Switch to night music
+            if (musicSource != null && nightMusic != null)
             {
                 musicSource.clip = nightMusic;
                 musicSource.Play();
+                yield return StartCoroutine(FadeAudioSource(musicSource, musicVolume, fadeDuration * 0.5f));
             }
             
-            // Fade in night music
-            yield return StartCoroutine(FadeAudioSource(musicSource, musicVolume, fadeDuration * 0.5f));
-            
-            // Change ambient to night
-            if (nightAmbient != null && ambientSource != null)
+            // Switch ambient audio
+            if (ambientSource != null && nightAmbient != null)
             {
                 ambientSource.clip = nightAmbient;
                 ambientSource.Play();
@@ -304,7 +321,8 @@ namespace DayNightSystem
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                source.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+                float progress = elapsed / duration;
+                source.volume = Mathf.Lerp(startVolume, targetVolume, progress);
                 yield return null;
             }
             
@@ -313,56 +331,61 @@ namespace DayNightSystem
         
         public void PlaySleepSound()
         {
-            if (sleepSound != null && sfxSource != null)
+            if (sfxController != null) { sfxController.PlayOneShot(sfxSource, sleepSound); }
+            else if (sfxSource != null && sleepSound != null)
             {
                 sfxSource.PlayOneShot(sleepSound);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing sleep sound");
+                    Debug.Log("[AudioManager] Sleep sound played");
             }
         }
         
         public void PlayFaintSound()
         {
-            if (faintSound != null && sfxSource != null)
+            if (sfxController != null) { sfxController.PlayOneShot(sfxSource, faintSound); }
+            else if (sfxSource != null && faintSound != null)
             {
                 sfxSource.PlayOneShot(faintSound);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing faint sound");
+                    Debug.Log("[AudioManager] Faint sound played");
             }
         }
         
         public void PlayMessageNotification()
         {
-            if (messageNotification != null && sfxSource != null)
+            if (sfxController != null) { sfxController.PlayOneShot(sfxSource, messageNotification); }
+            else if (sfxSource != null && messageNotification != null)
             {
                 sfxSource.PlayOneShot(messageNotification);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing message notification");
+                    Debug.Log("[AudioManager] Message notification played");
             }
         }
         
         public void PlayWarningSound()
         {
-            if (warningSound != null && sfxSource != null)
+            if (sfxController != null) { sfxController.PlayOneShot(sfxSource, warningSound); }
+            else if (sfxSource != null && warningSound != null)
             {
                 sfxSource.PlayOneShot(warningSound);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing warning sound");
+                    Debug.Log("[AudioManager] Warning sound played");
             }
         }
         
         public void PlayPenaltySound()
         {
-            if (sfxSource != null && penaltySound != null)
+            if (sfxController != null) { sfxController.PlayOneShot(sfxSource, penaltySound); }
+            else if (sfxSource != null && penaltySound != null)
             {
-                sfxSource.PlayOneShot(penaltySound, sfxVolume);
+                sfxSource.PlayOneShot(penaltySound);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing penalty sound");
+                    Debug.Log("[AudioManager] Penalty sound played");
             }
         }
         
@@ -370,10 +393,10 @@ namespace DayNightSystem
         {
             if (sfxSource != null && wakeUpSound != null)
             {
-                sfxSource.PlayOneShot(wakeUpSound, sfxVolume);
+                sfxSource.PlayOneShot(wakeUpSound);
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing wake up sound");
+                    Debug.Log("[AudioManager] Wake up sound played");
             }
         }
         
@@ -382,17 +405,17 @@ namespace DayNightSystem
             if (ambientSource != null && morningAmbient != null)
             {
                 ambientSource.clip = morningAmbient;
-                ambientSource.volume = ambientVolume;
                 ambientSource.Play();
                 
                 if (showDebugLogs)
-                    Debug.Log("[AudioManager] Playing morning ambient sound");
+                    Debug.Log("[AudioManager] Morning ambient played");
             }
         }
         
         public void SetMusicVolume(float volume)
         {
             musicVolume = Mathf.Clamp01(volume);
+            
             if (musicSource != null)
             {
                 musicSource.volume = musicVolume;
@@ -405,6 +428,7 @@ namespace DayNightSystem
         public void SetSFXVolume(float volume)
         {
             sfxVolume = Mathf.Clamp01(volume);
+            
             if (sfxSource != null)
             {
                 sfxSource.volume = sfxVolume;
@@ -417,6 +441,7 @@ namespace DayNightSystem
         public void SetAmbientVolume(float volume)
         {
             ambientVolume = Mathf.Clamp01(volume);
+            
             if (ambientSource != null)
             {
                 ambientSource.volume = ambientVolume;
@@ -426,17 +451,16 @@ namespace DayNightSystem
                 Debug.Log($"[AudioManager] Ambient volume set to: {ambientVolume}");
         }
         
-        // Testing methods
         [ContextMenu("Test Day Audio")]
         public void TestDayAudio()
         {
-            StartCoroutine(TransitionToDayAudio());
+            OnDayStart();
         }
         
         [ContextMenu("Test Night Audio")]
         public void TestNightAudio()
         {
-            StartCoroutine(TransitionToNightAudio());
+            OnNightStart();
         }
         
         [ContextMenu("Test Sleep Sound")]
@@ -477,8 +501,8 @@ namespace DayNightSystem
     }
 }
 
-// ScriptRole: Manages all audio for the day/night system including music, ambient, SFX, and wake up sounds
+// ScriptRole: Manages all audio for the game including day/night transitions and UI sounds
 // RelatedScripts: DayNightManager, GameStateManager, TransitionHandler
 // UsesSO: None
 // ReceivesFrom: DayNightManager events, GameStateManager events
-// SendsTo: AudioSource components
+// SendsTo: AudioSource components (music, sfx, ambient)

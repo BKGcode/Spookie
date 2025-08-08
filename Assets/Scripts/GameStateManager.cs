@@ -1,4 +1,5 @@
 using UnityEngine;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -25,11 +26,13 @@ namespace DayNightSystem
         [SerializeField] private bool showDebugLogs = true;
         
         // Private fields
-        private DayNightManager dayNightManager;
+        private DayNightSystem.Core.DayNightManager dayNightManager;
         private PlayerController.PlayerMovement playerMovement;
         private PlayerController.PlayerInteraction playerInteraction;
         private PlayerController.MouseLook mouseLook;
         private MessageSystem messageSystem; // New: Reference to MessageSystem
+        [SerializeField] private GameStateController.PlayerInputGate playerInputGate; // Delegates input toggling
+        [SerializeField] private GameStateController.GameStateMessages gameStateMessages; // Delegates UI messages
         
         // Public properties
         public GameState CurrentState => currentState;
@@ -53,7 +56,7 @@ namespace DayNightSystem
             {
                 dayNightManager.OnDayStart += OnDayNightTransition;
                 dayNightManager.OnNightStart += OnDayNightTransition;
-                dayNightManager.OnStateChanged += OnDayNightStateChanged; // New: Listen to state changes
+                dayNightManager.OnStateChanged += OnDayNightStateChanged;
             }
         }
         
@@ -63,14 +66,14 @@ namespace DayNightSystem
             {
                 dayNightManager.OnDayStart -= OnDayNightTransition;
                 dayNightManager.OnNightStart -= OnDayNightTransition;
-                dayNightManager.OnStateChanged -= OnDayNightStateChanged; // New: Unsubscribe from state changes
+                dayNightManager.OnStateChanged -= OnDayNightStateChanged;
             }
         }
         
-        private void OnDayNightStateChanged(DayNightState newState)
+        private void OnDayNightStateChanged(DayNightSystem.Core.DayNightState newState)
         {
             // Handle state changes from DayNightManager
-            if (newState == DayNightState.Night)
+            if (newState == DayNightSystem.Core.DayNightState.Night)
             {
                 SetNightBlockedState();
                 
@@ -83,36 +86,42 @@ namespace DayNightSystem
                 if (showDebugLogs)
                     Debug.Log("[GameStateManager] Night state detected - blocking player completely");
             }
-            else if (newState == DayNightState.Day)
+            else if (newState == DayNightSystem.Core.DayNightState.Day)
             {
                 SetGameState(GameState.Playing);
+                // Teleport player to spawn at day start to guarantee wake-up location
+                TeleportPlayerToSpawn();
                 EnablePlayerInput();
                 
-                // Show day start message
-                StartCoroutine(ShowDayStartMessage());
+            // Show day start message
+            if (gameStateMessages != null)
+            {
+                gameStateMessages.ShowDayStartMessage(0.5f);
+            }
                 
                 if (showDebugLogs)
                     Debug.Log("[GameStateManager] Day state detected - resuming normal gameplay");
             }
         }
-        
-        private System.Collections.IEnumerator ShowDayStartMessage()
+
+        private void TeleportPlayerToSpawn()
         {
-            // Wait a moment for the transition to complete
-            yield return new WaitForSeconds(0.5f);
-            
-            if (messageSystem != null)
+            if (DayNightSystem.SpawnPoint.Current != null)
             {
-                string dayMessage = feedbackMessages != null ? 
-                    feedbackMessages.GetMessage("new_day_started") : 
-                    "A new day has begun!";
-                messageSystem.ShowMessage(dayMessage, 2f);
+                DayNightSystem.SpawnPoint.Current.TeleportPlayerHere();
+            }
+            else if (showDebugLogs)
+            {
+                Debug.LogWarning("[GameStateManager] Cannot teleport to spawn - no SpawnPoint.Current found");
             }
         }
         
+        // Deprecated local method kept for backward compatibility (no references should call it)
+        private System.Collections.IEnumerator ShowDayStartMessage() { yield break; }
+        
         private void FindReferences()
         {
-            dayNightManager = FindObjectOfType<DayNightManager>();
+            dayNightManager = FindObjectOfType<DayNightSystem.Core.DayNightManager>();
             playerMovement = FindObjectOfType<PlayerController.PlayerMovement>();
             playerInteraction = FindObjectOfType<PlayerController.PlayerInteraction>();
             mouseLook = FindObjectOfType<PlayerController.MouseLook>();
@@ -123,6 +132,10 @@ namespace DayNightSystem
             {
                 feedbackMessages = FindObjectOfType<FeedbackMessagesSO>();
             }
+
+            // Optional: auto-wire helpers if present in the same GameObject
+            if (playerInputGate == null) { playerInputGate = GetComponent<GameStateController.PlayerInputGate>(); }
+            if (gameStateMessages == null) { gameStateMessages = GetComponent<GameStateController.GameStateMessages>(); }
         }
         
         private void ValidateReferences()
@@ -132,102 +145,71 @@ namespace DayNightSystem
                 Debug.LogError("[GameStateManager] No DayNightManager found in scene!");
             }
             
-            if (playerMovement == null)
-            {
-                Debug.LogWarning("[GameStateManager] No PlayerMovement found in scene!");
-            }
+            if (playerMovement == null) { Debug.LogWarning("[GameStateManager] No PlayerMovement found in scene!"); }
+            if (playerInteraction == null) { Debug.LogWarning("[GameStateManager] No PlayerInteraction found in scene!"); }
+            if (mouseLook == null) { Debug.LogWarning("[GameStateManager] No MouseLook found in scene!"); }
             
-            if (playerInteraction == null)
-            {
-                Debug.LogWarning("[GameStateManager] No PlayerInteraction found in scene!");
-            }
-            
-            if (mouseLook == null)
-            {
-                Debug.LogWarning("[GameStateManager] No MouseLook found in scene!");
-            }
-
             if (messageSystem == null)
             {
                 Debug.LogWarning("[GameStateManager] No MessageSystem found in scene!");
             }
-
+            
             if (feedbackMessages == null)
             {
                 Debug.LogWarning("[GameStateManager] No FeedbackMessagesSO found in scene!");
             }
+
+            if (playerInputGate == null) { Debug.LogWarning("[GameStateManager] PlayerInputGate not assigned (optional)"); }
+            if (gameStateMessages == null) { Debug.LogWarning("[GameStateManager] GameStateMessages not assigned (optional)"); }
         }
         
         private void OnDayNightTransition()
         {
-            // Check if it's night time and player should be blocked
-            if (dayNightManager != null)
+            if (currentState == GameState.Playing)
             {
-                if (dayNightManager.CurrentState == DayNightState.Night)
-                {
-                    SetNightBlockedState();
-                    
-                    if (showDebugLogs)
-                        Debug.Log("[GameStateManager] Night detected - blocking player completely");
-                }
-                else if (dayNightManager.CurrentState == DayNightState.Day)
-                {
-                    // Resume normal gameplay for day
-                    SetGameState(GameState.Playing);
-                    EnablePlayerInput();
-                    
-                    if (showDebugLogs)
-                        Debug.Log("[GameStateManager] Day detected - resuming normal gameplay");
-                }
+                SetNightBlockedState();
+                
+                if (showDebugLogs)
+                    Debug.Log("[GameStateManager] Night detected - blocking player completely");
+            }
+            else if (currentState == GameState.NightBlocked)
+            {
+                SetGameState(GameState.Playing);
+                EnablePlayerInput();
+                
+                if (showDebugLogs)
+                    Debug.Log("[GameStateManager] Day detected - resuming normal gameplay");
             }
         }
         
         public void PauseGame()
         {
-            if (currentState == GameState.Paused) return;
-            
-            SetGameState(GameState.Paused);
-            
-            // Pause day/night time
-            if (dayNightManager != null)
+            if (currentState == GameState.Playing)
             {
-                dayNightManager.PauseTime(true);
+                SetGameState(GameState.Paused);
+                if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
+                
+                if (showDebugLogs)
+                    Debug.Log("[GameStateManager] Game paused");
             }
-            
-            // Disable player input
-            DisablePlayerInput();
-            
-            if (showDebugLogs)
-                Debug.Log("[GameStateManager] Game paused");
         }
         
         public void ResumeGame()
         {
-            if (currentState != GameState.Paused) return;
-            
-            SetGameState(GameState.Playing);
-            
-            // Resume day/night time
-            if (dayNightManager != null)
+            if (currentState == GameState.Paused)
             {
-                dayNightManager.PauseTime(false);
+                SetGameState(GameState.Playing);
+                if (playerInputGate != null) { playerInputGate.EnableInput(); } else { EnablePlayerInput(); }
+                
+                if (showDebugLogs)
+                    Debug.Log("[GameStateManager] Game resumed");
             }
-            
-            // Enable player input
-            EnablePlayerInput();
-            
-            if (showDebugLogs)
-                Debug.Log("[GameStateManager] Game resumed");
         }
         
         public void SetTransitioningState()
         {
-            if (currentState == GameState.TransitioningDayNight) return;
-            
             SetGameState(GameState.TransitioningDayNight);
-            
-            // Disable player input during transition
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
             if (showDebugLogs)
                 Debug.Log("[GameStateManager] Set transitioning state - player input disabled");
@@ -235,25 +217,22 @@ namespace DayNightSystem
         
         public void EndTransition()
         {
-            SetGameState(GameState.Playing);
-            EnablePlayerInput();
-            
-            if (showDebugLogs)
-                Debug.Log("[GameStateManager] Transition ended - player input re-enabled");
+            if (currentState == GameState.TransitioningDayNight)
+            {
+                SetGameState(GameState.Playing);
+                if (playerInputGate != null) { playerInputGate.EnableInput(); } else { EnablePlayerInput(); }
+                
+                if (showDebugLogs)
+                    Debug.Log("[GameStateManager] Transition ended - player input re-enabled");
+            }
         }
         
         public void SetNightBlockedState()
         {
             SetGameState(GameState.NightBlocked);
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
-            // Pause time during night
-            if (dayNightManager != null)
-            {
-                dayNightManager.PauseTime(true);
-            }
-            
-            // Show night message with delay
+            // Show night message
             StartCoroutine(ShowNightMessageWithDelay());
             
             if (showDebugLogs)
@@ -263,29 +242,21 @@ namespace DayNightSystem
         private System.Collections.IEnumerator ShowNightMessageWithDelay()
         {
             // Wait a moment for the transition to complete
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.5f);
             
             if (messageSystem != null)
             {
                 string nightMessage = feedbackMessages != null ? 
-                    feedbackMessages.GetMessage("night_message") : 
-                    "...a strange night passes...";
-                messageSystem.ShowNightMessage(nightMessage, 3f);
+                    feedbackMessages.GetMessage("night_falling") : 
+                    "Night is falling...";
+                messageSystem.ShowMessage(nightMessage, 3f);
             }
         }
         
         public void SetMenuState()
         {
             SetGameState(GameState.Menu);
-            
-            // Pause day/night time
-            if (dayNightManager != null)
-            {
-                dayNightManager.PauseTime(true);
-            }
-            
-            // Disable player input
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
             if (showDebugLogs)
                 Debug.Log("[GameStateManager] Set menu state");
@@ -294,9 +265,7 @@ namespace DayNightSystem
         public void SetLoadingState()
         {
             SetGameState(GameState.Loading);
-            
-            // Disable player input
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
             if (showDebugLogs)
                 Debug.Log("[GameStateManager] Set loading state");
@@ -305,15 +274,7 @@ namespace DayNightSystem
         public void SetGameOverState()
         {
             SetGameState(GameState.GameOver);
-            
-            // Pause day/night time
-            if (dayNightManager != null)
-            {
-                dayNightManager.PauseTime(true);
-            }
-            
-            // Disable player input
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
             if (showDebugLogs)
                 Debug.Log("[GameStateManager] Set game over state");
@@ -374,49 +335,42 @@ namespace DayNightSystem
                 Debug.Log("[GameStateManager] Player input enabled");
         }
         
-        // Public method to check if player can perform actions
         public bool CanPlayerAct()
         {
-            return currentState == GameState.Playing && !IsNightBlocked;
+            return currentState == GameState.Playing;
         }
         
-        // Public method to get current state as string
         public string GetCurrentStateString()
         {
             return currentState.ToString();
         }
         
-        // Public method to set FeedbackMessagesSO
         public void SetFeedbackMessages(FeedbackMessagesSO messages)
         {
             feedbackMessages = messages;
+            
             if (showDebugLogs)
                 Debug.Log($"[GameStateManager] FeedbackMessagesSO set to: {messages?.name ?? "null"}");
         }
         
-        // Public method to force state (for debugging)
         [ContextMenu("Force Playing State")]
         public void ForcePlayingState()
         {
             SetGameState(GameState.Playing);
             EnablePlayerInput();
             
-            if (dayNightManager != null)
-            {
-                dayNightManager.PauseTime(false);
-            }
+            if (showDebugLogs)
+                Debug.Log("[GameStateManager] Forced to playing state");
         }
         
         [ContextMenu("Force Paused State")]
         public void ForcePausedState()
         {
             SetGameState(GameState.Paused);
-            DisablePlayerInput();
+            if (playerInputGate != null) { playerInputGate.DisableInput(); } else { DisablePlayerInput(); }
             
-            if (dayNightManager != null)
-            {
-                dayNightManager.PauseTime(true);
-            }
+            if (showDebugLogs)
+                Debug.Log("[GameStateManager] Forced to paused state");
         }
         
         [ContextMenu("Force Night Blocked State")]
@@ -428,52 +382,49 @@ namespace DayNightSystem
         [ContextMenu("Test Night Message")]
         public void TestNightMessage()
         {
-            if (messageSystem != null)
+            if (gameStateMessages != null) { gameStateMessages.ShowNightMessage(0f); return; }
+            if (messageSystem == null) { Debug.LogWarning("[GameStateManager] Cannot test night message - MessageSystem not found"); return; }
+            string nightMessage = feedbackMessages != null ? feedbackMessages.GetMessage("night_falling") : string.Empty;
+            if (!string.IsNullOrEmpty(nightMessage))
             {
-                string nightMessage = feedbackMessages != null ? 
-                    feedbackMessages.GetMessage("night_message") : 
-                    "...a strange night passes...";
-                messageSystem.ShowNightMessage(nightMessage, 3f);
+                messageSystem.ShowMessage(nightMessage, 3f);
             }
-            else
-            {
-                Debug.LogWarning("[GameStateManager] Cannot test night message - MessageSystem not found");
-            }
+            
+            if (showDebugLogs)
+                Debug.Log("[GameStateManager] Test night message shown");
         }
         
         [ContextMenu("Test Day Message")]
         public void TestDayMessage()
         {
-            if (messageSystem != null)
+            if (gameStateMessages != null) { gameStateMessages.ShowDayStartMessage(0f); return; }
+            if (messageSystem == null) { Debug.LogWarning("[GameStateManager] Cannot test day message - MessageSystem not found"); return; }
+            string dayMessage = feedbackMessages != null ? feedbackMessages.GetMessage("new_day_started") : string.Empty;
+            if (!string.IsNullOrEmpty(dayMessage))
             {
-                string dayMessage = feedbackMessages != null ? 
-                    feedbackMessages.GetMessage("new_day_started") : 
-                    "A new day has begun!";
                 messageSystem.ShowMessage(dayMessage, 2f);
             }
-            else
-            {
-                Debug.LogWarning("[GameStateManager] Cannot test day message - MessageSystem not found");
-            }
+            
+            if (showDebugLogs)
+                Debug.Log("[GameStateManager] Test day message shown");
         }
         
         [ContextMenu("Show Current State")]
         public void ShowCurrentState()
         {
-            string state = $"Current Game State: {currentState}\n" +
-                         $"Can Player Act: {CanPlayerAct()}\n" +
-                         $"Is Playing: {IsPlaying}\n" +
-                         $"Is Paused: {IsPaused}\n" +
-                         $"Is Transitioning: {IsTransitioning}\n" +
-                         $"Is Night Blocked: {IsNightBlocked}";
+            string state = $"Current State: {currentState}\n" +
+                          $"Can Player Act: {CanPlayerAct()}\n" +
+                          $"Is Playing: {IsPlaying}\n" +
+                          $"Is Paused: {IsPaused}\n" +
+                          $"Is Transitioning: {IsTransitioning}";
             
             Debug.Log($"[GameStateManager] {state}");
         }
     }
 }
 
-// ScriptRole: Manages game states and integrates with day/night system, including night blocking and messages
+// ScriptRole: Manages global game states and player input control
 // RelatedScripts: DayNightManager, PlayerMovement, PlayerInteraction, MouseLook, MessageSystem
 // UsesSO: FeedbackMessagesSO
 // ReceivesFrom: DayNightManager events
-// SendsTo: Player components (enable/disable), MessageSystem (night/day messages)
+// SendsTo: PlayerMovement, PlayerInteraction, MouseLook (input control), MessageSystem (state messages)

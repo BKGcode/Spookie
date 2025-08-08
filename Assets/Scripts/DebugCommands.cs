@@ -1,4 +1,5 @@
 using UnityEngine;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -9,7 +10,7 @@ namespace DayNightSystem
         [SerializeField] private float timeAddAmount = 5f; // minutes
         
         // Private fields
-        private DayNightManager dayNightManager;
+        private DayNightSystem.Core.DayNightManager dayNightManager;
         private PlayerPenalty playerPenalty;
         private DayNightVisuals dayNightVisuals;
         private GameStateManager gameStateManager;
@@ -22,7 +23,7 @@ namespace DayNightSystem
         
         private void FindReferences()
         {
-            dayNightManager = FindObjectOfType<DayNightManager>();
+            dayNightManager = FindObjectOfType<DayNightSystem.Core.DayNightManager>();
             playerPenalty = FindObjectOfType<PlayerPenalty>();
             dayNightVisuals = FindObjectOfType<DayNightVisuals>();
             gameStateManager = FindObjectOfType<GameStateManager>();
@@ -115,7 +116,7 @@ namespace DayNightSystem
             dayNightManager.AddTime(timeAddAmount);
             
             if (showDebugLogs)
-                Debug.Log($"[DebugCommands] Added {timeAddAmount} minutes to current time");
+                Debug.Log($"[DebugCommands] Added {timeAddAmount} minutes");
         }
         
         [ContextMenu("Add 1 Minute")]
@@ -147,7 +148,7 @@ namespace DayNightSystem
             dayNightManager.AddTime(minutes);
             
             if (showDebugLogs)
-                Debug.Log($"[DebugCommands] Added {minutes} minutes to current time");
+                Debug.Log($"[DebugCommands] Added {minutes} minutes to day/night cycle");
         }
         
         [ContextMenu("Pause Time")]
@@ -162,7 +163,7 @@ namespace DayNightSystem
             dayNightManager.PauseTime(true);
             
             if (showDebugLogs)
-                Debug.Log("[DebugCommands] Paused time");
+                Debug.Log("[DebugCommands] Time paused");
         }
         
         [ContextMenu("Resume Time")]
@@ -177,7 +178,7 @@ namespace DayNightSystem
             dayNightManager.PauseTime(false);
             
             if (showDebugLogs)
-                Debug.Log("[DebugCommands] Resumed time");
+                Debug.Log("[DebugCommands] Time resumed");
         }
         
         [ContextMenu("Force Update Visuals")]
@@ -192,7 +193,7 @@ namespace DayNightSystem
             dayNightVisuals.ForceUpdateVisuals();
             
             if (showDebugLogs)
-                Debug.Log("[DebugCommands] Forced visual update");
+                Debug.Log("[DebugCommands] Visuals force updated");
         }
         
         [ContextMenu("Show Current State")]
@@ -204,18 +205,13 @@ namespace DayNightSystem
                 return;
             }
             
-            string state = $"Current State:\n" +
-                         $"Time: {dayNightManager.CurrentTimeNormalized:P1}\n" +
-                         $"Is Day: {dayNightManager.IsDay}\n" +
-                         $"Is Transitioning: {dayNightManager.IsTransitioning}\n" +
-                         $"Is Paused: {dayNightManager.IsPaused}";
-            
-            if (playerPenalty != null)
-            {
-                state += $"\nCurrent Penalty Type: {playerPenalty.CurrentPenaltyType}";
-                state += $"\nCan Perform Action: {playerPenalty.CanPerformAction()}";
-                state += $"\nCan Sprint: {playerPenalty.CanSprint()}";
-            }
+            string state = $"Day/Night State:\n" +
+                          $"Current State: {dayNightManager.CurrentState}\n" +
+                          $"Is Day: {dayNightManager.IsDay}\n" +
+                          $"Is Transitioning: {dayNightManager.IsTransitioning}\n" +
+                          $"Is Paused: {dayNightManager.IsPaused}\n" +
+                          $"Time Normalized: {dayNightManager.CurrentTimeNormalized:F2}\n" +
+                          $"Player Slept Correctly: {dayNightManager.PlayerSleptCorrectly}";
             
             Debug.Log($"[DebugCommands] {state}");
         }
@@ -226,22 +222,25 @@ namespace DayNightSystem
             SaveUtility.ClearDayNightSaveData();
             
             if (showDebugLogs)
-                Debug.Log("[DebugCommands] Cleared all save data");
+                Debug.Log("[DebugCommands] Save data cleared");
         }
         
         [ContextMenu("Show Save Data")]
         public void ShowSaveData()
         {
-            bool hasData = SaveUtility.HasSaveData();
-            var saveData = SaveUtility.LoadDayNightState();
-            
-            string info = $"Save Data:\n" +
-                         $"Has Data: {hasData}\n" +
+            if (SaveUtility.HasSaveData())
+            {
+                var saveData = SaveUtility.LoadDayNightState();
+                Debug.Log($"[DebugCommands] Save data found:\n" +
                          $"Time: {saveData.currentTime:F1}s\n" +
                          $"Is Day: {saveData.isDay}\n" +
-                         $"Has Penalty: {saveData.hasPenalty}";
-            
-            Debug.Log($"[DebugCommands] {info}");
+                         $"Has Penalty: {saveData.hasPenalty}\n" +
+                         $"Slept Correctly: {saveData.playerSleptCorrectly}");
+            }
+            else
+            {
+                Debug.Log("[DebugCommands] No save data found");
+            }
         }
         
         [ContextMenu("Show Game State")]
@@ -254,11 +253,11 @@ namespace DayNightSystem
             }
             
             string state = $"Game State:\n" +
-                         $"Current State: {gameStateManager.CurrentState}\n" +
-                         $"Can Player Act: {gameStateManager.CanPlayerAct()}\n" +
-                         $"Is Playing: {gameStateManager.IsPlaying}\n" +
-                         $"Is Paused: {gameStateManager.IsPaused}\n" +
-                         $"Is Transitioning: {gameStateManager.IsTransitioning}";
+                          $"Current State: {gameStateManager.CurrentState}\n" +
+                          $"Can Player Act: {gameStateManager.CanPlayerAct()}\n" +
+                          $"Is Playing: {gameStateManager.IsPlaying}\n" +
+                          $"Is Paused: {gameStateManager.IsPaused}\n" +
+                          $"Is Transitioning: {gameStateManager.IsTransitioning}";
             
             Debug.Log($"[DebugCommands] {state}");
         }
@@ -302,7 +301,7 @@ namespace DayNightSystem
                 return;
             }
             
-            messageSystem.ShowMessage("This is a test message from DebugCommands!");
+            messageSystem.ShowMessage("This is a test message from DebugCommands", 3f);
             
             if (showDebugLogs)
                 Debug.Log("[DebugCommands] Test message shown");
@@ -317,10 +316,10 @@ namespace DayNightSystem
                 return;
             }
             
-            string status = $"Message System:\n" +
-                         $"Is Active: {messageSystem.IsMessageActive}\n" +
-                         $"Is Displaying: {messageSystem.IsDisplayingMessage()}\n" +
-                         $"Current Message: {messageSystem.GetCurrentMessage()}";
+            string status = $"Message System Status:\n" +
+                          $"Is Message Active: {messageSystem.IsMessageActive}\n" +
+                          $"Is Displaying Message: {messageSystem.IsDisplayingMessage()}\n" +
+                          $"Current Message: {messageSystem.GetCurrentMessage()}";
             
             Debug.Log($"[DebugCommands] {status}");
         }
@@ -334,7 +333,7 @@ namespace DayNightSystem
                 return;
             }
             
-            messageSystem.OnDayNightTransitionRequested();
+            messageSystem.StopCurrentMessage();
             
             if (showDebugLogs)
                 Debug.Log("[DebugCommands] Message force closed");
@@ -342,8 +341,8 @@ namespace DayNightSystem
     }
 }
 
-// ScriptRole: Provides debug commands for testing the day/night system
-// RelatedScripts: DayNightManager, PlayerPenalty, DayNightVisuals
+// ScriptRole: Provides debug commands for testing day/night system functionality
+// RelatedScripts: DayNightManager, PlayerPenalty, DayNightVisuals, GameStateManager, MessageSystem
 // UsesSO: None
 // ReceivesFrom: None
-// SendsTo: DayNightManager, PlayerPenalty, DayNightVisuals, SaveUtility
+// SendsTo: DayNightManager, PlayerPenalty, DayNightVisuals, GameStateManager, MessageSystem (debug commands)

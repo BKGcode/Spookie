@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -14,7 +15,7 @@ namespace DayNightSystem
         [SerializeField] private bool showDebugLogs = true;
         
         // Private fields
-        private DayNightManager dayNightManager;
+        private DayNightSystem.Core.DayNightManager dayNightManager;
         private UnityEngine.Rendering.Universal.Vignette vignette;
         private float originalLightIntensity;
         private Color originalSkyboxTint;
@@ -34,6 +35,11 @@ namespace DayNightSystem
                 dayNightManager.OnNightStart += OnNightStart;
                 dayNightManager.OnExhaustionWarning += OnExhaustionWarning;
                 dayNightManager.OnTimeChanged += OnTimeChanged;
+                var ev = dayNightManager.GetEventController();
+                if (ev != null)
+                {
+                    ev.OnSunsetWarning += OnSunsetWarning;
+                }
             }
         }
         
@@ -45,6 +51,11 @@ namespace DayNightSystem
                 dayNightManager.OnNightStart -= OnNightStart;
                 dayNightManager.OnExhaustionWarning -= OnExhaustionWarning;
                 dayNightManager.OnTimeChanged -= OnTimeChanged;
+                var ev = dayNightManager.GetEventController();
+                if (ev != null)
+                {
+                    ev.OnSunsetWarning -= OnSunsetWarning;
+                }
             }
         }
         
@@ -80,7 +91,7 @@ namespace DayNightSystem
         
         private void FindDayNightManager()
         {
-            dayNightManager = FindObjectOfType<DayNightManager>();
+            dayNightManager = FindObjectOfType<DayNightSystem.Core.DayNightManager>();
             if (dayNightManager == null)
             {
                 Debug.LogError("[DayNightVisuals] No DayNightManager found in scene!");
@@ -100,58 +111,85 @@ namespace DayNightSystem
             
             // Store original values
             if (directionalLight != null)
+            {
                 originalLightIntensity = directionalLight.intensity;
+            }
             
-            if (skyboxMaterial != null && skyboxMaterial.HasProperty("_Tint"))
-                originalSkyboxTint = skyboxMaterial.GetColor("_Tint");
+            if (skyboxMaterial != null)
+            {
+                originalSkyboxTint = skyboxMaterial.GetColor("_SkyTint");
+            }
         }
         
         private void OnDayStart()
         {
+            UpdateVisuals(0f); // Start of day
+            
             if (showDebugLogs)
-                Debug.Log("[DayNightVisuals] Day started - applying day visuals");
+                Debug.Log("[DayNightVisuals] Day started - updated visuals");
         }
         
         private void OnNightStart()
         {
+            UpdateVisuals(1f); // End of day/start of night
+            
             if (showDebugLogs)
-                Debug.Log("[DayNightVisuals] Night started - applying night visuals");
+                Debug.Log("[DayNightVisuals] Night started - updated visuals");
         }
         
         private void OnExhaustionWarning(float secondsRemaining)
         {
-            if (showDebugLogs)
-                Debug.Log($"[DayNightVisuals] Exhaustion warning - {secondsRemaining:F1}s remaining");
+            // Apply exhaustion effects based on remaining time
+            float intensity = Mathf.Clamp01(1f - (secondsRemaining / 30f)); // 30s warning period
+            ApplyExhaustionEffects(intensity);
         }
         
         private void OnTimeChanged(float timeNormalized)
         {
-            UpdateVisuals(timeNormalized);
+            // Convert seconds to normalized [0..1] of the current phase (day segment)
+            float normalized = 0f;
+            if (dayNightManager != null && dayNightManager.Config != null)
+            {
+                float dayDuration = dayNightManager.Config.DayDurationSeconds;
+                float cycle = dayDuration * 2f;
+                float cycleTime = cycle > 0f ? (timeNormalized % cycle) : 0f;
+                normalized = Mathf.Clamp01((cycleTime % dayDuration) / dayDuration);
+            }
+            UpdateVisuals(normalized);
+        }
+
+        private void OnSunsetWarning(float secondsToNight)
+        {
+            // Subtle warm shift to suggest sunset
+            if (directionalLight != null)
+            {
+                directionalLight.color = Color.Lerp(directionalLight.color, new Color(1f, 0.78f, 0.65f), 0.35f);
+            }
         }
         
         private void UpdateVisuals(float timeNormalized)
         {
-            if (dayNightManager == null || dayNightManager.Config == null)
-            {
-                Debug.LogWarning("[DayNightVisuals] Cannot update visuals - DayNightManager or Config is null");
-                return;
-            }
-            
-            // Clamp timeNormalized to prevent out of bounds
-            timeNormalized = Mathf.Clamp01(timeNormalized);
-            
-            // Update light intensity
+            // Update directional light
             if (directionalLight != null)
             {
-                float intensity = dayNightManager.Config.LightIntensityCurve.Evaluate(timeNormalized);
-                directionalLight.intensity = originalLightIntensity * intensity;
+                // Simulate sun movement
+                float sunAngle = Mathf.Lerp(0f, 180f, timeNormalized);
+                directionalLight.transform.rotation = Quaternion.Euler(sunAngle, 0f, 0f);
+                
+                // Adjust light intensity based on time
+                float intensity = Mathf.Lerp(0.1f, originalLightIntensity, Mathf.Sin(timeNormalized * Mathf.PI));
+                directionalLight.intensity = intensity;
+                
+                // Adjust light color based on time
+                Color lightColor = Color.Lerp(Color.blue, Color.white, Mathf.Sin(timeNormalized * Mathf.PI));
+                directionalLight.color = lightColor;
             }
             
             // Update skybox tint
-            if (skyboxMaterial != null && skyboxMaterial.HasProperty("_Tint"))
+            if (skyboxMaterial != null)
             {
-                Color tint = dayNightManager.Config.SkyboxTint.Evaluate(timeNormalized);
-                skyboxMaterial.SetColor("_Tint", tint);
+                Color skyTint = Color.Lerp(Color.blue, originalSkyboxTint, Mathf.Sin(timeNormalized * Mathf.PI));
+                skyboxMaterial.SetColor("_SkyTint", skyTint);
             }
         }
         
@@ -159,11 +197,12 @@ namespace DayNightSystem
         {
             if (vignette != null)
             {
-                vignette.intensity.value = Mathf.Clamp01(intensity);
-                
-                if (showDebugLogs)
-                    Debug.Log($"[DayNightVisuals] Applied exhaustion effect with intensity: {intensity:F2}");
+                vignette.intensity.value = intensity;
+                vignette.color.value = Color.red;
             }
+            
+            if (showDebugLogs)
+                Debug.Log($"[DayNightVisuals] Applied exhaustion effects - intensity: {intensity:F2}");
         }
         
         public void RemoveExhaustionEffects()
@@ -171,25 +210,28 @@ namespace DayNightSystem
             if (vignette != null)
             {
                 vignette.intensity.value = 0f;
-                
-                if (showDebugLogs)
-                    Debug.Log("[DayNightVisuals] Removed exhaustion effects");
+                vignette.color.value = Color.black;
             }
+            
+            if (showDebugLogs)
+                Debug.Log("[DayNightVisuals] Removed exhaustion effects");
         }
         
-        // Public method to force update visuals
         public void ForceUpdateVisuals()
         {
             if (dayNightManager != null)
             {
                 UpdateVisuals(dayNightManager.CurrentTimeNormalized);
+                
+                if (showDebugLogs)
+                    Debug.Log("[DayNightVisuals] Force updated visuals");
             }
         }
     }
 }
 
-// ScriptRole: Handles visual effects for day/night cycle and exhaustion
+// ScriptRole: Manages visual effects for day/night cycle including lighting and post-processing
 // RelatedScripts: DayNightManager
-// UsesSO: DayNightConfig (via DayNightManager)
+// UsesSO: None
 // ReceivesFrom: DayNightManager events
-// SendsTo: Light, Skybox Material, Post-Process Volume
+// SendsTo: Light, Material, Volume (visual effects)

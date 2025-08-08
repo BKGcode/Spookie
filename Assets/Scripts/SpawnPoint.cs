@@ -1,4 +1,5 @@
 using UnityEngine;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -282,7 +283,7 @@ namespace DayNightSystem
         private void OnDrawGizmosSelected()
         {
             // Draw warning radius (outermost)
-            Gizmos.color = PlayerInWarningZone ? Color.orange : Color.yellow;
+            Gizmos.color = PlayerInWarningZone ? new Color(1f, 0.5f, 0f) : Color.yellow;
             Gizmos.DrawWireSphere(transform.position, warningRadius);
             
             // Draw detection radius

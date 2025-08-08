@@ -1,4 +1,5 @@
 using UnityEngine;
+using DayNightSystem.Core;
 
 namespace DayNightSystem
 {
@@ -140,18 +141,7 @@ namespace DayNightSystem
                 isValid = false;
             }
             
-            // Validate boolean values
-            if (saveData.isDay != true && saveData.isDay != false)
-            {
-                Debug.LogWarning($"[SaveUtility] Invalid isDay value: {saveData.isDay}");
-                isValid = false;
-            }
-            
-            if (saveData.playerSleptCorrectly != true && saveData.playerSleptCorrectly != false)
-            {
-                Debug.LogWarning($"[SaveUtility] Invalid playerSleptCorrectly value: {saveData.playerSleptCorrectly}");
-                isValid = false;
-            }
+            // Booleans are inherently valid; skip redundant validation
             
             if (isValid)
             {

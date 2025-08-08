@@ -82,10 +82,20 @@ namespace DayNightSystem
                     return "Sleeping...";
                 case "status_fainted":
                     return "Fainted - You will be penalized";
+                case "status_transitioning":
+                    return "Transitioning...";
+                case "status_unknown":
+                    return "";
                 
                 // Warning messages
                 case "exhaustion_warning":
                     return "Warning: Exhaustion approaching!";
+                case "warning_exhaustion_started":
+                    return "Exhaustion started!";
+                case "warning_fainted":
+                    return "You fainted!";
+                case "warning_night_blocked":
+                    return "Night has fallen - movement restricted";
                 case "exhaustion_active":
                     return "You are exhausted! Return to spawn!";
                 case "new_day_started":
@@ -98,6 +108,12 @@ namespace DayNightSystem
                     return "You are exhausted! Speed reduced.";
                 case "fainted_penalty":
                     return "You fainted! Severe speed penalty applied.";
+                case "penalty_exhaustion":
+                    return "Exhaustion - Movement reduced";
+                case "penalty_fainted":
+                    return "Fainted - Movement heavily reduced";
+                case "penalty_unknown":
+                    return "";
                 
                 // Sleep and faint messages
                 case "slept_correctly":
@@ -112,6 +128,12 @@ namespace DayNightSystem
                     return "Return to spawn point to rest";
                 case "spawn_too_far":
                     return "Spawn point is too far away!";
+                case "status_safe_area":
+                    return "Safe area";
+                case "status_warning_zone":
+                    return "Warning zone";
+                case "proximity_safe_night":
+                    return "Safe at night: you can sleep";
                 
                 // Contextual messages
                 case "day_exploration":
@@ -156,6 +178,10 @@ namespace DayNightSystem
                     return "Warning Zone";
                 case "far_from_spawn":
                     return "Far from spawn";
+                
+                // Interaction messages
+                case "interaction_press_e":
+                    return "Press E to interact";
                 
                 default:
                     return $"Message for '{key}' not found";

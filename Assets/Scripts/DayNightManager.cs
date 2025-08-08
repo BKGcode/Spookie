@@ -57,6 +57,14 @@ namespace DayNightSystem
         
         private void Awake()
         {
+            // If modular DayNightManager exists, disable this legacy manager to avoid conflicts
+            var modularManager = FindObjectOfType<DayNightSystem.Core.DayNightManager>();
+            if (modularManager != null)
+            {
+                Debug.LogWarning("[DayNightManager (Legacy)] Detected modular DayNightSystem.Core.DayNightManager in scene. Disabling legacy manager to prevent conflicts.");
+                enabled = false;
+                return;
+            }
             ValidateReferences();
             ValidateSpawnPoint();
             FindMessageSystem();
