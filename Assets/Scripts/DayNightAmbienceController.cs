@@ -8,6 +8,7 @@ namespace Game.DayNight
     /// (and optional lamp lights) using a LightPreset and the DayNightManager's progress/state.
     /// KISS: no UI, no volumes/skybox for now. Inspector-first wiring.
     /// </summary>
+    [AddComponentMenu("Spookie/Day Night Ambience Controller")]
     public class DayNightAmbienceController : MonoBehaviour
     {
         [Header("References")]

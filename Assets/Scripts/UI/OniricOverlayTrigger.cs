@@ -9,6 +9,7 @@ namespace Game.UI
     /// One-shot and PlayerPrefs persistence supported via an id.
     /// </summary>
     [RequireComponent(typeof(Collider))]
+    [AddComponentMenu("Spookie/Oniric Overlay Trigger")]
     public class OniricOverlayTrigger : MonoBehaviour
     {
         public enum FireMode { OnTriggerEnter, Manual }

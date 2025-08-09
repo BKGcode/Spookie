@@ -6,6 +6,7 @@ namespace Game.UI
     /// Minimal settings menu controller. Only shows/hides the settings panel and can navigate back to a pause panel.
     /// No actual settings logic in this slice.
     /// </summary>
+    [AddComponentMenu("Spookie/Settings Menu Controller")]
     public class SettingsMenuController : MonoBehaviour
     {
         [Header("Panels")]

@@ -5,6 +5,7 @@ namespace Game.Core
     /// <summary>
     /// Minimal quit handler callable from a UI button. In editor, stops play mode; in build, quits app.
     /// </summary>
+    [AddComponentMenu("Spookie/Quit Handler")]
     public class QuitHandler : MonoBehaviour
     {
         [Header("Debug")]

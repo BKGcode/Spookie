@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using Game.Core; // PauseManager, PauseReason
 
 namespace Game.DayNight
 {
     public enum DayState { Dawn, Day, DuskWarning, Exhaustion, Sleep, Faint, Night }
 
+    [AddComponentMenu("Spookie/Day Night Manager")]
     public class DayNightManager : MonoBehaviour
     {
     [Header("Config")]
@@ -27,6 +29,10 @@ namespace Game.DayNight
 
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
+
+    [Header("Integration (optional)")]
+    [Tooltip("If assigned, will gate gameplay as a Transition during night fades (prevents banners/inputs).")]
+    [SerializeField] private PauseManager pauseManager;
 
         public DayState State { get; private set; } = DayState.Dawn;
         public float DayTimeRemainingSeconds { get; private set; }
@@ -292,6 +298,13 @@ namespace Game.DayNight
 
         private IEnumerator NightRoutine()
         {
+            bool transitionHeld = false;
+            // Request Transition pause (optional) so other systems gate during fades
+            if (pauseManager != null)
+            {
+                try { pauseManager.RequestPause(PauseReason.Transition); transitionHeld = true; } catch { }
+            }
+
             // Bloquear jugabilidad durante la transición
             BlockGameplay(true);
 
@@ -360,6 +373,12 @@ namespace Game.DayNight
 
             // Desbloquear jugabilidad
             BlockGameplay(false);
+
+            // Release Transition pause if held
+            if (transitionHeld && pauseManager != null)
+            {
+                try { pauseManager.ReleasePause(PauseReason.Transition); } catch { }
+            }
         }
 
         private IEnumerator FadeCanvasGroup(CanvasGroup cg, float from, float to, float duration)

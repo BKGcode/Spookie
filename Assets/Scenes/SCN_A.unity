@@ -20,13 +20,13 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0.020959422, g: 0.028301895, b: 0.02615342, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 0
+  m_AmbientIntensity: 0.5
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 201ecb6963b736c48bfe4b667177cac9, type: 2}
+  m_SubtractiveShadowColor: {r: 0.55860186, g: 0.41960785, b: 0.627451, a: 1}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 1088058271}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -335,6 +335,7 @@ MonoBehaviour:
   dayStateText: {fileID: 1342479677}
   nightFadeCanvasGroup: {fileID: 1442246773}
   showDebugLogs: 1
+  pauseManager: {fileID: 684718343}
   mouseLook: {fileID: 2106660170}
   playerInteraction: {fileID: 2106660168}
   playerMovement: {fileID: 2106660166}
@@ -4697,6 +4698,7 @@ GameObject:
   - component: {fileID: 1688872988}
   - component: {fileID: 1688872987}
   - component: {fileID: 1688872989}
+  - component: {fileID: 1688872990}
   m_Layer: 0
   m_Name: 'TEXT MANAGER '
   m_TagString: Untagged
@@ -4724,7 +4726,14 @@ MonoBehaviour:
   charsPerSecond: 30
   autoCloseSeconds: 2
   maxQueue: 4
+  fadeInSeconds: 0.15
+  fadeOutSeconds: 0.15
+  globalCooldownSeconds: 3
+  repeatableByDefault: 0
   pauseManager: {fileID: 684718343}
+  localizationDB: {fileID: 11400000, guid: 3daf46df1dc218e40938594878d23af8, type: 2}
+  locale: {fileID: 11400000, guid: f60e0581ebf867243af6c70b5bfa6b24, type: 2}
+  fallbackLanguage: en
   showDebugLogs: 1
 --- !u!4 &1688872988
 Transform:
@@ -4762,6 +4771,28 @@ MonoBehaviour:
   autoCloseSeconds: 4
   blockCloseUntilComplete: 1
   pauseManager: {fileID: 684718343}
+  localizationDB: {fileID: 11400000, guid: 3daf46df1dc218e40938594878d23af8, type: 2}
+  locale: {fileID: 11400000, guid: f60e0581ebf867243af6c70b5bfa6b24, type: 2}
+  fallbackLanguage: en
+  showDebugLogs: 1
+--- !u!114 &1688872990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1688872986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37ac6b3b9a666fd4ea02b6fb723de64e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  db: {fileID: 11400000, guid: 6efc3c9d4f6c1e14cb7a1cce0a5cd1b3, type: 2}
+  localizationDB: {fileID: 11400000, guid: 3daf46df1dc218e40938594878d23af8, type: 2}
+  locale: {fileID: 11400000, guid: f60e0581ebf867243af6c70b5bfa6b24, type: 2}
+  fallbackLanguage: en
+  lower: {fileID: 1688872987}
+  oniric: {fileID: 1688872989}
   showDebugLogs: 1
 --- !u!1 &1706017098
 GameObject:

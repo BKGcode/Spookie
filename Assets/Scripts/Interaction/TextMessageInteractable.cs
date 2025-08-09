@@ -1,6 +1,7 @@
 using UnityEngine;
 using PlayerController; // IInteractable
 using Game.UI; // LowerMessageController
+using Game.Core; // PauseManager, PauseReason
 
 namespace Game.Interaction
 {
@@ -10,6 +11,7 @@ namespace Game.Interaction
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(OutlineHighlighter))]
+    [AddComponentMenu("Spookie/Text Message Interactable")]
     public class TextMessageInteractable : MonoBehaviour, IInteractable
     {
         public enum FireMode { Interaction, Trigger }
@@ -38,6 +40,8 @@ namespace Game.Interaction
         [SerializeField] private float cooldownSeconds = 0f;
         [Tooltip("If true, will not fire when game is paused by PauseManager (safer UX).")]
         [SerializeField] private bool blockWhenPaused = true;
+    [Tooltip("If true, when paused by Oniric the message will be enqueued as 'repeatable' to bypass the banner global cooldown.")]
+    [SerializeField] private bool forceRepeatableWhenOniric = true;
 
     [Header("Integration")]
     [Tooltip("Optional PauseManager to block firing while paused.")]
@@ -133,16 +137,32 @@ namespace Game.Interaction
             if (lowerMessage == null) return;
             if (string.IsNullOrWhiteSpace(messageText)) return;
 
-            // Block when paused (optional)
+            // Pause-aware gating: allow enqueue during Oniric (will queue and run on resume),
+            // gate during UI/Transition to avoid spurious triggers under menus/loads.
             if (blockWhenPaused && pauseManager != null && pauseManager.IsPaused)
             {
-                if (showDebugLogs)
+                var reasons = pauseManager.GetActiveReasons();
+                bool hasUI = ContainsReason(reasons, PauseReason.UI);
+                bool hasTransition = ContainsReason(reasons, PauseReason.Transition);
+                bool hasOniric = ContainsReason(reasons, PauseReason.Oniric);
+
+                if (hasUI || hasTransition)
+                {
+                    if (showDebugLogs)
+                    {
+                        #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        Debug.Log($"[TextMessageInteractable] Gated by {(hasTransition ? "Transition" : "UI")} on {name}");
+                        #endif
+                    }
+                    return;
+                }
+                // If only Oniric (or other non-UI/Transition reasons), allow enqueue
+                if (hasOniric)
                 {
                     #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    Debug.Log($"[TextMessageInteractable] Blocked while paused on {name}");
+                    if (showDebugLogs) Debug.Log($"[TextMessageInteractable] Enqueue during Oniric on {name} (will show after)");
                     #endif
                 }
-                return;
             }
 
             // One-shot (runtime and/or persistent)
@@ -155,7 +175,18 @@ namespace Game.Interaction
             // Cooldown
             if (cooldownSeconds > 0f && Time.time - _lastFireTime < cooldownSeconds) return;
 
-            lowerMessage.EnqueueText(messageText, messageAudio, autoCloseSecondsOverride >= 0f ? autoCloseSecondsOverride : -1f);
+            bool repeatable = false;
+            if (pauseManager != null && pauseManager.IsPaused && forceRepeatableWhenOniric)
+            {
+                var reasons = pauseManager.GetActiveReasons();
+                if (ContainsReason(reasons, PauseReason.Oniric)) repeatable = true;
+            }
+            lowerMessage.EnqueueText(
+                messageText,
+                messageAudio,
+                autoCloseSecondsOverride >= 0f ? autoCloseSecondsOverride : -1f,
+                repeatable
+            );
 
             _firedRuntime = true;
             _lastFireTime = Time.time;
@@ -164,6 +195,15 @@ namespace Game.Interaction
                 PlayerPrefs.SetInt(PP_Prefix + persistentId, 1);
                 PlayerPrefs.Save();
             }
+        }
+        private static bool ContainsReason(System.Collections.Generic.IReadOnlyCollection<PauseReason> set, PauseReason r)
+        {
+            if (set == null) return false;
+            foreach (var it in set)
+            {
+                if (it == r) return true;
+            }
+            return false;
         }
     }
 }

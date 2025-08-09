@@ -8,6 +8,7 @@ namespace PlayerController
 	/// Uses New Input System via an InputActionReference (Vector2). Sensitivity & clamp from PlayerSettingsSO.
 	/// KISS: no smoothing by default, no cursor management unless enabled.
 	/// </summary>
+	[AddComponentMenu("Spookie/Mouse Look")]
 	public class MouseLook : MonoBehaviour
 	{
 		[Header("References")]

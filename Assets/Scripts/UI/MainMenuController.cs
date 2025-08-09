@@ -6,6 +6,7 @@ namespace Game.UI
     /// Minimal Main Menu controller: Play loads a target scene, Exit quits the app.
     /// KISS: references wired by Inspector; no Addressables; no pause involvement.
     /// </summary>
+    [AddComponentMenu("Spookie/Main Menu Controller")]
     public class MainMenuController : MonoBehaviour
     {
         [Header("References")]

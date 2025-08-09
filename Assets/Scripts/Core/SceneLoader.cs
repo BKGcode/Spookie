@@ -7,6 +7,7 @@ namespace Game.Core
     /// Simple scene loading wrapper for fixed scenes. Synchronous loads by name or index.
     /// KISS: no Addressables, no async in this slice.
     /// </summary>
+    [AddComponentMenu("Spookie/Scene Loader")]
     public class SceneLoader : MonoBehaviour
     {
         [Header("Debug")]

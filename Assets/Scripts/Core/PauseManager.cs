@@ -18,6 +18,7 @@ namespace Game.Core
     /// KISS: no Time.timeScale changes in this slice. Inspector-first wiring.
     /// </summary>
     [DisallowMultipleComponent]
+    [AddComponentMenu("Spookie/Pause Manager")]
     public class PauseManager : MonoBehaviour
     {
         [Header("Targets (assign in Inspector)")]

@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace PlayerController
 {
+    [AddComponentMenu("Spookie/Player Interaction")]
     public class PlayerInteraction : MonoBehaviour
     {
         [Header("References")]

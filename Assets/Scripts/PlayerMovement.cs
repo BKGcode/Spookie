@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 namespace PlayerController
 {
     [RequireComponent(typeof(CharacterController))]
+    [AddComponentMenu("Spookie/Player Movement")]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("References")]

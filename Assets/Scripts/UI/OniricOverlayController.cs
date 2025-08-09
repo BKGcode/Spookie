@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using Game.Core;
+using Game.Localization; // LocalizationDBSO, LocaleSO
 
 namespace Game.UI
 {
@@ -11,6 +12,7 @@ namespace Game.UI
     /// KISS: single active instance, no queue. One-shot persistence by ID (PlayerPrefs) if desired.
     /// </summary>
     [DisallowMultipleComponent]
+    [AddComponentMenu("Spookie/Oniric Overlay Controller")]
     public class OniricOverlayController : MonoBehaviour
     {
         [Header("UI")]
@@ -28,6 +30,8 @@ namespace Game.UI
         [Header("Input (New Input System)")]
         [Tooltip("Action to close after typewriter+audio (e.g., Interact or ESC).")]
         [SerializeField] private InputActionReference closeAction;
+    [Tooltip("Optional: Action to instantly reveal all text (does not close)")]
+    [SerializeField] private InputActionReference revealAllAction;
 
         [Header("Behavior")]
         [Tooltip("Characters per second for typewriter.")]
@@ -39,6 +43,10 @@ namespace Game.UI
 
         [Header("Integration")]
         [SerializeField] private PauseManager pauseManager;
+    [Header("Localization (optional)")]
+    [SerializeField] private LocalizationDBSO localizationDB;
+    [SerializeField] private LocaleSO locale;
+    [SerializeField] private string fallbackLanguage = "en";
 
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -47,6 +55,7 @@ namespace Game.UI
         private bool _active;
         private bool _pausedExternally;
         private bool _closePressed;
+    private bool _revealPressed;
         private Coroutine _runner;
 
         private const string PP_OniricSeenPrefix = "Spookie.PO.";
@@ -72,6 +81,15 @@ namespace Game.UI
                 }
                 catch {}
             }
+            if (revealAllAction != null)
+            {
+                try
+                {
+                    revealAllAction.action.started += OnRevealStarted;
+                    revealAllAction.action.Enable();
+                }
+                catch {}
+            }
             if (pauseManager != null)
             {
                 pauseManager.OnPauseChanged += OnPauseChanged;
@@ -86,6 +104,15 @@ namespace Game.UI
                 {
                     closeAction.action.started -= OnCloseStarted;
                     closeAction.action.Disable();
+                }
+                catch {}
+            }
+            if (revealAllAction != null)
+            {
+                try
+                {
+                    revealAllAction.action.started -= OnRevealStarted;
+                    revealAllAction.action.Disable();
                 }
                 catch {}
             }
@@ -106,6 +133,11 @@ namespace Game.UI
             _closePressed = true;
         }
 
+        private void OnRevealStarted(InputAction.CallbackContext ctx)
+        {
+            _revealPressed = true;
+        }
+
         private void OnPauseChanged(bool paused, System.Collections.Generic.IReadOnlyCollection<PauseReason> reasons)
         {
             _pausedExternally = paused; // UI/menu may pause over us; just pause our progression/audio
@@ -123,7 +155,7 @@ namespace Game.UI
         /// <summary>
         /// Show an Oniric Thought. If id is provided and oneShot=true and was seen, it will ignore.
         /// </summary>
-        public void Show(string text, AudioClip audio = null, float autoCloseOverride = -1f, string id = null, bool oneShot = true)
+    public void Show(string text, AudioClip audio = null, float autoCloseOverride = -1f, string id = null, bool oneShot = true)
         {
             if (_active)
             {
@@ -133,6 +165,19 @@ namespace Game.UI
                 return;
             }
             if (string.IsNullOrEmpty(text)) return;
+
+            // Gate during Transition to enforce priority (UI > Transition > Oniric > Banner)
+            if (pauseManager != null && pauseManager.IsPaused)
+            {
+                var reasons = pauseManager.GetActiveReasons();
+                if (ContainsReason(reasons, PauseReason.Transition))
+                {
+                    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    if (showDebugLogs) Debug.Log("[OniricOverlay] Gated by Transition. Ignored.");
+                    #endif
+                    return;
+                }
+            }
 
             if (!string.IsNullOrEmpty(id) && oneShot && PlayerPrefs.GetInt(PP_OniricSeenPrefix + id, 0) == 1)
             {
@@ -146,12 +191,67 @@ namespace Game.UI
             }
 
             if (_runner != null) StopCoroutine(_runner);
-            _runner = StartCoroutine(Run(text, audio, autoCloseOverride, id, oneShot));
+            _runner = StartCoroutine(Run(text, audio, autoCloseOverride, id, oneShot, -1f));
+        }
+
+        /// <summary>
+        /// Show by localization key (resolves immediately to avoid key drift during long overlays).
+        /// </summary>
+        public void ShowKey(string key, AudioClip audio = null, float autoCloseOverride = -1f, string id = null, bool oneShot = true)
+        {
+            if (_active) return;
+            if (string.IsNullOrEmpty(key)) return;
+            string resolved = ResolveKey(key);
+            if (string.IsNullOrEmpty(resolved)) return;
+            Show(resolved, audio, autoCloseOverride, id, oneShot);
+        }
+
+        // Overload with per-overlay typewriter cps override
+        public void Show(string text, AudioClip audio, float autoCloseOverride, string id, bool oneShot, float cpsOverride)
+        {
+            if (_active) return;
+            if (string.IsNullOrEmpty(text)) return;
+
+            // Gate during Transition
+            if (pauseManager != null && pauseManager.IsPaused)
+            {
+                var reasons = pauseManager.GetActiveReasons();
+                if (ContainsReason(reasons, PauseReason.Transition))
+                {
+                    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    if (showDebugLogs) Debug.Log("[OniricOverlay] Gated by Transition. Ignored.");
+                    #endif
+                    return;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(id) && oneShot && PlayerPrefs.GetInt(PP_OniricSeenPrefix + id, 0) == 1)
+            {
+                if (showDebugLogs)
+                {
+                    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    Debug.Log($"[OniricOverlay] Skipping one-shot id '{id}' (seen).");
+                    #endif
+                }
+                return;
+            }
+
+            if (_runner != null) StopCoroutine(_runner);
+            _runner = StartCoroutine(Run(text, audio, autoCloseOverride, id, oneShot, cpsOverride));
+        }
+
+        public void ShowKey(string key, AudioClip audio, float autoCloseOverride, string id, bool oneShot, float cpsOverride)
+        {
+            if (_active) return;
+            if (string.IsNullOrEmpty(key)) return;
+            string resolved = ResolveKey(key);
+            if (string.IsNullOrEmpty(resolved)) return;
+            Show(resolved, audio, autoCloseOverride, id, oneShot, cpsOverride);
         }
 
         // Internal ----------------------------------------------------------
 
-        private IEnumerator Run(string full, AudioClip audio, float autoCloseOverride, string id, bool oneShot)
+    private IEnumerator Run(string full, AudioClip audio, float autoCloseOverride, string id, bool oneShot, float cpsOverride)
         {
             _active = true;
             _closePressed = false;
@@ -172,7 +272,7 @@ namespace Game.UI
             // Typewriter
             oniricText.text = string.Empty;
             int total = full.Length;
-            float cps = Mathf.Max(0.01f, charsPerSecond);
+            float cps = (cpsOverride > 0f) ? cpsOverride : Mathf.Max(0.01f, charsPerSecond);
             float acc = 0f;
             int shown = 0;
             while (shown < total)
@@ -180,6 +280,11 @@ namespace Game.UI
                 while (_pausedExternally) { yield return null; }
                 acc += Time.unscaledDeltaTime * cps; // use unscaled so our own reason doesn't freeze us
                 int toShow = Mathf.Min(total, Mathf.FloorToInt(acc));
+                if (_revealPressed)
+                {
+                    toShow = total;
+                    _revealPressed = false; // consume reveal
+                }
                 if (toShow != shown)
                 {
                     oniricText.text = full.Substring(0, toShow);
@@ -203,6 +308,7 @@ namespace Game.UI
             // After completion, allow close (by input or timeout)
             float timeout = autoCloseOverride >= 0f ? autoCloseOverride : Mathf.Max(0f, autoCloseSeconds);
             _closePressed = false; // require fresh press
+            _revealPressed = false; // reset
 
             if (!blockCloseUntilComplete)
             {
@@ -259,6 +365,23 @@ namespace Game.UI
                 Debug.Log($"[OniricOverlay] Closed by {(closedByInput ? "input" : "timeout")}.");
                 #endif
             }
+        }
+
+        private string ResolveKey(string key)
+        {
+            if (localizationDB == null || string.IsNullOrEmpty(key)) return string.Empty;
+            string lang = locale != null ? locale.GetCurrentOrDefault() : (localizationDB.Languages.Count > 0 ? localizationDB.Languages[0] : fallbackLanguage);
+            return localizationDB.Get(key, lang, fallbackLanguage);
+        }
+
+        private static bool ContainsReason(System.Collections.Generic.IReadOnlyCollection<PauseReason> set, PauseReason r)
+        {
+            if (set == null) return false;
+            foreach (var it in set)
+            {
+                if (it == r) return true;
+            }
+            return false;
         }
     }
 }

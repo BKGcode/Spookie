@@ -10,6 +10,7 @@ namespace Game.Interaction
     /// Works with URP (assign a URP-compatible outline material in the Inspector).
     /// </summary>
     [DisallowMultipleComponent]
+    [AddComponentMenu("Spookie/Outline Highlighter")]
     public class OutlineHighlighter : MonoBehaviour
     {
         [Header("Target Renderers")]
