@@ -16,8 +16,11 @@ MonoBehaviour:
   sprintSpeed: 8
   jumpForce: 8
   gravity: -20
-  mouseSensitivity: 2
+  mouseSensitivity: 0.3
   maxLookAngle: 80
+  invertVerticalLook: 0
+  lookEasingAmount: 0.4
+  lookEasingEnabled: 1
   crouchHeight: 1
   standHeight: 2
   crouchSpeed: 2.5

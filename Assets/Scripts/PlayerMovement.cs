@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace PlayerController
 {
@@ -8,6 +9,16 @@ namespace PlayerController
         [Header("References")]
         [SerializeField] private PlayerSettingsSO playerSettings;
         [SerializeField] private Transform cameraTransform;
+        
+    [Header("Input (New Input System)")]
+    [Tooltip("Acción Vector2 de movimiento (WASD/Stick Izquierdo). Asignar desde el asset Input System.")]
+    [SerializeField] private InputActionReference moveAction;
+    [Tooltip("Acción de salto (Space/ButtonSouth).")]
+    [SerializeField] private InputActionReference jumpAction;
+    [Tooltip("Acción de sprint (LeftShift/StickPress). Mantenida para correr.")]
+    [SerializeField] private InputActionReference sprintAction;
+    [Tooltip("Acción de agacharse (C/Botón). Mantenida para agacharse.")]
+    [SerializeField] private InputActionReference crouchAction;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -51,6 +62,24 @@ namespace PlayerController
             LockCursor();
         }
         
+        private void OnEnable()
+        {
+            // Habilitar acciones si están asignadas (si las gestiona PlayerInput no pasa nada)
+            try { moveAction?.action.Enable(); } catch { }
+            try { jumpAction?.action.Enable(); } catch { }
+            try { sprintAction?.action.Enable(); } catch { }
+            try { crouchAction?.action.Enable(); } catch { }
+        }
+        
+        private void OnDisable()
+        {
+            // Deshabilitar acciones para liberar dispositivos
+            try { moveAction?.action.Disable(); } catch { }
+            try { jumpAction?.action.Disable(); } catch { }
+            try { sprintAction?.action.Disable(); } catch { }
+            try { crouchAction?.action.Disable(); } catch { }
+        }
+        
         private void Update()
         {
             HandleInput();
@@ -62,14 +91,49 @@ namespace PlayerController
         
         private void HandleInput()
         {
-            // Movement input
-            inputVector.x = Input.GetAxis("Horizontal");
-            inputVector.y = Input.GetAxis("Vertical");
-            
+            // Movement input (New Input System, con fallback a legacy si no está asignado)
+            if (moveAction != null)
+            {
+                Vector2 move = Vector2.zero;
+                try { move = moveAction.action.ReadValue<Vector2>(); } catch { move = Vector2.zero; }
+                inputVector = move;
+            }
+            else
+            {
+                inputVector.x = Input.GetAxis("Horizontal");
+                inputVector.y = Input.GetAxis("Vertical");
+            }
+
             // Action inputs
-            jumpPressed = Input.GetKeyDown(KeyCode.Space);
-            sprintPressed = Input.GetKey(KeyCode.LeftShift);
-            crouchPressed = Input.GetKey(KeyCode.LeftControl);
+            if (jumpAction != null)
+            {
+                bool jp = false; try { jp = jumpAction.action.WasPressedThisFrame(); } catch { jp = false; }
+                jumpPressed = jp;
+            }
+            else
+            {
+                jumpPressed = Input.GetKeyDown(KeyCode.Space);
+            }
+
+            if (sprintAction != null)
+            {
+                bool sp = false; try { sp = sprintAction.action.IsPressed(); } catch { sp = false; }
+                sprintPressed = sp;
+            }
+            else
+            {
+                sprintPressed = Input.GetKey(KeyCode.LeftShift);
+            }
+
+            if (crouchAction != null)
+            {
+                bool cp = false; try { cp = crouchAction.action.IsPressed(); } catch { cp = false; }
+                crouchPressed = cp;
+            }
+            else
+            {
+                crouchPressed = Input.GetKey(KeyCode.LeftControl);
+            }
         }
         
         private void HandleMovement()
@@ -234,6 +298,17 @@ namespace PlayerController
             {
                 Debug.LogWarning("[PlayerMovement] Camera Transform reference is missing - camera won't move with crouch");
             }
+            
+            // Avisar si no hay acciones asignadas (seguirán funcionando con fallback legacy)
+            #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (moveAction == null || jumpAction == null || sprintAction == null || crouchAction == null)
+            {
+                if (showDebugLogs)
+                {
+                    Debug.Log("[PlayerMovement] Falta asignar alguna InputActionReference (Move/Jump/Sprint/Crouch). Usando fallback legacy temporal.");
+                }
+            }
+            #endif
         }
         
         private void LockCursor()
@@ -274,5 +349,5 @@ namespace PlayerController
 // ScriptRole: Handles player movement, jumping, crouching, and sprinting
 // RelatedScripts: MouseLook, PlayerInteraction
 // UsesSO: PlayerSettingsSO
-// ReceivesFrom: Input System
+// ReceivesFrom: Input System (Move/Jump/Sprint/Crouch)
 // SendsTo: CharacterController, Camera Transform

@@ -1,96 +1,227 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace PlayerController
 {
-    public class MouseLook : MonoBehaviour
-    {
-        [Header("References")]
-        [SerializeField] private PlayerSettingsSO playerSettings;
-        [SerializeField] private Transform playerBody;
-        
-        [Header("Debug")]
-        [SerializeField] private bool showDebugLogs = true;
-        
-        // Rotation variables
-        private float xRotation = 0f;
-        private float yRotation = 0f;
-        
-        // Input variables
-        private Vector2 mouseInput;
-        
-        private void Start()
-        {
-            ValidateReferences();
-            
-            if (showDebugLogs)
-                Debug.Log($"[MouseLook] Initialized on {gameObject.name}");
-        }
-        
-        private void Update()
-        {
-            HandleMouseInput();
-            ApplyRotation();
-        }
-        
-        private void HandleMouseInput()
-        {
-            // Get mouse input
-            mouseInput.x = Input.GetAxis("Mouse X");
-            mouseInput.y = Input.GetAxis("Mouse Y");
-            
-            // Apply sensitivity
-            mouseInput *= playerSettings.MouseSensitivity;
-        }
-        
-        private void ApplyRotation()
-        {
-            // Horizontal rotation (player body)
-            if (playerBody != null)
-            {
-                yRotation += mouseInput.x;
-                playerBody.localRotation = Quaternion.Euler(0f, yRotation, 0f);
-            }
-            
-            // Vertical rotation (camera only)
-            xRotation -= mouseInput.y;
-            xRotation = Mathf.Clamp(xRotation, -playerSettings.MaxLookAngle, playerSettings.MaxLookAngle);
-            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        }
-        
-        private void ValidateReferences()
-        {
-            if (playerSettings == null)
-            {
-                Debug.LogError("[MouseLook] PlayerSettingsSO reference is missing!");
-            }
-            
-            if (playerBody == null)
-            {
-                Debug.LogWarning("[MouseLook] Player Body Transform reference is missing - only camera will rotate");
-            }
-        }
-        
-        // Public methods for external access
-        public float GetXRotation() => xRotation;
-        public float GetYRotation() => yRotation;
-        public Vector2 GetMouseInput() => mouseInput;
-        
-        // Method to set rotation (useful for cutscenes or external control)
-        public void SetRotation(float xRot, float yRot)
-        {
-            xRotation = Mathf.Clamp(xRot, -playerSettings.MaxLookAngle, playerSettings.MaxLookAngle);
-            yRotation = yRot;
-            
-            if (playerBody != null)
-                playerBody.localRotation = Quaternion.Euler(0f, yRotation, 0f);
-            
-            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        }
-    }
+	/// <summary>
+	/// Simple mouse/gamepad look: yaw on player (this.transform), pitch on camera (cameraTransform).
+	/// Uses New Input System via an InputActionReference (Vector2). Sensitivity & clamp from PlayerSettingsSO.
+	/// KISS: no smoothing by default, no cursor management unless enabled.
+	/// </summary>
+	public class MouseLook : MonoBehaviour
+	{
+		[Header("References")]
+		[Tooltip("Configuración compartida del jugador (sensibilidad, ángulo máximo, etc.)")]
+		[SerializeField] private PlayerSettingsSO playerSettings;
+		[Tooltip("Transform de la cámara (hija del Player). El pitch se aplica aquí.")]
+		[SerializeField] private Transform cameraTransform;
+
+		[Header("Input (New Input System)")]
+		[Tooltip("Acción Vector2 de 'Look' (por ejemplo, Mouse delta + Gamepad right stick). Asignar por Inspector.")]
+		[SerializeField] private InputActionReference lookAction;
+
+		[Header("Tuning")]
+		[Tooltip("Multiplicador adicional de sensibilidad (se multiplica por PlayerSettingsSO.MouseSensitivity)")]
+		[SerializeField] private float sensitivityMultiplier = 1f;
+
+		[Header("Cursor (opcional)")]
+		[Tooltip("Si está activo, este componente bloquea/oculta el cursor al habilitarse y lo libera al deshabilitarse.")]
+		[SerializeField] private bool manageCursor = false;
+
+		[Header("Debug")]
+		[SerializeField] private bool showDebugLogs = true;
+
+		// State
+		private float yaw;       // smoothed yaw
+		private float pitch;     // smoothed pitch
+		private float yawTarget; // target yaw from input
+		private float pitchTarget; // target pitch from input
+		private bool isReady;
+
+		private void Awake()
+		{
+			InitializeAnglesFromTransforms();
+		}
+
+		private void OnEnable()
+		{
+			ValidateReferences();
+			if (lookAction != null)
+			{
+				try { lookAction.action.Enable(); } catch { /* ignore if already enabled */ }
+			}
+
+			if (manageCursor)
+			{
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
+			}
+		}
+
+		private void OnDisable()
+		{
+			if (lookAction != null)
+			{
+				try { lookAction.action.Disable(); } catch { /* ignore */ }
+			}
+
+			if (manageCursor)
+			{
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+			}
+		}
+
+		private void Update()
+		{
+			if (!isReady) return;
+			if (lookAction == null)
+			{
+				#if UNITY_EDITOR || DEVELOPMENT_BUILD
+				if (showDebugLogs) Debug.LogWarning("[MouseLook] lookAction no asignada. Sin input.");
+				#endif
+				return;
+			}
+
+			Vector2 delta = lookAction.action.ReadValue<Vector2>();
+			if (delta.sqrMagnitude <= 0f) return;
+
+			// Sensibilidad normalizada 0..1 desde el SO, con multiplicador adicional opcional
+			float sens = Mathf.Clamp01(playerSettings.MouseSensitivity) * Mathf.Max(0f, sensitivityMultiplier);
+			float x = delta.x * sens;
+			bool invertY = playerSettings != null && playerSettings.InvertVerticalLook;
+			float yScale = playerSettings != null ? Mathf.Clamp01(playerSettings.MouseYScale) : 1f;
+			float y = delta.y * sens * yScale * (invertY ? 1f : -1f);
+
+			// Update targets
+			yawTarget = NormalizeAngle(yawTarget + x);
+			pitchTarget = NormalizeAngle(pitchTarget + y);
+
+			// Clamp pitch target
+			float maxAngle = Mathf.Clamp(playerSettings.MaxLookAngle, 0f, 89.9f);
+			pitchTarget = Mathf.Clamp(pitchTarget, -maxAngle, maxAngle);
+		}
+
+		private void LateUpdate()
+		{
+			if (!isReady) return;
+			// Easing simple usando LerpAngle/Lerp
+			bool easing = playerSettings != null && playerSettings.LookEasingEnabled;
+			float amount = playerSettings != null ? Mathf.Clamp01(playerSettings.LookEasingAmount) : 0.2f;
+			if (easing && amount > 0f)
+			{
+				// Escalar por deltaTime para que sea frame-rate independent
+				float t = 1f - Mathf.Pow(1f - amount, Time.deltaTime * 60f); // convierte amount@60fps a amount@dt
+				yaw = Mathf.LerpAngle(yaw, yawTarget, t);
+				pitch = Mathf.Lerp(pitch, pitchTarget, t);
+			}
+			else
+			{
+				// Sin easing: saltar directamente a los targets
+				yaw = yawTarget;
+				pitch = pitchTarget;
+			}
+
+			// Aplicar rotaciones ya suavizadas
+			ApplyRotations();
+		}
+
+		private void ApplyRotations()
+		{
+			// Apply to player (yaw)
+			transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+
+			// Apply to camera (pitch)
+			if (cameraTransform != null)
+			{
+				Vector3 camEuler = cameraTransform.localEulerAngles;
+				camEuler.x = pitch;
+				camEuler.y = 0f; // keep camera yaw zero relative to player
+				camEuler.z = 0f;
+				cameraTransform.localRotation = Quaternion.Euler(camEuler);
+			}
+		}
+
+		private void InitializeAnglesFromTransforms()
+		{
+			// Initialize from transforms
+			yaw = yawTarget = NormalizeAngle(transform.localEulerAngles.y);
+			if (cameraTransform != null)
+			{
+				pitch = pitchTarget = NormalizeAngle(cameraTransform.localEulerAngles.x);
+			}
+		}
+
+		private float NormalizeAngle(float angle)
+		{
+			angle %= 360f;
+			if (angle > 180f) angle -= 360f;
+			return angle;
+		}
+
+		private void ValidateReferences()
+		{
+			isReady = true;
+
+			if (playerSettings == null)
+			{
+				Debug.LogError("[MouseLook] Falta referencia a PlayerSettingsSO.");
+				isReady = false;
+			}
+
+			if (cameraTransform == null)
+			{
+				// Intentar obtener una cámara razonable
+				var cam = GetComponentInChildren<Camera>();
+				if (cam != null) cameraTransform = cam.transform;
+				else if (Camera.main != null) cameraTransform = Camera.main.transform;
+
+				if (cameraTransform == null)
+				{
+					Debug.LogError("[MouseLook] Falta cameraTransform. Asigna la cámara del jugador.");
+					isReady = false;
+				}
+			}
+
+			if (showDebugLogs)
+			{
+				#if UNITY_EDITOR || DEVELOPMENT_BUILD
+				Debug.Log($"[MouseLook] Ready={isReady}, Sens={playerSettings?.MouseSensitivity}, MaxAngle={playerSettings?.MaxLookAngle}");
+				#endif
+			}
+		}
+
+		private void OnValidate()
+		{
+			// Evitar NaNs/negativos
+			sensitivityMultiplier = Mathf.Max(0f, sensitivityMultiplier);
+			// No recalculamos isReady aquí para evitar spam en editor; se valida en OnEnable
+		}
+
+		[ContextMenu("Validate Now")]
+		private void ContextValidate()
+		{
+			ValidateReferences();
+		}
+
+		// Public API minimal
+		public void SetYaw(float newYaw)
+		{
+			yaw = NormalizeAngle(newYaw);
+			ApplyRotations();
+		}
+
+		public void SetPitch(float newPitch)
+		{
+			float maxAngle = playerSettings != null ? Mathf.Clamp(playerSettings.MaxLookAngle, 0f, 89.9f) : 80f;
+			pitch = Mathf.Clamp(NormalizeAngle(newPitch), -maxAngle, maxAngle);
+			ApplyRotations();
+		}
+	}
 }
 
-// ScriptRole: Handles mouse look for camera rotation and player body rotation
-// RelatedScripts: PlayerMovement
+// ScriptRole: Control de mirada (yaw del jugador y pitch de la cámara) usando el Nuevo Input System
+// RelatedScripts: PlayerMovement, PlayerInteraction
 // UsesSO: PlayerSettingsSO
-// ReceivesFrom: Input System (Mouse)
-// SendsTo: Camera Transform, Player Body Transform
+// ReceivesFrom: InputAction (Vector2 Look)
+// SendsTo: Transform del Player (yaw), Transform de la Cámara (pitch)
