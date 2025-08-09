@@ -73,12 +73,6 @@ namespace PlayerController
             try { jumpAction?.action.Enable(); } catch { }
             try { sprintAction?.action.Enable(); } catch { }
             try { crouchAction?.action.Enable(); } catch { }
-            // Gestión opcional del cursor (unificar con MouseLook para evitar solapes)
-            if (manageCursor)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
         }
         
         private void OnDisable()
@@ -88,11 +82,6 @@ namespace PlayerController
             try { jumpAction?.action.Disable(); } catch { }
             try { sprintAction?.action.Disable(); } catch { }
             try { crouchAction?.action.Disable(); } catch { }
-            if (manageCursor)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
         }
         
         private void Update()
@@ -391,12 +380,7 @@ namespace PlayerController
         
         private void LockCursor()
         {
-            // Obsoleto: usar manageCursor para evitar conflictos con MouseLook
-            if (manageCursor)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
+            // Obsoleto: el cursor se gestiona en MouseLook si es necesario.
         }
         
         // Public methods for external access
@@ -426,9 +410,6 @@ namespace PlayerController
                 Debug.Log($"[PlayerMovement] Can sprint set to: {canSprint}");
         }
 
-    [Header("Cursor")]
-    [Tooltip("If enabled, this component will lock/hide the cursor on enable and restore it on disable. Keep off if another component manages the cursor (e.g., MouseLook).")]
-    [SerializeField] private bool manageCursor = false;
     }
 }
 

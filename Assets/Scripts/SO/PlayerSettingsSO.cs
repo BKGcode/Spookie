@@ -48,6 +48,8 @@ namespace PlayerController
         [Header("Interaction Settings")]
         [SerializeField] private float interactionRange = 3f;
         [SerializeField] private LayerMask interactableLayers = -1;
+    [Tooltip("Segundos necesarios de mantener pulsado para completar una interacción. -1 = instantáneo.")]
+    [SerializeField] private float interactionHoldSeconds = -1f;
         
         // Public properties for easy access
         public float WalkSpeed => walkSpeed;
@@ -69,5 +71,6 @@ namespace PlayerController
         public float SpeedEdgeSlowPotency => speedEdgeSlowPotency;
         public float InteractionRange => interactionRange;
         public LayerMask InteractableLayers => interactableLayers;
+    public float InteractionHoldSeconds => interactionHoldSeconds;
     }
 }

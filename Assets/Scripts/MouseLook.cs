@@ -37,6 +37,8 @@ namespace PlayerController
 		private float yawTarget; // target yaw from input
 		private float pitchTarget; // target pitch from input
 		private bool isReady;
+	// Avoid initial spike from input when locking cursor at start
+	private bool suppressFirstDelta;
 
 		private void Awake()
 		{
@@ -46,16 +48,21 @@ namespace PlayerController
 		private void OnEnable()
 		{
 			ValidateReferences();
-			if (lookAction != null)
-			{
-				try { lookAction.action.Enable(); } catch { /* ignore if already enabled */ }
-			}
 
+			// Lock/hide cursor before enabling input to reduce first-frame deltas
 			if (manageCursor)
 			{
 				Cursor.lockState = CursorLockMode.Locked;
 				Cursor.visible = false;
 			}
+
+			if (lookAction != null)
+			{
+				try { lookAction.action.Enable(); } catch { /* ignore if already enabled */ }
+			}
+
+			// Ignore the first non-zero delta right after enabling/locking
+			suppressFirstDelta = true;
 		}
 
 		private void OnDisable()
@@ -84,6 +91,15 @@ namespace PlayerController
 			}
 
 			Vector2 delta = lookAction.action.ReadValue<Vector2>();
+			// Discard the first non-zero delta to avoid big jump at startup
+			if (suppressFirstDelta)
+			{
+				if (delta.sqrMagnitude > 0f)
+				{
+					suppressFirstDelta = false;
+					return;
+				}
+			}
 			if (delta.sqrMagnitude <= 0f) return;
 
 			// Sensibilidad normalizada 0..1 desde el SO, multiplicador global del SO y multiplicador local opcional
@@ -124,6 +140,11 @@ namespace PlayerController
 				pitch = pitchTarget;
 			}
 
+			// Asegurar clamp del pitch cada frame, incluso si no hubo input
+			float maxAngle = playerSettings != null ? Mathf.Clamp(playerSettings.MaxLookAngle, 0f, 89.9f) : 80f;
+			pitch = Mathf.Clamp(pitch, -maxAngle, maxAngle);
+			pitchTarget = Mathf.Clamp(pitchTarget, -maxAngle, maxAngle);
+
 			// Aplicar rotaciones ya suavizadas
 			ApplyRotations();
 		}
@@ -151,6 +172,10 @@ namespace PlayerController
 			if (cameraTransform != null)
 			{
 				pitch = pitchTarget = NormalizeAngle(cameraTransform.localEulerAngles.x);
+				// Clamp inicial para evitar nacer mirando demasiado arriba/abajo
+				float maxAngle = playerSettings != null ? Mathf.Clamp(playerSettings.MaxLookAngle, 0f, 89.9f) : 80f;
+				pitch = Mathf.Clamp(pitch, -maxAngle, maxAngle);
+				pitchTarget = Mathf.Clamp(pitchTarget, -maxAngle, maxAngle);
 			}
 		}
 
@@ -210,13 +235,18 @@ namespace PlayerController
 		public void SetYaw(float newYaw)
 		{
 			yaw = NormalizeAngle(newYaw);
+			// Mantener sincronizados los targets para evitar "rebote" con easing activo
+			yawTarget = yaw;
 			ApplyRotations();
 		}
 
 		public void SetPitch(float newPitch)
 		{
 			float maxAngle = playerSettings != null ? Mathf.Clamp(playerSettings.MaxLookAngle, 0f, 89.9f) : 80f;
-			pitch = Mathf.Clamp(NormalizeAngle(newPitch), -maxAngle, maxAngle);
+			float clamped = Mathf.Clamp(NormalizeAngle(newPitch), -maxAngle, maxAngle);
+			pitch = clamped;
+			// Mantener sincronizados los targets para evitar "rebote" con easing activo
+			pitchTarget = clamped;
 			ApplyRotations();
 		}
 	}

@@ -11,6 +11,8 @@ namespace PlayerController
     [Header("Input (New Input System)")]
     [Tooltip("Interact action (e.g., 'E' key / gamepad button). Assign via Input System asset.")]
     [SerializeField] private InputActionReference interactAction;
+    [Tooltip("Tiempo necesario de mantener pulsado para completar la interacción. 0 = instantáneo (click). Si se usa PlayerSettingsSO, este valor se ignora.")]
+    [SerializeField] private float holdToInteractSecondsOverride = -1f;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -20,6 +22,8 @@ namespace PlayerController
         private IInteractable currentInteractable;
         private RaycastHit lastHit;
         private bool isInteracting;
+    private float interactHeldTime;
+    private bool interactHeld;
         
         // Input variables
     private bool interactPressed;
@@ -49,25 +53,63 @@ namespace PlayerController
         {
             // Enable input action if assigned
             try { interactAction?.action.Enable(); } catch { }
+            // Suscribir callbacks simples si se desea menos polling; mantenemos KISS con flags
+            if (interactAction != null)
+            {
+                try
+                {
+                    interactAction.action.started += OnInteractStarted;
+                    interactAction.action.canceled += OnInteractCanceled;
+                }
+                catch { }
+            }
         }
 
         private void OnDisable()
         {
             try { interactAction?.action.Disable(); } catch { }
+            if (interactAction != null)
+            {
+                try
+                {
+                    interactAction.action.started -= OnInteractStarted;
+                    interactAction.action.canceled -= OnInteractCanceled;
+                }
+                catch { }
+            }
+            // Cancelar interacción en curso si el componente se deshabilita
+            CancelInteraction();
         }
 
         private void HandleInput()
         {
             if (interactAction != null)
             {
-                bool pressed = false;
-                try { pressed = interactAction.action.WasPressedThisFrame(); } catch { pressed = false; }
-                interactPressed = pressed;
+                // Usamos flags de callbacks para soporte de "mantener pulsado"
+                bool down = false;
+                bool held = false;
+                bool up = false;
+                try
+                {
+                    // Por si el dispositivo no emite started/canceled correctamente, reforzamos con estado
+                    held = interactAction.action.IsPressed();
+                    down = interactAction.action.WasPressedThisFrame();
+                    up = interactAction.action.WasReleasedThisFrame();
+                }
+                catch { }
+                if (down) interactHeld = true;
+                if (up) interactHeld = false;
+                interactPressed = down; // compat: un "click" si hold time es 0
             }
             else
             {
                 // Legacy fallback
-                interactPressed = Input.GetKeyDown(KeyCode.E);
+                bool down = Input.GetKeyDown(KeyCode.E);
+                bool held = Input.GetKey(KeyCode.E);
+                bool up = Input.GetKeyUp(KeyCode.E);
+                if (down) interactHeld = true;
+                if (up) interactHeld = false;
+                interactPressed = down;
             }
         }
         
@@ -137,13 +179,48 @@ namespace PlayerController
         
         private void HandleInteraction()
         {
-            if (interactPressed && currentInteractable != null && !isInteracting)
+            if (currentInteractable == null) { interactHeldTime = 0f; return; }
+
+            float required = GetRequiredHoldSeconds();
+
+            // Interacción instantánea
+            if (required <= 0f)
             {
-                StartInteraction();
+                if (interactPressed && !isInteracting)
+                {
+                    StartInteraction();
+                    CompleteInteraction();
+                }
+                return;
+            }
+
+            // Interacción mantenida (lenta)
+            if (interactHeld)
+            {
+                if (!isInteracting)
+                {
+                    // Marcar inicio para eventos/feedbacks
+                    StartInteraction();
+                    // No completamos aún; medimos tiempo
+                }
+                interactHeldTime += Time.deltaTime;
+                if (interactHeldTime >= required)
+                {
+                    CompleteInteraction();
+                }
+            }
+            else
+            {
+                // Soltó antes de tiempo: cancelar si había empezado
+                if (isInteracting)
+                {
+                    CancelInteraction();
+                }
+                interactHeldTime = 0f;
             }
         }
         
-        private void StartInteraction()
+    private void StartInteraction()
         {
             isInteracting = true;
             OnInteractionStarted?.Invoke(currentInteractable);
@@ -151,21 +228,35 @@ namespace PlayerController
             if (showDebugLogs)
                 Debug.Log($"[PlayerInteraction] Starting interaction with: {currentInteractable.GetType().Name}");
             
-            // Call the interactable's Interact method
-            currentInteractable.Interact(gameObject);
-            
-            // For now, we'll assume interaction is immediate
-            // In a more complex system, you might want to handle async interactions
-            CompleteInteraction();
+            // En modo mantenido, la ejecución se hace al completar; en instantáneo, se completa en HandleInteraction
         }
         
         private void CompleteInteraction()
         {
             isInteracting = false;
+            // Ejecutar la acción del interactuable al completar
+            currentInteractable?.Interact(gameObject);
             OnInteractionCompleted?.Invoke(currentInteractable);
             
             if (showDebugLogs)
                 Debug.Log($"[PlayerInteraction] Completed interaction with: {currentInteractable.GetType().Name}");
+        }
+
+        private void CancelInteraction()
+        {
+            if (!isInteracting) return;
+            isInteracting = false;
+            interactHeldTime = 0f;
+            // No notificamos Completed; el emisor puede escuchar OnInteractionStarted y gestionar cancelación si fuese necesario
+        }
+
+        private float GetRequiredHoldSeconds()
+        {
+            if (playerSettings != null && playerSettings.InteractionHoldSeconds >= 0f)
+                return playerSettings.InteractionHoldSeconds;
+            if (holdToInteractSecondsOverride >= 0f)
+                return holdToInteractSecondsOverride;
+            return 0f; // por defecto instantáneo
         }
         
         private void ValidateReferences()
@@ -182,6 +273,22 @@ namespace PlayerController
                 {
                     Debug.LogError("[PlayerInteraction] No camera found! Please assign a camera reference.");
                 }
+            }
+        }
+
+        // Input callbacks (New Input System)
+        private void OnInteractStarted(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            interactHeld = true;
+        }
+
+        private void OnInteractCanceled(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            interactHeld = false;
+            // Si estábamos en una interacción mantenida, cancelarla al soltar
+            if (isInteracting)
+            {
+                CancelInteraction();
             }
         }
         
