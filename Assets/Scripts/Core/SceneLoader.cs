@@ -12,6 +12,10 @@ namespace Game.Core
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
 
+    [Header("Integration (optional)")]
+    [Tooltip("If assigned, safe load will use this PauseManager to gate inputs during scene transitions.")]
+    [SerializeField] private PauseManager pauseManager;
+
         public void LoadSceneByName(string sceneName)
         {
             if (string.IsNullOrEmpty(sceneName)) { LogWarn("Empty scene name"); return; }
@@ -32,6 +36,54 @@ namespace Game.Core
             if (!scene.IsValid()) { LogWarn("Active scene invalid"); return; }
             if (showDebugLogs) Debug.Log($"[SceneLoader] Reload: {scene.name}");
             SceneManager.LoadScene(scene.name, LoadSceneMode.Single);
+        }
+
+        // Safe variants (optional pause gating)
+        public void LoadSceneSafelyByName(string sceneName)
+        {
+            if (string.IsNullOrEmpty(sceneName)) { LogWarn("Empty scene name"); return; }
+            bool usedPause = false;
+            try
+            {
+                if (pauseManager != null)
+                {
+                    pauseManager.RequestPause(PauseReason.Transition);
+                    usedPause = true;
+                }
+            }
+            catch { }
+
+            if (showDebugLogs) Debug.Log($"[SceneLoader] Safe load by name: {sceneName}");
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+
+            if (usedPause)
+            {
+                try { pauseManager.ReleasePause(PauseReason.Transition); } catch { }
+            }
+        }
+
+        public void ReloadCurrentSafely()
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (!scene.IsValid()) { LogWarn("Active scene invalid"); return; }
+            bool usedPause = false;
+            try
+            {
+                if (pauseManager != null)
+                {
+                    pauseManager.RequestPause(PauseReason.Transition);
+                    usedPause = true;
+                }
+            }
+            catch { }
+
+            if (showDebugLogs) Debug.Log($"[SceneLoader] Safe reload: {scene.name}");
+            SceneManager.LoadScene(scene.name, LoadSceneMode.Single);
+
+            if (usedPause)
+            {
+                try { pauseManager.ReleasePause(PauseReason.Transition); } catch { }
+            }
         }
 
         private void LogWarn(string msg)

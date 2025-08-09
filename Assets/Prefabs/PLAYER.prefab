@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1208412727647886767}
   m_Layer: 0
   m_Name: PLAYER
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
   cameraTransform: {fileID: 4062540320769800357}
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   sensitivityMultiplier: 1
-  manageCursor: 0
+  manageCursor: 1
   showDebugLogs: 1
 --- !u!114 &1208412727647886767
 MonoBehaviour:
@@ -135,7 +135,7 @@ MonoBehaviour:
   playerSettings: {fileID: 11400000, guid: c1377d37ecfedfc48a9f9fa1bf05e216, type: 2}
   playerCamera: {fileID: 4090637677131881336}
   interactAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  interactAltAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  interactAltAction: {fileID: 3001919216989983466, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdToInteractSecondsOverride: 1
   enableHighlight: 1
   singleHighlight: 1

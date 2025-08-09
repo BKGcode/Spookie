@@ -40,6 +40,16 @@ namespace Game.UI
         {
             if (togglePauseAction != null)
             {
+                // Optional dev fallback: allow ESC to toggle if no action wired
+                #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (togglePauseAction == null)
+                {
+                    if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        TogglePause();
+                    }
+                }
+                #endif
                 try
                 {
                     togglePauseAction.action.started += OnTogglePauseStarted;
