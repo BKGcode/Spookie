@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace PlayerController
 {
@@ -7,6 +8,9 @@ namespace PlayerController
         [Header("References")]
         [SerializeField] private PlayerSettingsSO playerSettings;
         [SerializeField] private Camera playerCamera;
+    [Header("Input (New Input System)")]
+    [Tooltip("Interact action (e.g., 'E' key / gamepad button). Assign via Input System asset.")]
+    [SerializeField] private InputActionReference interactAction;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -18,7 +22,7 @@ namespace PlayerController
         private bool isInteracting;
         
         // Input variables
-        private bool interactPressed;
+    private bool interactPressed;
         
         // Events
         public System.Action<IInteractable> OnInteractableFound;
@@ -41,9 +45,30 @@ namespace PlayerController
             HandleInteraction();
         }
         
+        private void OnEnable()
+        {
+            // Enable input action if assigned
+            try { interactAction?.action.Enable(); } catch { }
+        }
+
+        private void OnDisable()
+        {
+            try { interactAction?.action.Disable(); } catch { }
+        }
+
         private void HandleInput()
         {
-            interactPressed = Input.GetKeyDown(KeyCode.E);
+            if (interactAction != null)
+            {
+                bool pressed = false;
+                try { pressed = interactAction.action.WasPressedThisFrame(); } catch { pressed = false; }
+                interactPressed = pressed;
+            }
+            else
+            {
+                // Legacy fallback
+                interactPressed = Input.GetKeyDown(KeyCode.E);
+            }
         }
         
         private void CheckForInteractables()
@@ -52,12 +77,19 @@ namespace PlayerController
             Vector3 rayDirection = playerCamera.transform.forward;
             
             // Cast ray to find interactable objects
-            if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, playerSettings.InteractionRange, playerSettings.InteractableLayers))
+            float range = playerSettings != null ? playerSettings.InteractionRange : 3f;
+            LayerMask mask = playerSettings != null ? playerSettings.InteractableLayers : Physics.DefaultRaycastLayers;
+            if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range, mask))
             {
                 lastHit = hit;
                 
                 // Check if the hit object has an IInteractable component
-                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+                IInteractable interactable = null;
+                // Try on collider first, then on parent chain to be robust with child colliders
+                if (!hit.collider.TryGetComponent<IInteractable>(out interactable))
+                {
+                    interactable = hit.collider.GetComponentInParent<IInteractable>();
+                }
                 
                 if (interactable != null)
                 {
@@ -159,7 +191,8 @@ namespace PlayerController
             {
                 Gizmos.color = currentInteractable != null ? Color.green : Color.red;
                 Vector3 rayOrigin = playerCamera.transform.position;
-                Vector3 rayDirection = playerCamera.transform.forward * playerSettings.InteractionRange;
+                float range = playerSettings != null ? playerSettings.InteractionRange : 3f;
+                Vector3 rayDirection = playerCamera.transform.forward * range;
                 Gizmos.DrawRay(rayOrigin, rayDirection);
                 
                 if (currentInteractable != null)

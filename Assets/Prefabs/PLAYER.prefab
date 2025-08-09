@@ -75,6 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSettings: {fileID: 11400000, guid: c1377d37ecfedfc48a9f9fa1bf05e216, type: 2}
   playerCamera: {fileID: 4090637677131881336}
+  interactAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   showDebugLogs: 1
   showInteractionRay: 1
 --- !u!114 &1471756117116192748
@@ -96,6 +97,7 @@ MonoBehaviour:
   sprintAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   crouchAction: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   showDebugLogs: 1
+  manageCursor: 1
 --- !u!114 &5274021365897732638
 MonoBehaviour:
   m_ObjectHideFlags: 0

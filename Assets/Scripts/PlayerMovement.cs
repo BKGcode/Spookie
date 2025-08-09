@@ -47,6 +47,11 @@ namespace PlayerController
         public System.Action<bool> OnGroundedChanged;
         public System.Action<bool> OnCrouchChanged;
         public System.Action<bool> OnSprintChanged;
+
+    // Transition and speed easing now come from PlayerSettingsSO
+
+    // Crouch state progress 0..1 (0 = standing, 1 = crouching)
+    private float crouchProgress = 0f;
         
         private void Awake()
         {
@@ -59,7 +64,6 @@ namespace PlayerController
         private void Start()
         {
             ValidateReferences();
-            LockCursor();
         }
         
         private void OnEnable()
@@ -69,6 +73,12 @@ namespace PlayerController
             try { jumpAction?.action.Enable(); } catch { }
             try { sprintAction?.action.Enable(); } catch { }
             try { crouchAction?.action.Enable(); } catch { }
+            // Gestión opcional del cursor (unificar con MouseLook para evitar solapes)
+            if (manageCursor)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
         
         private void OnDisable()
@@ -78,15 +88,22 @@ namespace PlayerController
             try { jumpAction?.action.Disable(); } catch { }
             try { sprintAction?.action.Disable(); } catch { }
             try { crouchAction?.action.Disable(); } catch { }
+            if (manageCursor)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
         }
         
         private void Update()
         {
             HandleInput();
-            HandleMovement();
-            HandleJump();
+            // Procesar estados antes del movimiento para que surtan efecto en el mismo frame
             HandleCrouch();
+            UpdateCrouchTransition();
             HandleSprint();
+            HandleJump();
+            HandleMovement();
         }
         
         private void HandleInput()
@@ -127,7 +144,19 @@ namespace PlayerController
 
             if (crouchAction != null)
             {
-                bool cp = false; try { cp = crouchAction.action.IsPressed(); } catch { cp = false; }
+                bool cp = false;
+                try
+                {
+                    var action = crouchAction.action;
+                    cp = action.IsPressed();
+                    if (!cp)
+                    {
+                        float v = 0f;
+                        try { v = action.ReadValue<float>(); } catch { v = 0f; }
+                        cp = v > 0.5f;
+                    }
+                }
+                catch { cp = false; }
                 crouchPressed = cp;
             }
             else
@@ -239,52 +268,101 @@ namespace PlayerController
         
         private void Crouch()
         {
-            characterController.height = playerSettings.CrouchHeight;
-            characterController.center = new Vector3(0, playerSettings.CrouchHeight / 2f, 0);
-            
-            // Lower camera if available
-            if (cameraTransform != null)
-            {
-                Vector3 cameraPos = cameraTransform.localPosition;
-                cameraPos.y = playerSettings.CrouchHeight - 0.5f;
-                cameraTransform.localPosition = cameraPos;
-            }
+            // Target crouch; transition handled in UpdateCrouchTransition
         }
         
         private void StandUp()
         {
-            // Check if there's enough space to stand up
-            if (Physics.CheckSphere(transform.position + Vector3.up * playerSettings.StandHeight, 0.1f))
+            // Check if there's enough space to stand up usando cápsula del CharacterController
+            if (!HasSpaceToStand())
             {
                 if (showDebugLogs)
                     Debug.LogWarning("[PlayerMovement] Cannot stand up - obstacle detected above");
+                // Revert intended state to keep logic consistent (still crouching)
+                isCrouching = true;
                 return;
             }
-            
-            characterController.height = playerSettings.StandHeight;
-            characterController.center = new Vector3(0, playerSettings.StandHeight / 2f, 0);
-            
-            // Restore camera position
+            // Target stand; transition handled in UpdateCrouchTransition
+        }
+
+        // Smoothly updates crouchProgress and applies CC height/center and camera Y
+        private void UpdateCrouchTransition()
+        {
+            if (playerSettings == null || characterController == null) return;
+
+            float target = isCrouching ? 1f : 0f;
+            float crouchTransitionDuration = playerSettings != null ? playerSettings.CrouchTransitionDuration : 0f;
+            if (crouchTransitionDuration <= 0f)
+            {
+                crouchProgress = target;
+            }
+            else
+            {
+                float step = Time.deltaTime / Mathf.Max(0.0001f, crouchTransitionDuration);
+                crouchProgress = Mathf.MoveTowards(crouchProgress, target, step);
+            }
+
+            float t = Mathf.Clamp01(crouchProgress);
+            var curve = playerSettings != null ? playerSettings.CrouchEaseCurve : AnimationCurve.Linear(0, 0, 1, 1);
+            float shaped = Mathf.Clamp01(curve.Evaluate(t));
+
+            // Apply CharacterController height and center
+            float height = Mathf.Lerp(playerSettings.StandHeight, playerSettings.CrouchHeight, shaped);
+            characterController.height = height;
+            characterController.center = new Vector3(0f, height * 0.5f, 0f);
+
+            // Apply camera local Y if assigned
             if (cameraTransform != null)
             {
-                Vector3 cameraPos = cameraTransform.localPosition;
-                cameraPos.y = playerSettings.StandHeight - 0.5f;
-                cameraTransform.localPosition = cameraPos;
+                Vector3 camLocal = cameraTransform.localPosition;
+                camLocal.y = Mathf.Lerp(playerSettings.StandHeight - 0.5f, playerSettings.CrouchHeight - 0.5f, shaped);
+                cameraTransform.localPosition = camLocal;
             }
+        }
+
+        // Verifica con una cápsula si hay espacio suficiente para ponerse de pie
+        private bool HasSpaceToStand()
+        {
+            if (playerSettings == null || characterController == null) return false;
+
+            float radius = Mathf.Max(0f, characterController.radius - 0.05f);
+            float standHeight = Mathf.Max(playerSettings.StandHeight, radius * 2f + 0.1f);
+
+            // Calculate feet plane from current capsule to anchor the stand capsule to the same feet
+            Vector3 up = transform.up;
+            Vector3 currentWorldCenter = transform.TransformPoint(characterController.center);
+            float currentHalfHeight = characterController.height * 0.5f;
+            float feetPlaneY = currentWorldCenter.y - currentHalfHeight; // lowest point of current capsule
+            Vector3 feet = new Vector3(currentWorldCenter.x, feetPlaneY, currentWorldCenter.z);
+
+            // Build the would-be standing capsule: pass sphere centers for bottom/top
+            Vector3 bottom = feet + up * radius;                 // bottom sphere center
+            Vector3 top = feet + up * (standHeight - radius);    // top sphere center
+
+            // Ignorar triggers y usar capas por defecto
+            int mask = Physics.DefaultRaycastLayers & ~(1 << gameObject.layer); // exclude player's own layer
+            bool blocked = Physics.CheckCapsule(bottom, top, radius, mask, QueryTriggerInteraction.Ignore);
+            return !blocked;
         }
         
         private float GetCurrentSpeed()
         {
-            float baseSpeed;
-            if (isCrouching)
-                baseSpeed = playerSettings.CrouchSpeed;
-            else if (isSprinting)
-                baseSpeed = playerSettings.SprintSpeed;
-            else
-                baseSpeed = playerSettings.WalkSpeed;
-            
-            // Apply penalty multiplier
-            return baseSpeed * speedMultiplier;
+            if (playerSettings == null)
+                return 0f;
+
+            float standBase = isSprinting ? playerSettings.SprintSpeed : playerSettings.WalkSpeed;
+            float crouchBase = playerSettings.CrouchSpeed;
+            float t = Mathf.Clamp01(crouchProgress);
+            var curve = playerSettings != null ? playerSettings.CrouchEaseCurve : AnimationCurve.Linear(0,0,1,1);
+            float shaped = Mathf.Clamp01(curve.Evaluate(t));
+            float blended = Mathf.Lerp(standBase, crouchBase, shaped);
+
+            // Edge slowdown near start/end of crouch transition
+            float edge = 1f - 4f * t * (1f - t); // 1 at edges, 0 at middle
+            float potency = playerSettings != null ? playerSettings.SpeedEdgeSlowPotency : 0.3f;
+            float edgeMultiplier = 1f - (potency * Mathf.Clamp01(edge));
+
+            return blended * Mathf.Clamp(edgeMultiplier, 0.1f, 1f) * speedMultiplier;
         }
         
         private void ValidateReferences()
@@ -313,8 +391,12 @@ namespace PlayerController
         
         private void LockCursor()
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // Obsoleto: usar manageCursor para evitar conflictos con MouseLook
+            if (manageCursor)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
         
         // Public methods for external access
@@ -343,6 +425,10 @@ namespace PlayerController
             if (showDebugLogs)
                 Debug.Log($"[PlayerMovement] Can sprint set to: {canSprint}");
         }
+
+    [Header("Cursor")]
+    [Tooltip("If enabled, this component will lock/hide the cursor on enable and restore it on disable. Keep off if another component manages the cursor (e.g., MouseLook).")]
+    [SerializeField] private bool manageCursor = false;
     }
 }
 

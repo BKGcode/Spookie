@@ -26,11 +26,24 @@ namespace PlayerController
     [SerializeField] private float lookEasingAmount = 0.2f;
     [Tooltip("Activa el easing simple de la cámara.")]
     [SerializeField] private bool lookEasingEnabled = true;
+    [Tooltip("Multiplicador extra global para la sensibilidad del look (aplicado encima de MouseSensitivity). 1 = sin cambio.")]
+    [SerializeField] private float lookSensitivityMultiplier = 1f;
         
         [Header("Crouch Settings")]
         [SerializeField] private float crouchHeight = 1f;
         [SerializeField] private float standHeight = 2f;
         [SerializeField] private float crouchSpeed = 2.5f;
+
+        [Header("Crouch Transition Settings")]
+        [Tooltip("Duración de la transición agachado/de pie. 0 = instantáneo.")]
+        [SerializeField] private float crouchTransitionDuration = 0.25f;
+        [Tooltip("Curva de easing para mezclar entre alturas (0=de pie, 1=agachado).")]
+        [SerializeField] private AnimationCurve crouchEaseCurve = null;
+
+        [Header("Movement Easing Settings")]
+        [Tooltip("Frenado extra de velocidad cerca del inicio y fin del movimiento de agachado (0..1).")]
+        [Range(0f, 1f)]
+        [SerializeField] private float speedEdgeSlowPotency = 0.3f;
         
         [Header("Interaction Settings")]
         [SerializeField] private float interactionRange = 3f;
@@ -47,9 +60,13 @@ namespace PlayerController
     public float LookEasingAmount => lookEasingAmount;
     public bool LookEasingEnabled => lookEasingEnabled;
     public float MouseYScale => mouseYScale;
+    public float LookSensitivityMultiplier => lookSensitivityMultiplier;
         public float CrouchHeight => crouchHeight;
         public float StandHeight => standHeight;
         public float CrouchSpeed => crouchSpeed;
+        public float CrouchTransitionDuration => crouchTransitionDuration;
+    public AnimationCurve CrouchEaseCurve => crouchEaseCurve != null ? crouchEaseCurve : AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        public float SpeedEdgeSlowPotency => speedEdgeSlowPotency;
         public float InteractionRange => interactionRange;
         public LayerMask InteractableLayers => interactableLayers;
     }

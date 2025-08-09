@@ -21,7 +21,7 @@ namespace PlayerController
 		[SerializeField] private InputActionReference lookAction;
 
 		[Header("Tuning")]
-		[Tooltip("Multiplicador adicional de sensibilidad (se multiplica por PlayerSettingsSO.MouseSensitivity)")]
+		[Tooltip("Multiplicador adicional por-instancia (se multiplica por PlayerSettingsSO.MouseSensitivity y LookSensitivityMultiplier)")]
 		[SerializeField] private float sensitivityMultiplier = 1f;
 
 		[Header("Cursor (opcional)")]
@@ -86,8 +86,10 @@ namespace PlayerController
 			Vector2 delta = lookAction.action.ReadValue<Vector2>();
 			if (delta.sqrMagnitude <= 0f) return;
 
-			// Sensibilidad normalizada 0..1 desde el SO, con multiplicador adicional opcional
-			float sens = Mathf.Clamp01(playerSettings.MouseSensitivity) * Mathf.Max(0f, sensitivityMultiplier);
+			// Sensibilidad normalizada 0..1 desde el SO, multiplicador global del SO y multiplicador local opcional
+			float sens = Mathf.Clamp01(playerSettings.MouseSensitivity)
+					   * Mathf.Max(0f, playerSettings.LookSensitivityMultiplier)
+					   * Mathf.Max(0f, sensitivityMultiplier);
 			float x = delta.x * sens;
 			bool invertY = playerSettings != null && playerSettings.InvertVerticalLook;
 			float yScale = playerSettings != null ? Mathf.Clamp01(playerSettings.MouseYScale) : 1f;
