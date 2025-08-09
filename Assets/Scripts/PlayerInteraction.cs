@@ -8,11 +8,18 @@ namespace PlayerController
         [Header("References")]
         [SerializeField] private PlayerSettingsSO playerSettings;
         [SerializeField] private Camera playerCamera;
-    [Header("Input (New Input System)")]
-    [Tooltip("Interact action (e.g., 'E' key / gamepad button). Assign via Input System asset.")]
-    [SerializeField] private InputActionReference interactAction;
-    [Tooltip("Tiempo necesario de mantener pulsado para completar la interacción. 0 = instantáneo (click). Si se usa PlayerSettingsSO, este valor se ignora.")]
-    [SerializeField] private float holdToInteractSecondsOverride = -1f;
+        [Header("Input (New Input System)")]
+        [Tooltip("Interact action (e.g., 'E' key / gamepad button). Assign via Input System asset.")]
+        [SerializeField] private InputActionReference interactAction;
+        [Tooltip("Optional: Left Mouse / Gamepad South as an alternate interact.")]
+        [SerializeField] private InputActionReference interactAltAction; // e.g., <Mouse>/leftButton
+        [Tooltip("Tiempo necesario de mantener pulsado para completar la interacción. 0 = instantáneo (click). Si se usa PlayerSettingsSO, este valor se ignora.")]
+        [SerializeField] private float holdToInteractSecondsOverride = -1f;
+        [Header("Highlight (URP)")]
+        [Tooltip("Enable highlighting via OutlineHighlighter on the aimed interactable.")]
+        [SerializeField] private bool enableHighlight = true;
+        [Tooltip("If true, only one object is highlighted at a time (the aimed one).")]
+        [SerializeField] private bool singleHighlight = true;
         
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
@@ -22,11 +29,13 @@ namespace PlayerController
         private IInteractable currentInteractable;
         private RaycastHit lastHit;
         private bool isInteracting;
-    private float interactHeldTime;
-    private bool interactHeld;
+        private float interactHeldTime;
+        private bool interactHeld;
+        // Highlight cache
+        private Game.Interaction.OutlineHighlighter currentHighlighter;
         
         // Input variables
-    private bool interactPressed;
+        private bool interactPressed;
         
         // Events
         public System.Action<IInteractable> OnInteractableFound;
@@ -53,6 +62,7 @@ namespace PlayerController
         {
             // Enable input action if assigned
             try { interactAction?.action.Enable(); } catch { }
+            try { interactAltAction?.action.Enable(); } catch { }
             // Suscribir callbacks simples si se desea menos polling; mantenemos KISS con flags
             if (interactAction != null)
             {
@@ -63,11 +73,21 @@ namespace PlayerController
                 }
                 catch { }
             }
+            if (interactAltAction != null)
+            {
+                try
+                {
+                    interactAltAction.action.started += OnInteractStarted;
+                    interactAltAction.action.canceled += OnInteractCanceled;
+                }
+                catch { }
+            }
         }
 
         private void OnDisable()
         {
             try { interactAction?.action.Disable(); } catch { }
+            try { interactAltAction?.action.Disable(); } catch { }
             if (interactAction != null)
             {
                 try
@@ -77,40 +97,55 @@ namespace PlayerController
                 }
                 catch { }
             }
+            if (interactAltAction != null)
+            {
+                try
+                {
+                    interactAltAction.action.started -= OnInteractStarted;
+                    interactAltAction.action.canceled -= OnInteractCanceled;
+                }
+                catch { }
+            }
             // Cancelar interacción en curso si el componente se deshabilita
             CancelInteraction();
+            // Clear highlight on disable
+            SetHighlight(null, false);
         }
 
         private void HandleInput()
         {
+            bool down = false, held = false, up = false;
             if (interactAction != null)
             {
-                // Usamos flags de callbacks para soporte de "mantener pulsado"
-                bool down = false;
-                bool held = false;
-                bool up = false;
                 try
                 {
-                    // Por si el dispositivo no emite started/canceled correctamente, reforzamos con estado
-                    held = interactAction.action.IsPressed();
-                    down = interactAction.action.WasPressedThisFrame();
-                    up = interactAction.action.WasReleasedThisFrame();
+                    held |= interactAction.action.IsPressed();
+                    down |= interactAction.action.WasPressedThisFrame();
+                    up   |= interactAction.action.WasReleasedThisFrame();
                 }
                 catch { }
-                if (down) interactHeld = true;
-                if (up) interactHeld = false;
-                interactPressed = down; // compat: un "click" si hold time es 0
             }
-            else
+            if (interactAltAction != null)
             {
-                // Legacy fallback
-                bool down = Input.GetKeyDown(KeyCode.E);
-                bool held = Input.GetKey(KeyCode.E);
-                bool up = Input.GetKeyUp(KeyCode.E);
-                if (down) interactHeld = true;
-                if (up) interactHeld = false;
-                interactPressed = down;
+                try
+                {
+                    held |= interactAltAction.action.IsPressed();
+                    down |= interactAltAction.action.WasPressedThisFrame();
+                    up   |= interactAltAction.action.WasReleasedThisFrame();
+                }
+                catch { }
             }
+            // Legacy fallback only if no actions
+            if (interactAction == null && interactAltAction == null)
+            {
+                down |= Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0);
+                held |= Input.GetKey(KeyCode.E) || Input.GetMouseButton(0);
+                up   |= Input.GetKeyUp(KeyCode.E) || Input.GetMouseButtonUp(0);
+            }
+
+            if (down) interactHeld = true;
+            if (up)   interactHeld = false;
+            interactPressed = down; // use as a click when hold time is 0
         }
         
         private void CheckForInteractables()
@@ -121,13 +156,12 @@ namespace PlayerController
             // Cast ray to find interactable objects
             float range = playerSettings != null ? playerSettings.InteractionRange : 3f;
             LayerMask mask = playerSettings != null ? playerSettings.InteractableLayers : Physics.DefaultRaycastLayers;
-            if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range, mask))
+            if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range, mask, QueryTriggerInteraction.Ignore))
             {
                 lastHit = hit;
                 
                 // Check if the hit object has an IInteractable component
                 IInteractable interactable = null;
-                // Try on collider first, then on parent chain to be robust with child colliders
                 if (!hit.collider.TryGetComponent<IInteractable>(out interactable))
                 {
                     interactable = hit.collider.GetComponentInParent<IInteractable>();
@@ -137,6 +171,11 @@ namespace PlayerController
                 {
                     if (currentInteractable != interactable)
                     {
+                        // Unhighlight previous
+                        if (enableHighlight)
+                        {
+                            SetHighlight(currentInteractable as Component, false);
+                        }
                         // New interactable found
                         if (currentInteractable != null)
                         {
@@ -148,6 +187,11 @@ namespace PlayerController
                         currentInteractable = interactable;
                         OnInteractableFound?.Invoke(interactable);
                         
+                        if (enableHighlight)
+                        {
+                            SetHighlight(interactable as Component, true);
+                        }
+                        
                         if (showDebugLogs)
                             Debug.Log($"[PlayerInteraction] Found interactable: {interactable.GetType().Name} at distance: {hit.distance:F2}");
                     }
@@ -157,6 +201,10 @@ namespace PlayerController
                     // Hit object doesn't have IInteractable component
                     if (currentInteractable != null)
                     {
+                        if (enableHighlight)
+                        {
+                            SetHighlight(currentInteractable as Component, false);
+                        }
                         OnInteractableLost?.Invoke();
                         if (showDebugLogs)
                             Debug.Log($"[PlayerInteraction] Lost interactable: {currentInteractable.GetType().Name}");
@@ -169,6 +217,10 @@ namespace PlayerController
                 // No hit detected
                 if (currentInteractable != null)
                 {
+                    if (enableHighlight)
+                    {
+                        SetHighlight(currentInteractable as Component, false);
+                    }
                     OnInteractableLost?.Invoke();
                     if (showDebugLogs)
                         Debug.Log($"[PlayerInteraction] Lost interactable: {currentInteractable.GetType().Name}");
@@ -183,7 +235,7 @@ namespace PlayerController
 
             float required = GetRequiredHoldSeconds();
 
-            // Interacción instantánea
+            // Instant interaction
             if (required <= 0f)
             {
                 if (interactPressed && !isInteracting)
@@ -194,14 +246,12 @@ namespace PlayerController
                 return;
             }
 
-            // Interacción mantenida (lenta)
+            // Hold interaction
             if (interactHeld)
             {
                 if (!isInteracting)
                 {
-                    // Marcar inicio para eventos/feedbacks
                     StartInteraction();
-                    // No completamos aún; medimos tiempo
                 }
                 interactHeldTime += Time.deltaTime;
                 if (interactHeldTime >= required)
@@ -211,7 +261,6 @@ namespace PlayerController
             }
             else
             {
-                // Soltó antes de tiempo: cancelar si había empezado
                 if (isInteracting)
                 {
                     CancelInteraction();
@@ -220,21 +269,18 @@ namespace PlayerController
             }
         }
         
-    private void StartInteraction()
+        private void StartInteraction()
         {
             isInteracting = true;
             OnInteractionStarted?.Invoke(currentInteractable);
             
             if (showDebugLogs)
                 Debug.Log($"[PlayerInteraction] Starting interaction with: {currentInteractable.GetType().Name}");
-            
-            // En modo mantenido, la ejecución se hace al completar; en instantáneo, se completa en HandleInteraction
         }
         
         private void CompleteInteraction()
         {
             isInteracting = false;
-            // Ejecutar la acción del interactuable al completar
             currentInteractable?.Interact(gameObject);
             OnInteractionCompleted?.Invoke(currentInteractable);
             
@@ -247,7 +293,6 @@ namespace PlayerController
             if (!isInteracting) return;
             isInteracting = false;
             interactHeldTime = 0f;
-            // No notificamos Completed; el emisor puede escuchar OnInteractionStarted y gestionar cancelación si fuese necesario
         }
 
         private float GetRequiredHoldSeconds()
@@ -256,7 +301,7 @@ namespace PlayerController
                 return playerSettings.InteractionHoldSeconds;
             if (holdToInteractSecondsOverride >= 0f)
                 return holdToInteractSecondsOverride;
-            return 0f; // por defecto instantáneo
+            return 0f; // instant by default
         }
         
         private void ValidateReferences()
@@ -285,7 +330,6 @@ namespace PlayerController
         private void OnInteractCanceled(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
             interactHeld = false;
-            // Si estábamos en una interacción mantenida, cancelarla al soltar
             if (isInteracting)
             {
                 CancelInteraction();
@@ -315,6 +359,31 @@ namespace PlayerController
         public bool HasInteractable() => currentInteractable != null;
         public bool IsInteracting() => isInteracting;
         public float GetDistanceToInteractable() => lastHit.distance;
+
+        // Highlight helper
+        private void SetHighlight(Component comp, bool state)
+        {
+            if (!enableHighlight) return;
+            if (singleHighlight)
+            {
+                if (currentHighlighter != null && currentHighlighter != null)
+                {
+                    currentHighlighter.SetHighlighted(false);
+                }
+                currentHighlighter = null;
+            }
+
+            if (comp == null)
+            {
+                return;
+            }
+            var highlighter = comp.GetComponentInParent<Game.Interaction.OutlineHighlighter>();
+            if (highlighter != null)
+            {
+                highlighter.SetHighlighted(state);
+                if (state) currentHighlighter = highlighter;
+            }
+        }
     }
     
     // Interface for interactable objects
@@ -328,5 +397,5 @@ namespace PlayerController
 // ScriptRole: Handles player interaction with objects using raycast detection
 // RelatedScripts: PlayerMovement
 // UsesSO: PlayerSettingsSO
-// ReceivesFrom: Input System (E key), Camera
-// SendsTo: IInteractable objects
+// ReceivesFrom: Input System (E key + LeftMouse), Camera
+// SendsTo: IInteractable objects; toggles OutlineHighlighter on focused object
