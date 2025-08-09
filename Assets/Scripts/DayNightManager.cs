@@ -44,6 +44,8 @@ namespace Game.DayNight
     // Persistence keys
     private const string PP_DayKey = "DN_CurrentDay";
     private const string PP_PenaltyKey = "DN_NextDayPenalty"; // 1 if next day should start with penalty
+    private const string PP_PenaltyUntilKey = "DN_NextDayPenalty_UntilSeconds"; // epoch-like seconds until which penalty is active (game-time relative)
+    private float penaltyExpiresAtGameTime = -1f; // DayTimeRemainingSeconds-based timeline reference
 
         private void Awake()
         {
@@ -78,10 +80,24 @@ namespace Game.DayNight
             // Garantizar despertar en spawn: teletransportar durante Dawn, con CC seguro
             TeleportPlayerToSpawn();
 
-            // Aplicar penalización si el día anterior fue desmayo (persistida)
-            if (PlayerPrefs.GetInt(PP_PenaltyKey, 0) == 1)
+            // Aplicar penalización si el día anterior fue desmayo (persistida) y aún no expiró
+            bool persistedPenalty = PlayerPrefs.GetInt(PP_PenaltyKey, 0) == 1;
+            int until = PlayerPrefs.GetInt(PP_PenaltyUntilKey, 0);
+            penaltyExpiresAtGameTime = until > 0 ? until : -1f;
+            if (persistedPenalty)
             {
-                ApplyNextDayPenalty(true);
+                bool shouldApply = true;
+                if (penaltyExpiresAtGameTime > 0)
+                {
+                    // Si el penaltyExpire es 0 usamos penalización todo el día (no expirará por tiempo)
+                    // Usaremos Update() para limpiar cuando llegue
+                    ApplyNextDayPenalty(true);
+                }
+                else
+                {
+                    // 0 => toda la jornada
+                    ApplyNextDayPenalty(true);
+                }
             }
 
             UpdateUI(force:true);
@@ -105,6 +121,17 @@ namespace Game.DayNight
             {
                 float dt = Mathf.Clamp(Time.deltaTime, 0f, 0.25f);
                 DayTimeRemainingSeconds = Mathf.Max(0f, DayTimeRemainingSeconds - dt);
+
+                // Si hay una penalización con expiración, verificar si debe limpiarse
+                if (penaltyExpiresAtGameTime > 0f && (totalDaySeconds - DayTimeRemainingSeconds) >= penaltyExpiresAtGameTime)
+                {
+                    // Expiró durante el día
+                    ApplyNextDayPenalty(false);
+                    PlayerPrefs.SetInt(PP_PenaltyKey, 0);
+                    PlayerPrefs.DeleteKey(PP_PenaltyUntilKey);
+                    PlayerPrefs.Save();
+                    penaltyExpiresAtGameTime = -1f;
+                }
 
                 // Cambiar a DuskWarning si estamos dentro del umbral
                 if (State == DayState.Day && config != null && DayTimeRemainingSeconds <= config.DuskWarningThresholdSeconds)
@@ -293,6 +320,25 @@ namespace Game.DayNight
             currentDay = Mathf.Max(1, currentDay + 1);
             PlayerPrefs.SetInt(PP_DayKey, currentDay);
             PlayerPrefs.SetInt(PP_PenaltyKey, nextDayPenalty ? 1 : 0);
+
+            // Calcular duración de penalización para el próximo día
+            if (nextDayPenalty && config != null)
+            {
+                int dur = config.FaintNextDayPenaltyDurationSeconds; // en segundos del siguiente día
+                if (dur > 0)
+                {
+                    // Guardamos un marcador relativo al timeline del próximo día: segundos transcurridos desde el amanecer
+                    PlayerPrefs.SetInt(PP_PenaltyUntilKey, dur);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(PP_PenaltyUntilKey); // 0 = todo el día
+                }
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(PP_PenaltyUntilKey);
+            }
             PlayerPrefs.Save();
 
             // Aplicar penalización del día siguiente si hubo desmayo (se mantiene persistido)

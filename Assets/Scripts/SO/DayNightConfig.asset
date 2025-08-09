@@ -21,3 +21,14 @@ MonoBehaviour:
   labelSleep: Sleep
   labelFaint: Faint
   labelNight: Night
+  spawnRadiusToCountAsAtSpawn: 2
+  labelExhaustion: Exhaustion
+  exhaustionDurationSeconds: 30
+  exhaustionMinSpeedMultiplier: 0.2
+  exhaustionDisableSprint: 1
+  nightFadeInSeconds: 0.6
+  nightHoldSeconds: 1
+  nightFadeOutSeconds: 0.6
+  faintNextDaySpeedMultiplier: 0.7
+  faintNextDayDisableSprint: 1
+  faintNextDayPenaltyDurationMinutes: 5

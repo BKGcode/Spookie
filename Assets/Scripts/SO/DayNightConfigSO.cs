@@ -65,6 +65,9 @@ namespace Game.DayNight
     [SerializeField] private float faintNextDaySpeedMultiplier = 0.7f;
     [Tooltip("Desactivar sprint durante el día siguiente si hubo desmayo.")]
     [SerializeField] private bool faintNextDayDisableSprint = true;
+    [Tooltip("Duración de la penalización del día siguiente en minutos. 0 = toda la jornada del siguiente día.")]
+    [Range(0, 60)]
+    [SerializeField] private int faintNextDayPenaltyDurationMinutes = 0;
 
         public int DayDurationMinutes => dayDurationMinutes;
         public int DayDurationSeconds => Mathf.Clamp(dayDurationMinutes, 1, 60) * 60;
@@ -88,6 +91,7 @@ namespace Game.DayNight
     public float NightFadeOutSeconds => Mathf.Max(0f, nightFadeOutSeconds);
     public float FaintNextDaySpeedMultiplier => Mathf.Clamp01(faintNextDaySpeedMultiplier);
     public bool FaintNextDayDisableSprint => faintNextDayDisableSprint;
+    public int FaintNextDayPenaltyDurationSeconds => Mathf.Clamp(faintNextDayPenaltyDurationMinutes, 0, 60) * 60;
 
         private void OnValidate()
         {
@@ -108,6 +112,7 @@ namespace Game.DayNight
             nightHoldSeconds = Mathf.Clamp(nightHoldSeconds, 0f, 5f);
             nightFadeOutSeconds = Mathf.Clamp(nightFadeOutSeconds, 0f, 5f);
             faintNextDaySpeedMultiplier = Mathf.Clamp01(faintNextDaySpeedMultiplier);
+            faintNextDayPenaltyDurationMinutes = Mathf.Clamp(faintNextDayPenaltyDurationMinutes, 0, 60);
         }
     }
 }
