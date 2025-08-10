@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 1771127960722112941}
   - component: {fileID: 6363563602642322764}
   - component: {fileID: 3696484047096771722}
-  - component: {fileID: 6208807109243343111}
   - component: {fileID: 5053072042012909525}
-  - component: {fileID: 6004729627475327612}
+  - component: {fileID: 4878036007187210922}
   m_Layer: 9
   m_Name: Example_Interactable
   m_TagString: Untagged
@@ -111,21 +110,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6208807109243343111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5954020791844119821}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 322f0a866c5d0f44ba2753799dd83c54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetRenderers: []
-  outlineMaterial: {fileID: 2100000, guid: ea0d9c592f116c04fbedbab5f066e623, type: 2}
-  restoreOriginalOnUnhighlight: 1
 --- !u!82 &5053072042012909525
 AudioSource:
   m_ObjectHideFlags: 0
@@ -223,7 +207,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &6004729627475327612
+--- !u!114 &4878036007187210922
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -232,19 +216,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 5954020791844119821}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0b691876382e044cbe5fdde19c0dd74, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ded7b8cd80313d48900fa4479f0bf8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  messageDB: {fileID: 11400000, guid: 6efc3c9d4f6c1e14cb7a1cce0a5cd1b3, type: 2}
+  messageId: 
+  channel: 0
+  autoCloseSecondsOverride: -1
+  typewriterCpsOverride: -1
+  repeatablePolicy: 0
+  oneShotPolicy: 0
+  persistentIdOverride: 
   lowerMessage: {fileID: 0}
-  messageText: Text test
-  messageAudio: {fileID: 8300000, guid: 1786e013240482142aff8b6d2f2b340c, type: 3}
-  autoCloseSecondsOverride: 2
+  oniricOverlay: {fileID: 0}
+  pauseManager: {fileID: 0}
   fireMode: 0
   requiredTag: Player
-  oneShotRuntime: 0
-  persistentId: 
   cooldownSeconds: 0
-  blockWhenPaused: 1
-  pauseManager: {fileID: 0}
-  triggerCollider: {fileID: 3696484047096771722}
-  showDebugLogs: 1
+  outlineMaterial: {fileID: 2100000, guid: ea0d9c592f116c04fbedbab5f066e623, type: 2}
+  targetRenderers:
+  - {fileID: 6363563602642322764}
+  restoreOriginalOnUnhighlight: 1
+  showDebugLogs: 0

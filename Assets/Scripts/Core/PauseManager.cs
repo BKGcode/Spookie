@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Game.Core
 {
+    /// <summary>
+    /// Priority policy (gating): UI > Transition > Oniric > Banner.
+    /// Systems should gate actions according to this order to avoid overlapping UX.
+    /// </summary>
     public enum PauseReason
     {
         UI = 0,

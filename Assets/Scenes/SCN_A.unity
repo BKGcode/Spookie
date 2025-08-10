@@ -524,6 +524,8 @@ GameObject:
   - component: {fileID: 323890956}
   - component: {fileID: 323890958}
   - component: {fileID: 323890957}
+  - component: {fileID: 323890959}
+  - component: {fileID: 323890960}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -573,6 +575,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugLogs: 1
   pauseManager: {fileID: 684718343}
+--- !u!114 &323890959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323890954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b91c3b240dec6ce4d89caef358b97d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameConfig: {fileID: 11400000, guid: 1dd963b525c84c54b9a2339c9a1a953f, type: 2}
+--- !u!114 &323890960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323890954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006bf155e5a131e4a8fc8858d8b9ab9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localeDefaults: {fileID: 11400000, guid: f60e0581ebf867243af6c70b5bfa6b24, type: 2}
+  languageChanged: {fileID: 11400000, guid: 86113004437987242a975f202caddcbb, type: 2}
+  localizationDB: {fileID: 11400000, guid: 3daf46df1dc218e40938594878d23af8, type: 2}
+  prefsKey: Spookie.Language
+  showDebugLogs: 1
 --- !u!114 &418982677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4723,6 +4755,7 @@ MonoBehaviour:
   messageText: {fileID: 1366540891}
   audioSource: {fileID: 2081540548}
   advanceAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  revealAllAction: {fileID: 0}
   charsPerSecond: 30
   autoCloseSeconds: 2
   maxQueue: 4
@@ -4767,6 +4800,7 @@ MonoBehaviour:
   canvasGroup: {fileID: 942237626}
   audioSource: {fileID: 2081540548}
   closeAction: {fileID: 429318973671672321, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  revealAllAction: {fileID: 0}
   charsPerSecond: 15
   autoCloseSeconds: 4
   blockCloseUntilComplete: 1
@@ -5919,14 +5953,6 @@ PrefabInstance:
     - target: {fileID: 5954020791844119821, guid: f0647400d19e8cc4d9bad81d3988f547, type: 3}
       propertyPath: m_Name
       value: Example_Interactable
-      objectReference: {fileID: 0}
-    - target: {fileID: 6004729627475327612, guid: f0647400d19e8cc4d9bad81d3988f547, type: 3}
-      propertyPath: persistentId
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6004729627475327612, guid: f0647400d19e8cc4d9bad81d3988f547, type: 3}
-      propertyPath: cooldownSeconds
-      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7639393511041897094, guid: f0647400d19e8cc4d9bad81d3988f547, type: 3}
       propertyPath: m_LocalPosition.x

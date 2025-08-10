@@ -4,14 +4,14 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Game.Interaction; // TextMessageInteractable, OniricOverlayTrigger
+using Game.Interaction; // DBTextInteractable
 using Game.UI; // OniricOverlayTrigger
 
 namespace Game.EditorTools
 {
     internal static class OneShotCleaner
     {
-        private const string MSG_PREFIX = "Spookie.MsgSeen."; // TextMessageInteractable
+    private const string MSG_PREFIX = "Spookie.MsgSeen."; // DBTextInteractable / LowerMessage one-shots
         private const string PO_PREFIX  = "Spookie.PO.";       // OniricOverlayController/Trigger
 
         [MenuItem("Spookie/Testing/Clear One-Shot Flags (Open Scenes)")] 
@@ -100,11 +100,16 @@ namespace Game.EditorTools
 
         private static void CollectFromGO(GameObject root, HashSet<string> lowerIds, HashSet<string> poIds)
         {
-            var msgComps = root.GetComponentsInChildren<TextMessageInteractable>(true);
+            var msgComps = root.GetComponentsInChildren<DBTextInteractable>(true);
             foreach (var c in msgComps)
             {
-                var id = GetPrivateString(c, "persistentId");
-                if (!string.IsNullOrWhiteSpace(id)) lowerIds.Add(id);
+                // Prefer explicit persistent override; else fall back to messageId (DBTextInteractable uses id or override)
+                var persist = GetPrivateString(c, "persistentIdOverride");
+                if (string.IsNullOrWhiteSpace(persist))
+                {
+                    persist = GetPrivateString(c, "messageId");
+                }
+                if (!string.IsNullOrWhiteSpace(persist)) lowerIds.Add(persist);
             }
 
             var poComps = root.GetComponentsInChildren<OniricOverlayTrigger>(true);

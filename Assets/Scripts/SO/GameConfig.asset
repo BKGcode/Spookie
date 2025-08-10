@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56de8d3d758ccb1488cc00efa81f5d34, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  playerSettings: {fileID: 11400000, guid: c1377d37ecfedfc48a9f9fa1bf05e216, type: 2}
+  dayNightConfig: {fileID: 11400000, guid: fd512b2b07fd84340a9049a024e3c8c7, type: 2}
+  sunLightPreset: {fileID: 11400000, guid: fc41dfd1b6a04984bae5f12ab7e27768, type: 2}
+  lampLightPreset: {fileID: 11400000, guid: 5b193721cf597c843baf3a45fe85791f, type: 2}
+  localizationDB: {fileID: 11400000, guid: 3daf46df1dc218e40938594878d23af8, type: 2}
+  localeDefaults: {fileID: 11400000, guid: f60e0581ebf867243af6c70b5bfa6b24, type: 2}
+  languageChangedEvent: {fileID: 11400000, guid: 86113004437987242a975f202caddcbb, type: 2}
+  messageDB: {fileID: 11400000, guid: 6efc3c9d4f6c1e14cb7a1cce0a5cd1b3, type: 2}

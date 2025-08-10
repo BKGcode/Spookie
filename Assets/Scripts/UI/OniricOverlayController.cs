@@ -4,12 +4,14 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Game.Core;
 using Game.Localization; // LocalizationDBSO, LocaleSO
+using Game.Core; // GameConfigProvider
 
 namespace Game.UI
 {
     /// <summary>
     /// Fullscreen "Oniric Thought" overlay: typewriter text + optional audio, blocks gameplay via PauseManager (Oniric reason).
     /// KISS: single active instance, no queue. One-shot persistence by ID (PlayerPrefs) if desired.
+    /// Priority policy (gating): UI > Transition > Oniric > Banner. Oniric should be gated during Transition.
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Spookie/Oniric Overlay Controller")]
@@ -67,6 +69,18 @@ namespace Game.UI
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.playOnAwake = false;
+            }
+
+            // Optional: auto-wire from GameConfigProvider if left unassigned
+            if (localizationDB == null || locale == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null)
+                {
+                    if (localizationDB == null) localizationDB = cfg.LocalizationDB;
+                    if (locale == null) locale = cfg.LocaleDefaults;
+                }
             }
         }
 

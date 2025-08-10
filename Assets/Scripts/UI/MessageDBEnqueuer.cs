@@ -1,6 +1,7 @@
 using UnityEngine;
 using Game.Messages;
 using Game.Localization;
+using Game.Core; // GameConfigProvider
 
 namespace Game.UI
 {
@@ -26,6 +27,19 @@ namespace Game.UI
 
         public void EnqueueById(string id)
         {
+            // Optional: auto-wire from GameConfigProvider if left unassigned
+            if ((db == null) || (localizationDB == null) || (locale == null))
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null)
+                {
+                    if (db == null) db = cfg.MessageDB;
+                    if (localizationDB == null) localizationDB = cfg.LocalizationDB;
+                    if (locale == null) locale = cfg.LocaleDefaults;
+                }
+            }
+
             if (db == null || string.IsNullOrEmpty(id)) return;
             var e = db.Find(id);
             if (e == null) { LogWarn($"ID not found: {id}"); return; }

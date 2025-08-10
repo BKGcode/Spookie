@@ -9,6 +9,10 @@ namespace Game.Messages
     [CreateAssetMenu(fileName = "MessageDB", menuName = "Spookie/Messages/DB")]
     public class MessageDBSO : ScriptableObject
     {
+    [Header("Defaults")]
+    [Tooltip("Default language code to validate VO presence (e.g., 'en'). Empty to skip this specific warning.")]
+    [SerializeField] private string defaultLanguageCode = "en";
+
         [Serializable]
         public class Entry
         {
@@ -139,6 +143,26 @@ namespace Game.Messages
                 if (!hasAnyAudio)
                 {
                     Debug.LogWarning($"[MessageDB] Entry '{e.id}' has no audio set (default nor localized). This is fine if text-only.");
+                }
+
+                // New: warn if localized VO list exists but lacks the default language clip
+                string def = string.IsNullOrWhiteSpace(defaultLanguageCode) ? null : defaultLanguageCode.Trim();
+                if (!string.IsNullOrEmpty(def) && e.localizedAudio != null && e.localizedAudio.Count > 0)
+                {
+                    bool found = false;
+                    for (int j = 0; j < e.localizedAudio.Count; j++)
+                    {
+                        var la = e.localizedAudio[j];
+                        if (la == null || string.IsNullOrEmpty(la.language)) continue;
+                        if (string.Equals(la.language, def, StringComparison.OrdinalIgnoreCase))
+                        {
+                            found = la.clip != null; break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        Debug.LogWarning($"[MessageDB] Entry '{e.id}' has no VO clip for default language '{def}'.");
+                    }
                 }
                 #endif
             }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Game.Core; // GameConfigProvider
 
 namespace PlayerController
 {
@@ -357,6 +358,14 @@ namespace PlayerController
         
         private void ValidateReferences()
         {
+            // Optional: auto-wire from GameConfigProvider if left unassigned
+            if (playerSettings == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null) playerSettings = cfg.PlayerSettings;
+            }
+
             if (playerSettings == null)
             {
                 Debug.LogError("[PlayerMovement] PlayerSettingsSO reference is missing!");

@@ -5,12 +5,14 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Game.Core;
 using Game.Localization; // LocalizationDBSO, LocaleSO
+using Game.Core; // GameConfigProvider
 
 namespace Game.UI
 {
     /// <summary>
     /// Lower screen message banner with a small queue, typewriter animation, and audio gating.
     /// KISS: Inspector-first, no localization in this slice. Pauses via PauseManager reasons (UI/Oniric/etc.).
+    /// Priority policy (gating): UI > Transition > Oniric > Banner. Banner should reject while Transition is active.
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Spookie/Lower Message Controller")]
@@ -94,6 +96,18 @@ namespace Game.UI
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.playOnAwake = false;
+            }
+
+            // Optional: auto-wire from GameConfigProvider if left unassigned
+            if (localizationDB == null || locale == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null)
+                {
+                    if (localizationDB == null) localizationDB = cfg.LocalizationDB;
+                    if (locale == null) locale = cfg.LocaleDefaults;
+                }
             }
         }
 

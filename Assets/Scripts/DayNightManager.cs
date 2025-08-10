@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using Game.Core; // PauseManager, PauseReason
+using Game.Core; // GameConfigProvider (same namespace, but explicit here for clarity)
 
 namespace Game.DayNight
 {
@@ -63,6 +64,13 @@ namespace Game.DayNight
 
         private void Start()
         {
+            // Optional: auto-wire config from GameConfigProvider if left unassigned
+            if (config == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null && cfg.DayNightConfig != null) config = cfg.DayNightConfig;
+            }
             InitializeDay();
         }
 

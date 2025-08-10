@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Game.Core; // GameConfigProvider
 
 namespace PlayerController
 {
@@ -16,8 +17,8 @@ namespace PlayerController
         [SerializeField] private InputActionReference interactAltAction; // e.g., <Mouse>/leftButton
         [Tooltip("Tiempo necesario de mantener pulsado para completar la interacción. 0 = instantáneo (click). Si se usa PlayerSettingsSO, este valor se ignora.")]
         [SerializeField] private float holdToInteractSecondsOverride = -1f;
-        [Header("Highlight (URP)")]
-        [Tooltip("Enable highlighting via OutlineHighlighter on the aimed interactable.")]
+    [Header("Highlight (URP)")]
+    [Tooltip("Enable highlighting on the aimed interactable (uses the interactable's own highlight, e.g., DBTextInteractable).")]
         [SerializeField] private bool enableHighlight = true;
         [Tooltip("If true, only one object is highlighted at a time (the aimed one).")]
         [SerializeField] private bool singleHighlight = true;
@@ -32,8 +33,8 @@ namespace PlayerController
         private bool isInteracting;
         private float interactHeldTime;
         private bool interactHeld;
-        // Highlight cache
-        private Game.Interaction.OutlineHighlighter currentHighlighter;
+    // Highlight cache
+    private Game.Interaction.DBTextInteractable currentDbInteractableHighlight;
         
         // Input variables
         private bool interactPressed;
@@ -307,6 +308,14 @@ namespace PlayerController
         
         private void ValidateReferences()
         {
+            // Optional: auto-wire from GameConfigProvider if left unassigned
+            if (playerSettings == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null) playerSettings = cfg.PlayerSettings;
+            }
+
             if (playerSettings == null)
             {
                 Debug.LogError("[PlayerInteraction] PlayerSettingsSO reference is missing!");
@@ -367,22 +376,26 @@ namespace PlayerController
             if (!enableHighlight) return;
             if (singleHighlight)
             {
-                if (currentHighlighter != null && currentHighlighter != null)
+                if (currentDbInteractableHighlight != null)
                 {
-                    currentHighlighter.SetHighlighted(false);
+                    currentDbInteractableHighlight.SetHighlighted(false);
                 }
-                currentHighlighter = null;
+                currentDbInteractableHighlight = null;
             }
 
             if (comp == null)
             {
                 return;
             }
-            var highlighter = comp.GetComponentInParent<Game.Interaction.OutlineHighlighter>();
-            if (highlighter != null)
+            // Highlight via unified DBTextInteractable if present
+            var dbi = comp.GetComponentInParent<Game.Interaction.DBTextInteractable>();
+            if (dbi != null)
             {
-                highlighter.SetHighlighted(state);
-                if (state) currentHighlighter = highlighter;
+                dbi.SetHighlighted(state);
+                if (state)
+                {
+                    currentDbInteractableHighlight = dbi;
+                }
             }
         }
     }
@@ -399,4 +412,4 @@ namespace PlayerController
 // RelatedScripts: PlayerMovement
 // UsesSO: PlayerSettingsSO
 // ReceivesFrom: Input System (E key + LeftMouse), Camera
-// SendsTo: IInteractable objects; toggles OutlineHighlighter on focused object
+// SendsTo: IInteractable objects; toggles highlight on focused object (DBTextInteractable)

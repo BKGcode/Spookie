@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Game.Core; // GameConfigProvider
 
 namespace Game.DayNight
 {
@@ -52,6 +53,18 @@ namespace Game.DayNight
                 if (showDebugLogs && manager == null)
                 {
                     Debug.LogWarning("[DayNightAmbience] No DayNightManager found in scene.");
+                }
+            }
+
+            // Optional: auto-wire LightPresets from GameConfigProvider if left unassigned
+            if (dayNightPreset == null || lampPreset == null)
+            {
+                var provider = FindObjectOfType<GameConfigProvider>();
+                var cfg = provider != null ? provider.Config : null;
+                if (cfg != null)
+                {
+                    if (dayNightPreset == null) dayNightPreset = cfg.SunLightPreset;
+                    if (lampPreset == null) lampPreset = cfg.LampLightPreset;
                 }
             }
 
