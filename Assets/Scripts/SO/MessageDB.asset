@@ -14,13 +14,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultLanguageCode: en
   entries:
-  - id: 
+  - id: intro.welcome
     type: 0
-    key: 
-    autoCloseSeconds: 0
-    typewriterCps: 0
+    key: msg.lower.intro.welcome
+    autoCloseSeconds: -1
+    typewriterCps: -1
     repeatable: 0
     audio: {fileID: 0}
     localizedAudio: []
     oneShot: 0
     persistentIdOverride: 
+  - id: tutorial.sleep_hint
+    type: 0
+    key: msg.lower.tutorial.sleep_hint
+    autoCloseSeconds: -1
+    typewriterCps: -1
+    repeatable: 0
+    audio: {fileID: 0}
+    localizedAudio: []
+    oneShot: 0
+    persistentIdOverride: 
+  - id: po.first_thought
+    type: 1
+    key: msg.oniric.po.first_thought
+    autoCloseSeconds: -1
+    typewriterCps: -1
+    repeatable: 0
+    audio: {fileID: 0}
+    localizedAudio: []
+    oneShot: 1
+    persistentIdOverride: po.first_thought

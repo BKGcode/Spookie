@@ -357,6 +357,11 @@ namespace Game.UI
         private IEnumerator ShowOne(MessageItem item)
         {
             _advancePressed = false;
+
+            // Resolve text first; if empty, do nothing to avoid leaving UI/audio in inconsistent state
+            string full = item.IsKey ? ResolveKey(item.Key) : item.Text;
+            if (string.IsNullOrEmpty(full)) yield break;
+
             if (bannerRoot != null)
             {
                 // Prepare fade-in
@@ -373,17 +378,13 @@ namespace Game.UI
                 }
             }
 
-            // Start audio (if any) immediately so the banner lifetime matches VO length
+            // Start audio (if any) after confirming we have text to display
             if (audioSource != null)
             {
                 audioSource.Stop();
                 audioSource.clip = item.Audio;
                 if (item.Audio != null) audioSource.Play();
             }
-
-            // Resolve text (deferred if key)
-            string full = item.IsKey ? ResolveKey(item.Key) : item.Text;
-            if (string.IsNullOrEmpty(full)) yield break;
 
             // Typewriter
             messageText.text = string.Empty;

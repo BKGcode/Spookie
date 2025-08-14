@@ -36,8 +36,7 @@ namespace PlayerController
     // Highlight cache
     private Game.Interaction.DBTextInteractable currentDbInteractableHighlight;
         
-        // Input variables
-        private bool interactPressed;
+    // Input variables
         
         // Events
         public System.Action<IInteractable> OnInteractableFound;
@@ -122,8 +121,7 @@ namespace PlayerController
                 try
                 {
                     held |= interactAction.action.IsPressed();
-                    down |= interactAction.action.WasPressedThisFrame();
-                    up   |= interactAction.action.WasReleasedThisFrame();
+            // rely on callbacks for down/up to avoid duplicate state with polling
                 }
                 catch { }
             }
@@ -132,8 +130,7 @@ namespace PlayerController
                 try
                 {
                     held |= interactAltAction.action.IsPressed();
-                    down |= interactAltAction.action.WasPressedThisFrame();
-                    up   |= interactAltAction.action.WasReleasedThisFrame();
+            // rely on callbacks for down/up to avoid duplicate state with polling
                 }
                 catch { }
             }
@@ -145,9 +142,8 @@ namespace PlayerController
                 up   |= Input.GetKeyUp(KeyCode.E) || Input.GetMouseButtonUp(0);
             }
 
-            if (down) interactHeld = true;
-            if (up)   interactHeld = false;
-            interactPressed = down; // use as a click when hold time is 0
+        if (down) interactHeld = true;
+        if (up)   interactHeld = false;
         }
         
         private void CheckForInteractables()
@@ -240,10 +236,12 @@ namespace PlayerController
             // Instant interaction
             if (required <= 0f)
             {
-                if (interactPressed && !isInteracting)
+                // For instant interactions, consume the start edge via callbacks setting interactHeld true just for this frame
+                if (interactHeld && !isInteracting)
                 {
                     StartInteraction();
                     CompleteInteraction();
+                    interactHeld = false; // consume click-like edge
                 }
                 return;
             }

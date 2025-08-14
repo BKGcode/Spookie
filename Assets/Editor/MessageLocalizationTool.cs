@@ -5,11 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Game.Messages;
 using Game.Localization;
+using Game.Interaction; // DBTextInteractable
 using MsgType = Game.Messages.MessageType;
 
 namespace Game.EditorTools.Messages
@@ -28,8 +27,8 @@ namespace Game.EditorTools.Messages
         private MessageDBSO _msgDb;
         private LocalizationDBSO _locDb;
 
-        // Tabs
-        private enum Tab { ImportExport, SingleEntry, SceneLinks }
+        // Tabs reducidos a KISS
+        private enum Tab { ImportExport, SingleEntry }
         private Tab _tab = Tab.ImportExport;
 
         // Single Entry fields
@@ -42,11 +41,8 @@ namespace Game.EditorTools.Messages
         private string _newPersistentId = string.Empty;
         private AudioClip _newAudio;
         private readonly Dictionary<string, string> _perLangText = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        // Scene Links
-        private Vector2 _sceneScroll;
-        private string _sceneFilter = string.Empty;
-        private List<string> _cachedIds = new List<string>();
+    // Cache opcional de IDs (para autocompletar u otros usos futuros)
+    private List<string> _cachedIds = new List<string> { string.Empty };
 
         [MenuItem("Spookie/Messages & Localization Tool", priority = 1)]
         public static void Open()
@@ -59,14 +55,13 @@ namespace Game.EditorTools.Messages
         private void OnEnable()
         {
             TryAutoWireDatabases();
-            RebuildIdCache();
         }
 
         private void OnGUI()
         {
             DrawHeader();
             EditorGUILayout.Space(4);
-            _tab = (Tab)GUILayout.Toolbar((int)_tab, new[] { "Import/Export", "Single Entry", "Scene Links" });
+            _tab = (Tab)GUILayout.Toolbar((int)_tab, new[] { "Import/Export", "Single Entry" });
             EditorGUILayout.Space(6);
 
             switch (_tab)
@@ -76,9 +71,6 @@ namespace Game.EditorTools.Messages
                     break;
                 case Tab.SingleEntry:
                     DrawSingleEntry();
-                    break;
-                case Tab.SceneLinks:
-                    DrawSceneLinks();
                     break;
             }
         }
@@ -96,7 +88,6 @@ namespace Game.EditorTools.Messages
                 if (GUILayout.Button("Autodetect in Project", GUILayout.Width(180)))
                 {
                     TryAutoWireDatabases();
-                    RebuildIdCache();
                 }
                 if (GUILayout.Button("Ping Assets", GUILayout.Width(120)))
                 {
@@ -368,7 +359,42 @@ namespace Game.EditorTools.Messages
                 return;
             }
             EditorGUILayout.LabelField("Create / Update Single Entry", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
             _newId = EditorGUILayout.TextField("id", _newId);
+            using (new EditorGUI.DisabledScope(string.IsNullOrWhiteSpace(_newId)))
+            {
+                if (GUILayout.Button("Copy", GUILayout.Width(56)))
+                {
+                    EditorGUIUtility.systemCopyBuffer = _newId;
+                }
+                if (GUILayout.Button("Assign->Selected", GUILayout.Width(120)))
+                {
+                    var go = Selection.activeGameObject;
+                    if (go != null)
+                    {
+                        var dbi = go.GetComponent<DBTextInteractable>();
+                        if (dbi != null)
+                        {
+                            Undo.RecordObject(dbi, "Assign MessageId");
+                            dbi.MessageId = _newId;
+                            EditorUtility.SetDirty(dbi);
+                        }
+                        else
+                        {
+                            EditorUtility.DisplayDialog(Title, "El objeto seleccionado no tiene DBTextInteractable.", "OK");
+                        }
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog(Title, "No hay un GameObject seleccionado en la jerarquía.", "OK");
+                    }
+                }
+            }
+            if (GUILayout.Button("GUID", GUILayout.Width(60)))
+            {
+                _newId = ("id_" + System.Guid.NewGuid().ToString("N").Substring(0, 8)).ToLowerInvariant();
+            }
+            EditorGUILayout.EndHorizontal();
             _newType = (MsgType)EditorGUILayout.EnumPopup("type", _newType);
             _newKey = EditorGUILayout.TextField("key (auto si vacío)", _newKey);
             _newAutoClose = EditorGUILayout.FloatField("autoClose", _newAutoClose);
@@ -441,108 +467,17 @@ namespace Game.EditorTools.Messages
             EditorUtility.SetDirty(_locDb);
             AssetDatabase.SaveAssets();
             RebuildIdCache();
-            EditorUtility.DisplayDialog(Title, $"Entry guardado. Loc +{cNew}/~{cUpd}", "OK");
+            // Copy id to clipboard for quick paste into interactables
+            EditorGUIUtility.systemCopyBuffer = _newId;
+            EditorUtility.DisplayDialog(Title, $"Entry guardado. id='{_newId}' (copiado al portapapeles). Loc +{cNew}/~{cUpd}", "OK");
+            // Clear only the id to prevent accidental reuse; keep other fields for convenience
+            _newId = string.Empty;
         }
 
         private void ClearSingleForm()
         {
             _newId = ""; _newType = MsgType.Lower; _newKey = ""; _newAutoClose = -1f; _newCps = -1f;
             _newOneShot = false; _newPersistentId = ""; _newAudio = null; _perLangText.Clear();
-        }
-
-        // Scene Links -----------------------------------------------------
-        private void DrawSceneLinks()
-        {
-            if (!_msgDb)
-            {
-                EditorGUILayout.HelpBox("Asigna MessageDB para listar IDs.", UnityEditor.MessageType.Warning);
-                return;
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            _sceneFilter = EditorGUILayout.TextField("Filter (name/id)", _sceneFilter);
-            if (GUILayout.Button("Refresh", GUILayout.Width(90))) { RebuildIdCache(); Repaint(); }
-            if (GUILayout.Button("Scan Scene", GUILayout.Width(100))) { Repaint(); }
-            EditorGUILayout.EndHorizontal();
-
-            var allObjs = FindSceneObjects();
-            var filtered = string.IsNullOrEmpty(_sceneFilter) ? allObjs : allObjs.Where(o =>
-                (o.name?.IndexOf(_sceneFilter, StringComparison.OrdinalIgnoreCase) >= 0) ||
-                (o.GetComponent<Game.Interaction.DBTextInteractable>() != null &&
-                 (o.GetComponent<Game.Interaction.DBTextInteractable>().MessageId?.IndexOf(_sceneFilter, StringComparison.OrdinalIgnoreCase) >= 0))
-            ).ToList();
-
-            EditorGUILayout.LabelField($"Objects: {filtered.Count}");
-            _sceneScroll = EditorGUILayout.BeginScrollView(_sceneScroll);
-            foreach (var go in filtered)
-            {
-                EditorGUILayout.BeginVertical("box");
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.ObjectField(go, typeof(GameObject), true);
-                if (GUILayout.Button("Ping", GUILayout.Width(60))) EditorGUIUtility.PingObject(go);
-                EditorGUILayout.EndHorizontal();
-
-                var dbi = go.GetComponent<Game.Interaction.DBTextInteractable>();
-                EditorGUILayout.BeginHorizontal();
-                int idx = Mathf.Max(0, _cachedIds.IndexOf(dbi ? dbi.MessageId : null));
-                int newIdx = EditorGUILayout.Popup("messageId", idx, _cachedIds.ToArray());
-                if (newIdx != idx)
-                {
-                    EnsureDbInteractable(go);
-                    var comp = go.GetComponent<Game.Interaction.DBTextInteractable>();
-                    Undo.RecordObject(comp, "Assign messageId");
-                    comp.MessageId = _cachedIds[newIdx];
-                    EditorUtility.SetDirty(comp);
-                }
-
-                if (GUILayout.Button(dbi ? "Remove" : "Add", GUILayout.Width(110)))
-                {
-                    if (dbi) { Undo.DestroyObjectImmediate(dbi); }
-                    else { EnsureDbInteractable(go); }
-                }
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.Space(6);
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save Scene", GUILayout.Height(24)))
-            {
-                EditorSceneManager.MarkAllScenesDirty();
-                EditorSceneManager.SaveOpenScenes();
-            }
-            if (GUILayout.Button("Select All DBTextInteractables", GUILayout.Height(24)))
-            {
-                Selection.objects = FindObjectsOfType<Game.Interaction.DBTextInteractable>(true).Select(c => c.gameObject).ToArray();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private List<GameObject> FindSceneObjects()
-        {
-            var list = new List<GameObject>();
-            // Objetos que potencialmente serán interactuables o a los que queremos vincular mensajes
-            foreach (var mb in Resources.FindObjectsOfTypeAll<MonoBehaviour>())
-            {
-                if (!mb) continue;
-                // Filtrar a objetos que están en escena (no assets)
-                if (mb.gameObject.scene.IsValid() && mb.gameObject.scene.isLoaded)
-                {
-                    // Criterios: DBTextInteractable
-                    bool eligible = (mb is Game.Interaction.DBTextInteractable);
-                    if (eligible && !list.Contains(mb.gameObject)) list.Add(mb.gameObject);
-                }
-            }
-            return list.OrderBy(o => o.name).ToList();
-        }
-
-        private void EnsureDbInteractable(GameObject go)
-        {
-            if (!go.GetComponent<Game.Interaction.DBTextInteractable>())
-            {
-                Undo.AddComponent<Game.Interaction.DBTextInteractable>(go);
-            }
         }
 
         private void TryAutoWireDatabases()
@@ -567,7 +502,16 @@ namespace Game.EditorTools.Messages
 
         private void RebuildIdCache()
         {
-            _cachedIds = GetEntries(_msgDb).Select(e => e.id).OrderBy(s => s).ToList();
+            if (_msgDb == null)
+            {
+                _cachedIds = new List<string> { string.Empty };
+                return;
+            }
+            _cachedIds = GetEntries(_msgDb)
+                .Select(e => e.id)
+                .Where(s => !string.IsNullOrEmpty(s))
+                .OrderBy(s => s)
+                .ToList();
             _cachedIds.Insert(0, string.Empty);
         }
 

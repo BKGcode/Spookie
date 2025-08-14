@@ -100,18 +100,8 @@ namespace Game.DayNight
             penaltyExpiresAtGameTime = until > 0 ? until : -1f;
             if (persistedPenalty)
             {
-                bool shouldApply = true;
-                if (penaltyExpiresAtGameTime > 0)
-                {
-                    // Si el penaltyExpire es 0 usamos penalización todo el día (no expirará por tiempo)
-                    // Usaremos Update() para limpiar cuando llegue
-                    ApplyNextDayPenalty(true);
-                }
-                else
-                {
-                    // 0 => toda la jornada
-                    ApplyNextDayPenalty(true);
-                }
+                // Aplica penalización entrante una sola vez al amanecer; si tiene expiración > 0, Update la limpiará
+                ApplyNextDayPenalty(true);
             }
 
             UpdateUI(force:true);
@@ -361,9 +351,6 @@ namespace Game.DayNight
                 PlayerPrefs.DeleteKey(PP_PenaltyUntilKey);
             }
             PlayerPrefs.Save();
-
-            // Aplicar penalización del día siguiente si hubo desmayo (se mantiene persistido)
-            ApplyNextDayPenalty(nextDayPenalty);
 
             // Reiniciar ciclo: nuevo amanecer
             InitializeDay();

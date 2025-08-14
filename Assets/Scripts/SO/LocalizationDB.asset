@@ -15,12 +15,22 @@ MonoBehaviour:
   languages:
   - en
   - es
-  - de
-  - it
-  - pt
-  - fr
   entries:
-  - key: 
+  - key: msg.lower.intro.welcome
     values:
-    - language: 
-      text: 
+    - language: en
+      text: Welcome to the mine.
+    - language: es
+      text: Bienvenido a la mina.
+  - key: msg.lower.tutorial.sleep_hint
+    values:
+    - language: en
+      text: It's getting late. Head back to your bed.
+    - language: es
+      text: Se hace tarde. Vuelve a tu cama.
+  - key: msg.oniric.po.first_thought
+    values:
+    - language: en
+      text: I must find shelter before night.
+    - language: es
+      text: Debo encontrar refugio antes de la noche.

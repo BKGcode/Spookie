@@ -5,14 +5,16 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Game.Interaction; // DBTextInteractable
-using Game.UI; // OniricOverlayTrigger
+using Game.UI; // MessageTrigger
 
 namespace Game.EditorTools
 {
     internal static class OneShotCleaner
     {
-    private const string MSG_PREFIX = "Spookie.MsgSeen."; // DBTextInteractable / LowerMessage one-shots
-        private const string PO_PREFIX  = "Spookie.PO.";       // OniricOverlayController/Trigger
+    private const string MSG_PREFIX = "Spookie.MsgSeen.";      // Legacy Lower
+    private const string PO_PREFIX  = "Spookie.PO.";          // Legacy Oniric
+    private const string NEW_LOWER_PREFIX  = "spk.lower.seen.";   // Orchestrator Lower
+    private const string NEW_ONIRIC_PREFIX = "spk.oniric.seen.";  // Orchestrator Oniric
 
         [MenuItem("Spookie/Testing/Clear One-Shot Flags (Open Scenes)")] 
         public static void ClearOpenScenes()
@@ -27,7 +29,11 @@ namespace Game.EditorTools
             var lowerIds = new HashSet<string>();
             var poIds = new HashSet<string>();
             CollectFromOpenScenes(lowerIds, poIds);
-            int removed = DeleteKeys(lowerIds, MSG_PREFIX) + DeleteKeys(poIds, PO_PREFIX);
+            int removed = 0;
+            removed += DeleteKeys(lowerIds, MSG_PREFIX);
+            removed += DeleteKeys(lowerIds, NEW_LOWER_PREFIX);
+            removed += DeleteKeys(poIds, PO_PREFIX);
+            removed += DeleteKeys(poIds, NEW_ONIRIC_PREFIX);
 
             PlayerPrefs.Save();
             EditorUtility.DisplayDialog("Clear One-Shot Flags",
@@ -50,7 +56,11 @@ namespace Game.EditorTools
             CollectFromOpenScenes(lowerIds, poIds);
             CollectFromPrefabs(lowerIds, poIds);
 
-            int removed = DeleteKeys(lowerIds, MSG_PREFIX) + DeleteKeys(poIds, PO_PREFIX);
+            int removed = 0;
+            removed += DeleteKeys(lowerIds, MSG_PREFIX);
+            removed += DeleteKeys(lowerIds, NEW_LOWER_PREFIX);
+            removed += DeleteKeys(poIds, PO_PREFIX);
+            removed += DeleteKeys(poIds, NEW_ONIRIC_PREFIX);
             PlayerPrefs.Save();
 
             EditorUtility.DisplayDialog("Clear One-Shot Flags (All)",
@@ -112,10 +122,11 @@ namespace Game.EditorTools
                 if (!string.IsNullOrWhiteSpace(persist)) lowerIds.Add(persist);
             }
 
-            var poComps = root.GetComponentsInChildren<OniricOverlayTrigger>(true);
-            foreach (var c in poComps)
+            // OniricOverlayTrigger eliminado: recolectar ids desde MessageTrigger (messageId)
+            var trigComps = root.GetComponentsInChildren<MessageTrigger>(true);
+            foreach (var t in trigComps)
             {
-                var id = GetPrivateString(c, "persistentId");
+                var id = GetPrivateString(t, "messageId");
                 if (!string.IsNullOrWhiteSpace(id)) poIds.Add(id);
             }
         }

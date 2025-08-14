@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerSettings
   m_EditorClassIdentifier: 
   walkSpeed: 5
-  sprintSpeed: 8
+  sprintSpeed: 12
   jumpForce: 8
   gravity: -20
   mouseSensitivity: 0.3
@@ -56,3 +56,4 @@ MonoBehaviour:
   interactableLayers:
     serializedVersion: 2
     m_Bits: 512
+  interactionHoldSeconds: -1
