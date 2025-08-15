@@ -27,9 +27,9 @@ namespace Game.DayNight
         [SerializeField] private bool driveFromManager = true;
         [Tooltip("Yaw angle for the sun's path (rotation around Y).")]
         [SerializeField] private float sunDirection = 170f;
-        [Tooltip("Factor de suavizado para la rotación del sol. Un valor más bajo es más suave.")]
-        [Range(0.01f, 1f)]
-        [SerializeField] private float smoothFactor = 0.1f;
+    [Tooltip("Smoothing speed for sun rotation (higher = faster follow). 0 = no smoothing.")]
+    [Min(0f)]
+    [SerializeField] private float smoothingSpeed = 5f;
         [Tooltip("Collect non-directional lights automatically at Start to act as lamps.")]
         [SerializeField] private bool controlLights = true;
         [Tooltip("Additional lamps to drive (merged with auto-collected ones if enabled).")]
@@ -141,9 +141,7 @@ namespace Game.DayNight
                 return;
             }
 
-            // Early-out if nothing changed significantly
-            if (Mathf.Abs(timePercent - _lastAppliedPercent) < 0.0005f && _lastState == (manager != null ? manager.State : _lastState))
-                return;
+            // Always update for smooth visuals; no early-out throttling
 
             // Remapear el tiempo usando la curva para controlar la velocidad del ciclo
             float remappedTime = timeCurve.Evaluate(timePercent);
@@ -160,8 +158,9 @@ namespace Game.DayNight
                 // Calcular la rotación objetivo
                 Quaternion targetRotation = Quaternion.Euler(new Vector3((remappedTime * 360f) - 90f, sunDirection, 0f));
                 
-                // Interpolar suavemente hacia la rotación objetivo para evitar saltos
-                directionalLight.transform.localRotation = Quaternion.Slerp(directionalLight.transform.localRotation, targetRotation, smoothFactor);
+                // Interpolar suavemente hacia la rotación objetivo (frame-rate independent)
+                float lerpT = smoothingSpeed <= 0f ? 1f : 1f - Mathf.Exp(-smoothingSpeed * Time.deltaTime);
+                directionalLight.transform.localRotation = Quaternion.Slerp(directionalLight.transform.localRotation, targetRotation, lerpT);
             }
 
             // Lamps tint (optional)
@@ -184,6 +183,7 @@ namespace Game.DayNight
         {
             sunDirection = Mathf.Repeat(sunDirection, 360f);
             manualTimePercent = Mathf.Clamp01(manualTimePercent);
+            smoothingSpeed = Mathf.Max(0f, smoothingSpeed);
         }
     }
 }
