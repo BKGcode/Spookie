@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c310fdfa8c34ea49bbcf0a14e2caba2, type: 3}
   m_Name: DayNightConfig
   m_EditorClassIdentifier: 
-  dayDurationMinutes: 1
-  duskWarningThresholdSeconds: 10
+  dayDurationMinutes: 10
+  duskWarningThresholdSeconds: 20
   showDayTimerAlways: 1
   uiTimeFormat: mm:ss
   labelDay: Day
