@@ -22,7 +22,7 @@ namespace Game.EditorTools.Messages
         private const string Title = "Messages Browser & Assign";
         private const float RowHeight = 22f;
 
-    [MenuItem("Tools/Spookie/Messages/Browser & Assign", priority = 2)]
+    [MenuItem("Tools/Spookie/Localization/Messages Browser & Assign", priority = 2)]
         public static void Open()
         {
             var w = GetWindow<MessageBrowserWindow>(false, Title, true);

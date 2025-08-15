@@ -12,7 +12,7 @@ namespace Game.EditorTools
 {
     public static class SceneValidationTool
     {
-    [MenuItem("Tools/Spookie/Testing/Validate Messages Scene", priority = 50)]
+    [MenuItem("Tools/Spookie/Maintenance/Validate Messages Scene", priority = 50)]
         public static void ValidateScene()
         {
             int sceneCount = EditorSceneManager.sceneCount;

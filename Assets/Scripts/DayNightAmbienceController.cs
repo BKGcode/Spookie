@@ -27,6 +27,9 @@ namespace Game.DayNight
         [SerializeField] private bool driveFromManager = true;
         [Tooltip("Yaw angle for the sun's path (rotation around Y).")]
         [SerializeField] private float sunDirection = 170f;
+        [Tooltip("Factor de suavizado para la rotación del sol. Un valor más bajo es más suave.")]
+        [Range(0.01f, 1f)]
+        [SerializeField] private float smoothFactor = 0.1f;
         [Tooltip("Collect non-directional lights automatically at Start to act as lamps.")]
         [SerializeField] private bool controlLights = true;
         [Tooltip("Additional lamps to drive (merged with auto-collected ones if enabled).")]
@@ -43,6 +46,9 @@ namespace Game.DayNight
         private readonly List<Light> _lamps = new List<Light>();
         private DayState _lastState;
         private float _lastAppliedPercent = -1f;
+
+        [Tooltip("Curva para remapear el tiempo del día. Permite acelerar la noche y ralentizar el día.")]
+        [SerializeField] private AnimationCurve timeCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         private void Start()
         {
@@ -139,21 +145,29 @@ namespace Game.DayNight
             if (Mathf.Abs(timePercent - _lastAppliedPercent) < 0.0005f && _lastState == (manager != null ? manager.State : _lastState))
                 return;
 
+            // Remapear el tiempo usando la curva para controlar la velocidad del ciclo
+            float remappedTime = timeCurve.Evaluate(timePercent);
+
             // Ambient & Fog
-            RenderSettings.ambientLight = dayNightPreset.AmbientColour.Evaluate(timePercent);
-            RenderSettings.fogColor = dayNightPreset.FogColour.Evaluate(timePercent);
+            RenderSettings.ambientLight = dayNightPreset.AmbientColour.Evaluate(remappedTime);
+            RenderSettings.fogColor = dayNightPreset.FogColour.Evaluate(remappedTime);
 
             // Directional (sun)
             if (directionalLight != null)
             {
-                directionalLight.color = dayNightPreset.DirectionalColour.Evaluate(timePercent);
-                directionalLight.transform.localRotation = Quaternion.Euler(new Vector3((timePercent * 360f) - 90f, sunDirection, 0f));
+                directionalLight.color = dayNightPreset.DirectionalColour.Evaluate(remappedTime);
+                
+                // Calcular la rotación objetivo
+                Quaternion targetRotation = Quaternion.Euler(new Vector3((remappedTime * 360f) - 90f, sunDirection, 0f));
+                
+                // Interpolar suavemente hacia la rotación objetivo para evitar saltos
+                directionalLight.transform.localRotation = Quaternion.Slerp(directionalLight.transform.localRotation, targetRotation, smoothFactor);
             }
 
             // Lamps tint (optional)
             if (lampPreset != null && _lamps.Count > 0)
             {
-                var c = lampPreset.DirectionalColour.Evaluate(timePercent);
+                var c = lampPreset.DirectionalColour.Evaluate(remappedTime);
                 for (int i = 0; i < _lamps.Count; i++)
                 {
                     var li = _lamps[i];

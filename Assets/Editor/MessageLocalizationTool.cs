@@ -44,7 +44,7 @@ namespace Game.EditorTools.Messages
     // Cache opcional de IDs (para autocompletar u otros usos futuros)
     private List<string> _cachedIds = new List<string> { string.Empty };
 
-    [MenuItem("Tools/Spookie/Messages & Localization Tool", priority = 1)]
+    [MenuItem("Tools/Spookie/Localization/Messages & Localization Tool", priority = 1)]
         public static void Open()
         {
             var w = GetWindow<MessageLocalizationTool>(false, Title, true);
