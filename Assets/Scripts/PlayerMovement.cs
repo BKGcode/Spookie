@@ -22,6 +22,10 @@ namespace PlayerController
     [Tooltip("Acción de agacharse (C/Botón). Mantenida para agacharse.")]
     [SerializeField] private InputActionReference crouchAction;
         
+    [Header("Sprint Settings")]
+    [Tooltip("Si está activo, debes mantener pulsado Sprint para correr. Si se desactiva, Sprint funciona como toggle (pulsar para activar/desactivar).")]
+    [SerializeField] private bool holdToSprint = true;
+        
         [Header("Debug")]
         [SerializeField] private bool showDebugLogs = true;
         
@@ -125,12 +129,36 @@ namespace PlayerController
 
             if (sprintAction != null)
             {
-                bool sp = false; try { sp = sprintAction.action.IsPressed(); } catch { sp = false; }
-                sprintPressed = sp;
+                try
+                {
+                    var action = sprintAction.action;
+                    if (holdToSprint)
+                    {
+                        sprintPressed = action.IsPressed();
+                    }
+                    else
+                    {
+                        // Toggle sprint on press
+                        if (action.WasPressedThisFrame())
+                        {
+                            sprintPressed = !sprintPressed;
+                        }
+                        // Optional: if player releases while not moving, keep state; no-op on release
+                    }
+                }
+                catch { sprintPressed = false; }
             }
             else
             {
-                sprintPressed = Input.GetKey(KeyCode.LeftShift);
+                if (holdToSprint)
+                {
+                    sprintPressed = Input.GetKey(KeyCode.LeftShift);
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.LeftShift))
+                        sprintPressed = !sprintPressed;
+                }
             }
 
             if (crouchAction != null)
