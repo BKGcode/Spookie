@@ -58,6 +58,11 @@ namespace Game.Mine
                 return;
             }
             SpawnInitial();
+            InitLayerSystem();
+            if (useLayerGating && (clusterVariants == null || clusterVariants.Count == 0))
+            {
+                Debug.LogWarning("[TunnelManager] Layer gating activo pero 'clusterVariants' está vacío: no se generarán rocas. Asigna prefabs de MiningCluster.");
+            }
         }
 
         private void Update()
@@ -78,6 +83,152 @@ namespace Game.Mine
             }
             EnsureTargetCount();
         }
+
+        #region Layer (Internal Active/Preview)
+        [Header("Layer Clusters")] [Tooltip("Prefabs de clusters (capas). Se elige uno para cada socket.")]
+        [SerializeField] private List<MiningCluster> clusterVariants = new();
+        [Tooltip("Semilla para elección de clusters (si no randomSeed).")]
+        [SerializeField] private int clusterSeedOffset = 9876;
+        [Tooltip("Da spawn al siguiente segmento automáticamente al limpiar la última capa del actual.")]
+        [SerializeField] private bool spawnNextSegmentOnLastLayerClear = true;
+        [Tooltip("Desactiva autoMaintainTarget cuando se use gating por capas.")]
+        [SerializeField] private bool useLayerGating = true;
+
+        private TunnelSegmentMeta currentSegment; // segmento donde están las capas activas
+        private int currentLocalLayerIndex = 0;   // índice dentro del segmento
+        private MiningCluster activeCluster;
+        private MiningCluster previewCluster;
+        private int globalLayerIndex = 0;
+
+        private void InitLayerSystem()
+        {
+            if (!useLayerGating) return;
+            autoMaintainTarget = false; // gating manual
+            if (activeSegments.Count == 0) return;
+            currentSegment = activeSegments[0];
+            SetupInitialClusters();
+        }
+
+        private void SetupInitialClusters()
+        {
+            if (currentSegment == null) return;
+            currentLocalLayerIndex = 0;
+            SpawnActiveAndPreviewForCurrent();
+        }
+
+        private void SpawnActiveAndPreviewForCurrent()
+        {
+            DestroyCluster(ref activeCluster);
+            DestroyCluster(ref previewCluster);
+            if (clusterVariants == null || clusterVariants.Count == 0)
+            {
+                Log("Sin clusterVariants asignados: se omite Spawn de capas.");
+                return;
+            }
+            int socketCount = currentSegment.GetLayerSocketCount();
+            if (socketCount <= 0) { Log("Segment without sockets - skipping layer system."); return; }
+            // Active
+            activeCluster = SpawnClusterAt(currentSegment, currentLocalLayerIndex, true);
+            // Preview
+            if (currentLocalLayerIndex + 1 < socketCount)
+            {
+                previewCluster = SpawnClusterAt(currentSegment, currentLocalLayerIndex + 1, false);
+            }
+        }
+
+        private MiningCluster SpawnClusterAt(TunnelSegmentMeta segment, int socketIndex, bool active)
+        {
+            if (segment == null || clusterVariants.Count == 0) return null;
+            var socket = segment.GetLayerSocket(socketIndex);
+            if (socket == null)
+            {
+                Log($"Missing socket {socketIndex} in segment {segment.name}");
+                return null;
+            }
+            int idx = rng.Next(0, clusterVariants.Count);
+            var prefab = clusterVariants[idx];
+            var inst = Instantiate(prefab, socket.position, socket.rotation, segment.transform);
+            if (active)
+            {
+                inst.SetModeActive();
+                inst.OnClusterCleared += HandleActiveClusterCleared;
+            }
+            else
+            {
+                inst.SetModePreview();
+            }
+            return inst;
+        }
+
+        private void HandleActiveClusterCleared(MiningCluster cluster)
+        {
+            if (cluster != activeCluster) return; // stale
+            activeCluster.OnClusterCleared -= HandleActiveClusterCleared;
+            globalLayerIndex++;
+            var seg = currentSegment;
+            int socketCount = seg.GetLayerSocketCount();
+            // Promote preview if exists
+            if (previewCluster != null)
+            {
+                previewCluster.SetModeActive();
+                activeCluster = previewCluster;
+                activeCluster.OnClusterCleared += HandleActiveClusterCleared;
+                previewCluster = null;
+                currentLocalLayerIndex++;
+                // Spawn new preview
+                if (currentLocalLayerIndex + 1 < socketCount)
+                {
+                    previewCluster = SpawnClusterAt(seg, currentLocalLayerIndex + 1, false);
+                }
+                else
+                {
+                    // Last layer active now
+                }
+            }
+            else
+            {
+                // No preview means this was last layer
+                if (spawnNextSegmentOnLastLayerClear)
+                {
+                    AdvanceToNextSegment();
+                }
+            }
+        }
+
+        private void AdvanceToNextSegment()
+        {
+            // Ensure next segment exists
+            if (activeSegments.Count < 2)
+            {
+                InternalSpawnNext(false);
+            }
+            // Shift: remove finished segment if exceeding window later
+            if (activeSegments.Count > 0)
+            {
+                activeSegments.RemoveAt(0); // remove the old finished
+            }
+            if (activeSegments.Count == 0)
+            {
+                InternalSpawnNext(true);
+            }
+            currentSegment = activeSegments[0];
+            currentLocalLayerIndex = 0;
+            SpawnActiveAndPreviewForCurrent();
+            CullOldSegments();
+        }
+
+        private void DestroyCluster(ref MiningCluster cluster)
+        {
+            if (cluster == null) return;
+            try
+            {
+                cluster.OnClusterCleared -= HandleActiveClusterCleared;
+            }
+            catch { }
+            Destroy(cluster.gameObject);
+            cluster = null;
+        }
+        #endregion
 
         private void EnsureTargetCount()
         {

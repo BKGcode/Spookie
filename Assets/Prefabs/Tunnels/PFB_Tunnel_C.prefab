@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 759086729269516410}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -4.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -95,8 +95,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 704885904500035350}
   - {fileID: 604532166442355688}
+  - {fileID: 704885904500035350}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3885736720658760619
@@ -170,6 +170,13 @@ MonoBehaviour:
   entryAnchor: {fileID: 604532166442355688}
   exitAnchor: {fileID: 704885904500035350}
   faceSocket: {fileID: 0}
+  autoGenerateLayerSockets: 1
+  firstLayerOffset: 0.8
+  endClearance: 0.6
+  desiredLayerSpacing: 1
+  adaptiveFit: 1
+  manualLayerSockets: []
+  socketsGizmoColor: {r: 1, g: 0.65, b: 0.2, a: 0.75}
   showGizmos: 1
   gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.7}
   suggestedLengthRange: {x: 6, y: 14}

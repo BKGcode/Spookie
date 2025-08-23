@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using PlayerController; // For IInteractable interface
 
 namespace Game.Mine
 {
@@ -8,7 +9,7 @@ namespace Game.Mine
     /// No gestiona drops físicos (KISS); suma de recursos se hará vía evento.
     /// </summary>
     [AddComponentMenu("Spookie/Mine/Rock Node")]
-    public class RockNode : MonoBehaviour
+    public class RockNode : MonoBehaviour, IInteractable
     {
         [Header("Stats")]
         [Tooltip("Vida máxima de la roca (golpes aprox. = MaxHP / DañoArma.")]
@@ -18,6 +19,12 @@ namespace Game.Mine
         [Tooltip("Rango de cantidad de recurso obtenido al destruir (min inclusive, max inclusive).")]
         [Min(0)] [SerializeField] private int amountMin = 1;
         [Min(0)] [SerializeField] private int amountMax = 2;
+
+        [Header("Mining Interaction")]
+        [Tooltip("Daño aplicado cada vez que el jugador interactúa (click). Left‑Click usa PlayerInteraction.")]
+        [Min(1)] [SerializeField] private int damagePerInteract = 5;
+        [Tooltip("Texto mostrado en el prompt de interacción. Puedes incluir {hp} y {max}.")]
+        [SerializeField] private string interactionPrompt = "Mine ({hp}/{max})";
 
         [Header("Optional Visual/SFX Refs")]
         [Tooltip("Objeto visual a desactivar al morir si no quieres destruir la raíz.")]
@@ -30,6 +37,7 @@ namespace Game.Mine
         // Runtime
         private int currentHP;
         private bool destroyed;
+    private bool canInteract = true; // controlado por modos Active/Preview
 
         // Events
         public event Action<RockNode> OnRockDamaged; // before death
@@ -56,7 +64,7 @@ namespace Game.Mine
         /// </summary>
         public int ApplyDamage(int damage)
         {
-            if (destroyed) return 0;
+            if (destroyed || !canInteract) return currentHP;
             if (damage <= 0) return currentHP;
             currentHP -= damage;
             if (currentHP > 0)
@@ -94,12 +102,31 @@ namespace Game.Mine
             destroyed = false;
             if (visualsRoot != null) visualsRoot.SetActive(true); else gameObject.SetActive(true);
         }
+
+        // IInteractable implementation (used by PlayerInteraction left click)
+        public void Interact(GameObject interactor)
+        {
+            if (destroyed || !canInteract) return;
+            ApplyDamage(damagePerInteract);
+        }
+
+        public string GetInteractionPrompt()
+        {
+            return interactionPrompt
+                .Replace("{hp}", currentHP.ToString())
+                .Replace("{max}", maxHP.ToString());
+        }
+
+        public void SetInteractable(bool value)
+        {
+            canInteract = value;
+        }
     }
 }
 
 // ScriptRole | RelatedScripts | UsesSO | ReceivesFrom | SendsTo
-// ScriptRole: Representa una roca destructible con HP y tipo de recurso.
-// RelatedScripts: MiningCluster, (futuro) ResourceInventory.
+// ScriptRole: Representa una roca destructible con HP y tipo de recurso e interactuable vía PlayerInteraction.
+// RelatedScripts: MiningCluster, PlayerInteraction (IInteractable), (futuro) ResourceInventory.
 // UsesSO: No (posible futuro ResourceConfigSO).
-// ReceivesFrom: Herramienta/arma (raycast) -> ApplyDamage.
+// ReceivesFrom: PlayerInteraction.Interact (left-click) -> Interact -> ApplyDamage.
 // SendsTo: MiningCluster (eventos), sistema de recursos (listener a OnRockDestroyed).

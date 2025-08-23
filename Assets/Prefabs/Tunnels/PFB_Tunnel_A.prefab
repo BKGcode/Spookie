@@ -108,6 +108,13 @@ MonoBehaviour:
   entryAnchor: {fileID: 6088111047774357889}
   exitAnchor: {fileID: 2185360291271983889}
   faceSocket: {fileID: 0}
+  autoGenerateLayerSockets: 1
+  firstLayerOffset: 0.8
+  endClearance: 0.6
+  desiredLayerSpacing: 1
+  adaptiveFit: 1
+  manualLayerSockets: []
+  socketsGizmoColor: {r: 1, g: 0.65, b: 0.2, a: 0.75}
   showGizmos: 1
   gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.7}
   suggestedLengthRange: {x: 6, y: 14}

@@ -29,6 +29,9 @@ namespace Game.Mine
         public bool IsCleared => cleared;
         public IReadOnlyList<RockNode> Nodes => nodes;
         public int AliveCount => aliveCount;
+    public bool IsPreview { get; private set; }
+
+    private List<Collider> cachedColliders = new();
 
         private void Awake()
         {
@@ -46,6 +49,7 @@ namespace Game.Mine
             Log($"Cluster init: {aliveCount} rocks");
             cleared = aliveCount == 0;
             if (cleared) OnClusterCleared?.Invoke(this);
+            CacheColliders();
         }
 
         private void OnDestroy()
@@ -84,6 +88,28 @@ namespace Game.Mine
             #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (showDebugLogs) Debug.Log($"[MiningCluster] {msg}");
             #endif
+        }
+
+        private void CacheColliders()
+        {
+            cachedColliders.Clear();
+            cachedColliders.AddRange(GetComponentsInChildren<Collider>(includeInactive: true));
+        }
+
+        public void SetModeActive()
+        {
+            IsPreview = false;
+            foreach (var c in cachedColliders) if (c != null) c.enabled = true;
+            foreach (var n in nodes) if (n != null) n.SetInteractable(true);
+            Log("Mode -> Active");
+        }
+
+        public void SetModePreview()
+        {
+            IsPreview = true;
+            foreach (var c in cachedColliders) if (c != null) c.enabled = false;
+            foreach (var n in nodes) if (n != null) n.SetInteractable(false);
+            Log("Mode -> Preview");
         }
     }
 }
