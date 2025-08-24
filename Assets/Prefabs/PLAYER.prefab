@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1471756117116192748}
   - component: {fileID: 5274021365897732638}
   - component: {fileID: 1208412727647886767}
+  - component: {fileID: 2306972701809886699}
   m_Layer: 0
   m_Name: PLAYER
   m_TagString: Player
@@ -103,6 +104,7 @@ MonoBehaviour:
   crouchAction: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   holdToSprint: 1
   showDebugLogs: 1
+  restrictLogsToDevBuild: 1
 --- !u!114 &5274021365897732638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,6 +144,20 @@ MonoBehaviour:
   singleHighlight: 1
   showDebugLogs: 1
   showInteractionRay: 1
+--- !u!114 &2306972701809886699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874578240486877435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe7009ef32790724293dbfbb965b1b12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Save.SaveParticipantPlayer
+  playerRoot: {fileID: 1297086528809579271}
+  showDebugLogs: 0
 --- !u!1 &3848765018256603458
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+using Game.Save; // Save integration
 using Game.Core; // PauseManager, PauseReason
 using Game.Core; // GameConfigProvider (same namespace, but explicit here for clarity)
 
@@ -72,6 +74,37 @@ namespace Game.DayNight
                 if (cfg != null && cfg.DayNightConfig != null) config = cfg.DayNightConfig;
             }
             InitializeDay();
+
+            // SAVE: Restaurar estado si existe partida cargada para esta escena (después de InitializeDay para sobrescribir)
+            if (SaveGameManager.Instance != null && SaveGameManager.Instance.HasLoaded)
+            {
+                var data = SaveGameManager.Instance.CurrentData;
+                if (data != null && !data.isGameCompleted && data.sceneName == SceneManager.GetActiveScene().name)
+                {
+                    // Día
+                    currentDay = Mathf.Max(1, data.absoluteDay);
+                    // Duración del día (compatibilidad si cambió config)
+                    if (data.dayLengthSeconds > 10f) totalDaySeconds = data.dayLengthSeconds; // salvaguarda
+                    // Tiempo transcurrido -> Remaining
+                    float elapsed = Mathf.Clamp(data.timeOfDaySeconds, 0f, totalDaySeconds);
+                    DayTimeRemainingSeconds = Mathf.Max(0f, totalDaySeconds - elapsed);
+                    // Estado visual directo a Day (o mapear si en futuro reanudamos Exhaustion)
+                    SetState(DayState.Day);
+                    // Penalización faint
+                    if (data.penaltyActive && data.penaltyRemainingSeconds > 0f)
+                    {
+                        float elapsedNow = totalDaySeconds - DayTimeRemainingSeconds;
+                        penaltyExpiresAtGameTime = elapsedNow + data.penaltyRemainingSeconds; // timeline absoluto
+                        ApplyNextDayPenalty(true);
+                        // Persistir en PlayerPrefs para compat intermedia (se limpiará al expirar)
+                        PlayerPrefs.SetInt(PP_PenaltyKey, 1);
+                        PlayerPrefs.SetInt(PP_PenaltyUntilKey, Mathf.RoundToInt(penaltyExpiresAtGameTime));
+                        PlayerPrefs.Save();
+                    }
+                    UpdateUI(force: true);
+                    if (showDebugLogs) Debug.Log($"[DayNightManager] Save restored Day={currentDay} Elapsed={elapsed:F1}s PenaltyActive={data.penaltyActive}");
+                }
+            }
         }
 
         private void InitializeDay()
@@ -493,6 +526,31 @@ namespace Game.DayNight
                 }
             }
             exhaustionSprintWasDisabled = false;
+        }
+
+        // --- SAVE INTEGRATION PUBLIC API ---
+        public int CurrentDay => currentDay;
+        public float TotalDaySeconds => totalDaySeconds;
+        public float GetElapsedDaySeconds() => Mathf.Clamp(totalDaySeconds - DayTimeRemainingSeconds, 0f, totalDaySeconds);
+        public void FillSaveData(SaveData data)
+        {
+            if (data == null) return;
+            data.absoluteDay = currentDay;
+            data.dayLengthSeconds = totalDaySeconds;
+            data.timeOfDaySeconds = GetElapsedDaySeconds();
+            data.dayState = State.ToString();
+            if (penaltyExpiresAtGameTime > 0f)
+            {
+                float elapsed = GetElapsedDaySeconds();
+                bool active = penaltyExpiresAtGameTime > elapsed;
+                data.penaltyActive = active;
+                data.penaltyRemainingSeconds = active ? Mathf.Max(0f, penaltyExpiresAtGameTime - elapsed) : 0f;
+            }
+            else
+            {
+                data.penaltyActive = false;
+                data.penaltyRemainingSeconds = 0f;
+            }
         }
     }
 }

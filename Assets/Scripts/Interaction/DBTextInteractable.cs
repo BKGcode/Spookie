@@ -1,6 +1,7 @@
 using UnityEngine;
 using PlayerController; // IInteractable
 using Game.Messages; // MessageOrchestrator
+using Game.Save; // Save progress
 
 namespace Game.Interaction
 {
@@ -95,6 +96,12 @@ namespace Game.Interaction
             if (cd > 0f && Time.time - _lastFireTime < cd) return;
 
             orchestrator.ShowById(messageId);
+            // Marcar mensaje visto si tiene ID persistente
+            var eid = GetComponent<SaveEntityID>();
+            if (eid != null && !string.IsNullOrWhiteSpace(eid.id))
+            {
+                SaveParticipantMessages.MarkSeenStatic(eid.id);
+            }
             _lastFireTime = Time.time;
         }
 

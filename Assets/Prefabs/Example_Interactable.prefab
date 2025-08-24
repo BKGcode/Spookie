@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6363563602642322764}
   - component: {fileID: 3696484047096771722}
   - component: {fileID: 4878036007187210922}
+  - component: {fileID: 4636816665107778506}
   m_Layer: 9
   m_Name: Example_Interactable
   m_TagString: Untagged
@@ -63,6 +64,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,6 +87,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -127,3 +131,17 @@ MonoBehaviour:
   requiredTag: Player
   cooldownSeconds: 0
   showDebugLogs: 0
+--- !u!114 &4636816665107778506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5954020791844119821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ad68cb7b68bdd04d843c01163611fa2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Save.SaveEntityID
+  id: Example_Interactable
+  category: 
