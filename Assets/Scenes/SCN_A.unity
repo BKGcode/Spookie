@@ -2646,6 +2646,7 @@ GameObject:
   - component: {fileID: 323890957}
   - component: {fileID: 323890959}
   - component: {fileID: 323890960}
+  - component: {fileID: 323890961}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -2725,6 +2726,20 @@ MonoBehaviour:
   localizationDB: {fileID: 0}
   prefsKey: Spookie.Language
   showDebugLogs: 1
+--- !u!114 &323890961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323890954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b574a45b100da1d45a7913b13bfb13ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Core.CursorStateController
+  lockOnStart: 1
+  showDebugLogs: 0
 --- !u!1001 &326944830
 PrefabInstance:
   m_ObjectHideFlags: 0

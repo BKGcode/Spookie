@@ -26,9 +26,9 @@ namespace PlayerController
 		[Tooltip("Multiplicador adicional por-instancia (se multiplica por PlayerSettingsSO.MouseSensitivity y LookSensitivityMultiplier)")]
 		[SerializeField] private float sensitivityMultiplier = 1f;
 
-		[Header("Cursor (opcional)")]
-		[Tooltip("Si está activo, este componente bloquea/oculta el cursor al habilitarse y lo libera al deshabilitarse.")]
-		[SerializeField] private bool manageCursor = false;
+		[Header("Cursor (legacy - deshabilitado)")]
+		[Tooltip("DEPRECATED: usar CursorStateController central. Este flag ya no hace nada, se mantiene para compatibilidad de prefabs.")]
+		[SerializeField] private bool manageCursor = false; // mantenido pero sin efecto
 
 		[Header("Debug")]
 		[SerializeField] private bool showDebugLogs = true;
@@ -51,13 +51,7 @@ namespace PlayerController
 		{
 			ValidateReferences();
 
-			// Lock/hide cursor before enabling input to reduce first-frame deltas
-			if (manageCursor)
-			{
-				Cursor.lockState = CursorLockMode.Locked;
-				Cursor.visible = false;
-			}
-
+			// Eliminado: gestión directa del cursor. Ahora central via CursorStateController externo.
 			if (lookAction != null)
 			{
 				try { lookAction.action.Enable(); } catch { /* ignore if already enabled */ }
@@ -73,12 +67,7 @@ namespace PlayerController
 			{
 				try { lookAction.action.Disable(); } catch { /* ignore */ }
 			}
-
-			if (manageCursor)
-			{
-				Cursor.lockState = CursorLockMode.None;
-				Cursor.visible = true;
-			}
+			// Eliminado: liberar cursor aquí (lo hará quien corresponda por refcount en CursorStateController)
 		}
 
 		private void Update()
@@ -267,3 +256,7 @@ namespace PlayerController
 // UsesSO: PlayerSettingsSO
 // ReceivesFrom: InputAction (Vector2 Look)
 // SendsTo: Transform del Player (yaw), Transform de la Cámara (pitch)
+//
+// Nota: La gestión de cursor se ha externalizado. Usar:
+//   CursorStateController.Instance?.SetLocked("Gameplay"); en el sistema que habilita control de cámara
+//   CursorStateController.Instance?.SetFree("Pausa/Inventario"); al mostrar UI.

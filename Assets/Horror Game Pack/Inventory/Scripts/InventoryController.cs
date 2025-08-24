@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem; // New Input System
+using Game.Core; // CursorStateController
 
 public class InventoryController : MonoBehaviour
 {
@@ -15,8 +17,13 @@ public class InventoryController : MonoBehaviour
     public TextMeshProUGUI itemNameText;
     [Tooltip("Reference to the RawImage used for item dragging.")]
     public RawImage duplicatedRawImage;
-    [Tooltip("The key to toggle the inventory UI.")]
+    [Tooltip("(LEGACY) The key to toggle the inventory UI if no InputAction is assigned.")]
     public KeyCode inventoryKey = KeyCode.I;
+    [Header("Input (New Input System)")]
+    [Tooltip("InputAction (Button) para abrir/cerrar inventario. Si está asignada se ignora la tecla legacy.")]
+    [SerializeField] private InputActionReference inventoryToggleAction;
+    [Tooltip("Mostrar logs de depuración al intentar abrir/cerrar inventario.")]
+    [SerializeField] private bool debugToggleLogs = false;
 
     [Header("Player elements")]
     [Tooltip("The main camera's mouselook script in the scene.")]
@@ -92,233 +99,64 @@ public class InventoryController : MonoBehaviour
         {
             AddDefaultItemToInventory(defaultItem);
         }
-
-
-        GameObject[] boltObjects = GameObject.FindGameObjectsWithTag("Bolt");
-        foreach (GameObject obj in boltObjects)
+        // Cambio A: eliminar dependencia de Tag "Bolt" inexistente -> usar FindObjectsOfType<Bolt>()
+        bolts.Clear();
+        var foundBolts = FindObjectsOfType<Bolt>(true); // incluye inactivos por si se activan luego
+        for (int i = 0; i < foundBolts.Length; i++)
         {
-            Bolt bolt = obj.GetComponent<Bolt>();
-            if (bolt != null)
+            if (foundBolts[i] != null) bolts.Add(foundBolts[i]);
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (inventoryToggleAction != null)
+        {
+            try
             {
-                bolts.Add(bolt);
+                inventoryToggleAction.action.performed += OnInventoryTogglePerformed;
+                inventoryToggleAction.action.Enable();
             }
+            catch { /* ignore double enable */ }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (inventoryToggleAction != null)
+        {
+            try
+            {
+                inventoryToggleAction.action.performed -= OnInventoryTogglePerformed;
+                inventoryToggleAction.action.Disable();
+            }
+            catch { /* ignore */ }
+        }
+    }
+
+    private void OnInventoryTogglePerformed(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+        {
+            if (debugToggleLogs) Debug.Log("[InventoryController] InputAction performed -> toggle");
+            TryToggleInventory("InputAction");
         }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(inventoryKey) && CantOpenInventory == false)
+        // Fallback legacy key SIEMPRE permitido (evita quedarse sin toggle si la acción no dispara)
+        if (Input.GetKeyDown(inventoryKey))
         {
-            isInventoryOpen = !isInventoryOpen;
-            inventoryCanvas.SetActive(isInventoryOpen);
-
-            // Toggle camera and character movement
-            mouseLook.enabled = !isInventoryOpen;
-            playerMovement.enabled = !isInventoryOpen;
-            pauseMenu.enabled = !isInventoryOpen;
-
-            // Toggle mouse visibility
-            isMouseVisible = isInventoryOpen;
-            Cursor.visible = isMouseVisible;
-            Cursor.lockState = isMouseVisible ? CursorLockMode.None : CursorLockMode.Locked;
+            if (debugToggleLogs) Debug.Log("[InventoryController] Legacy key pressed -> toggle");
+            TryToggleInventory("LegacyKey");
         }
+        // Lógica de hover + tooltip movida a InventoryHoverUI (se mantiene drag/drop aquí)
         if (isInventoryOpen)
         {
-            if (itemNameText != null)
-            {
-                Vector2 mousePosition = Input.mousePosition;
-                itemNameText.transform.position = mousePosition + new Vector2(5f, 20f);
-
-                bool isHoveringOverSlot = false;
-                for (int i = 0; i < inventorySlots.Length; i++)
-                {
-                    RawImage rawImage = inventorySlots[i].GetComponent<RawImage>();
-                    if (rawImage != null && RectTransformUtility.RectangleContainsScreenPoint(rawImage.rectTransform, mousePosition))
-                    {
-                        if (Input.GetMouseButtonDown(1) && inventoryItems.ContainsKey(i))
-                        {
-                            PickUpItem(i);
-                        }
-                        // Handle double-click to throw item
-                        if (Input.GetMouseButtonDown(0))
-                        {
-                            if (Time.time - lastClickTime < doubleClickThreshold)
-                            {
-                                // Double-click detected, throw the item
-                                ThrowItem(i);
-                            }
-                            else
-                            {
-                                // Single-click detected, remember the time of click
-                                lastClickTime = Time.time;
-                            }
-                        }
-
-                        // Handle dragging
-                        if (Input.GetMouseButtonDown(0))
-                        {
-                            // Store the slot index being dragged
-                            slotIndexBeingDragged = i;
-
-                            // Store the original RawImage
-                            originalRawImage = rawImage;
-
-                            // Duplicate the RawImage
-                            if (inventoryItems.ContainsKey(slotIndexBeingDragged))
-                            {
-                                InventoryItem item = inventoryItems[slotIndexBeingDragged];
-                                Texture itemTexture = item.itemImage.texture;
-
-                                duplicatedRawImage.enabled = true;
-                                duplicatedRawImage.texture = itemTexture;
-                                duplicatedRawImage.rectTransform.sizeDelta = rawImage.rectTransform.sizeDelta;
-
-                                if (duplicatedRawImage != null)
-                                {
-                                    // Set the texture property to the item's image
-                                    duplicatedRawImage.texture = item.itemImage.texture;
-
-                                    // Calculate the aspect ratio of the item's image
-                                    float imageAspect = (float)item.itemImage.texture.width / item.itemImage.texture.height;
-
-                                    // Calculate the UV rect for displaying the entire image without squashing
-                                    if (imageAspect > 1f)
-                                    {
-                                        float xOffset = (1f - 1f / imageAspect) * 0.5f;
-                                        duplicatedRawImage.uvRect = new Rect(xOffset, 0f, 1f / imageAspect, 1f);
-                                    }
-                                    else
-                                    {
-                                        float yOffset = (1f - imageAspect) * 0.5f;
-                                        duplicatedRawImage.uvRect = new Rect(0f, yOffset, 1f, imageAspect);
-                                    }
-
-                                    // Set the color to white
-                                    duplicatedRawImage.color = Color.white;
-                                }
-
-                                dragging = true;
-                                // Make the original RawImage invisible
-                                originalRawImage.enabled = false;
-                            }
-                        }
-                        else if (Input.GetMouseButtonUp(0) && slotIndexBeingDragged != -1)
-                        {
-                            dragging = false;
-                            // If dragging and releasing on another slot, swap the items
-                            if (i != slotIndexBeingDragged)
-                            {
-                                SwapItems(slotIndexBeingDragged, i, i);
-
-                                ApplyAppearanceSettingsToItem(slotIndexBeingDragged);
-                                ApplyAppearanceSettingsToItem(i);
-                            }
-                            else
-                            {
-                                // Reset the slot index being dragged
-                                slotIndexBeingDragged = -1;
-
-                                // Hide the duplicated RawImage and make the original RawImage visible again
-                                duplicatedRawImage.enabled = false;
-                                originalRawImage.enabled = true;
-                                if (rawImage != null)
-                                {
-                                    InventoryItem targetItem = inventoryItems[i];
-                                    if (targetItem != null)
-                                    {
-                                        // Set the texture property to the item's image
-                                        rawImage.texture = targetItem.itemImage.texture;
-
-                                        // Calculate the aspect ratio of the item's image
-                                        float imageAspect = (float)targetItem.itemImage.texture.width / targetItem.itemImage.texture.height;
-
-                                        // Calculate the UV rect for displaying the entire image without squashing
-                                        if (imageAspect > 1f)
-                                        {
-                                            float xOffset = (1f - 1f / imageAspect) * 0.5f;
-                                            rawImage.uvRect = new Rect(xOffset, 0f, 1f / imageAspect, 1f);
-                                        }
-                                        else
-                                        {
-                                            float yOffset = (1f - imageAspect) * 0.5f;
-                                            rawImage.uvRect = new Rect(0f, yOffset, 1f, imageAspect);
-                                        }
-
-                                        // Set the color to white
-                                        rawImage.color = Color.white;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Update UI based on hovering
-                        isHoveringOverSlot = true;
-
-                        if (rawImage.texture != null)
-                        {
-                            // Get the corresponding InventoryItem for this slot
-                            InventoryItem item = null;
-                            int itemId = i; // Use the slot index as the item ID
-                            if (inventoryItems.ContainsKey(itemId))
-                            {
-                                item = inventoryItems[itemId];
-                            }
-
-                            itemNameText.text = item != null ? item.itemName : "";
-                            itemNameText.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            itemNameText.gameObject.SetActive(false);
-                        }
-
-                        break;
-                    }
-                }
-                if (dragging)
-                {
-                    duplicatedRawImage.rectTransform.position = mousePosition;
-                }
-                if (Input.GetMouseButtonUp(0) && slotIndexBeingDragged != -1)
-                {
-                    dragging = false;
-
-                    // Check if released over a valid InventorySpace tag
-                    bool isReleasedOverInventorySpace = false;
-                    PointerEventData pointerData = new PointerEventData(EventSystem.current)
-                    {
-                        position = Input.mousePosition
-                    };
-                    List<RaycastResult> raycastResults = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(pointerData, raycastResults);
-
-                    foreach (var result in raycastResults)
-                    {
-                        if (result.gameObject.CompareTag("InventorySpace"))
-                        {
-                            isReleasedOverInventorySpace = true;
-                            break;
-                        }
-                    }
-
-                    // If not released over an InventorySpace, throw the item
-                    if (!isReleasedOverInventorySpace)
-                    {
-                        ThrowItem(slotIndexBeingDragged);
-                    }
-
-                    // Reset dragging variables
-                    slotIndexBeingDragged = -1;
-                    originalRawImage.enabled = true;
-                    duplicatedRawImage.enabled = false;
-                }
-                if (!isHoveringOverSlot)
-                {
-                    itemNameText.gameObject.SetActive(false);
-                }
-            }
+            HandleDragAndDrop();
         }
-        if (Input.GetKeyDown(PutBackInventoryKey))
+    if (Input.GetKeyDown(PutBackInventoryKey))
         {
             PutItemBackInInventory();
         }
@@ -328,6 +166,153 @@ public class InventoryController : MonoBehaviour
             {
                 PickUpItem(i - 1);
             }
+        }
+    }
+
+    private void TryToggleInventory(string reason)
+    {
+        if (CantOpenInventory) return;
+        isInventoryOpen = !isInventoryOpen;
+        inventoryCanvas.SetActive(isInventoryOpen);
+
+        // Activar/desactivar control de jugador
+        if (mouseLook != null) mouseLook.enabled = !isInventoryOpen;
+        if (playerMovement != null) playerMovement.enabled = !isInventoryOpen;
+        if (pauseMenu != null) pauseMenu.enabled = !isInventoryOpen;
+
+        // Cursor via controlador central
+        if (isInventoryOpen)
+        {
+            CursorStateController.Instance?.SetFree("InventoryOpen:" + reason);
+        }
+        else
+        {
+            CursorStateController.Instance?.SetLocked("InventoryClose:" + reason);
+        }
+        isMouseVisible = isInventoryOpen; // mantenido por compatibilidad con lógica existente
+    }
+
+    public bool TryGetItemAtSlot(int slotIndex, out InventoryItem item)
+    {
+        return inventoryItems.TryGetValue(slotIndex, out item);
+    }
+
+    private void HandleDragAndDrop()
+    {
+        // Sólo ejecutar si tenemos el texto (dep está en hover script) y slots válidos
+        Vector2 mousePosition = Input.mousePosition;
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            for (int i = 0; i < inventorySlots.Length; i++)
+            {
+                RawImage rawImage = inventorySlots[i];
+                if (rawImage != null && RectTransformUtility.RectangleContainsScreenPoint(rawImage.rectTransform, mousePosition))
+                {
+                    if (inventoryItems.ContainsKey(i)) PickUpItem(i);
+                    break;
+                }
+            }
+        }
+
+        // Double click detection + start drag
+        if (Input.GetMouseButtonDown(0))
+        {
+            for (int i = 0; i < inventorySlots.Length; i++)
+            {
+                RawImage rawImage = inventorySlots[i];
+                if (rawImage != null && RectTransformUtility.RectangleContainsScreenPoint(rawImage.rectTransform, mousePosition))
+                {
+                    if (Time.time - lastClickTime < doubleClickThreshold)
+                    {
+                        ThrowItem(i);
+                        return;
+                    }
+                    lastClickTime = Time.time;
+
+                    // Start drag
+                    slotIndexBeingDragged = i;
+                    originalRawImage = rawImage;
+                    if (inventoryItems.ContainsKey(slotIndexBeingDragged))
+                    {
+                        InventoryItem item = inventoryItems[slotIndexBeingDragged];
+                        duplicatedRawImage.enabled = true;
+                        duplicatedRawImage.texture = item.itemImage.texture;
+                        duplicatedRawImage.rectTransform.sizeDelta = rawImage.rectTransform.sizeDelta;
+                        float imageAspect = (float)item.itemImage.texture.width / item.itemImage.texture.height;
+                        if (imageAspect > 1f)
+                        {
+                            float xOffset = (1f - 1f / imageAspect) * 0.5f;
+                            duplicatedRawImage.uvRect = new Rect(xOffset, 0f, 1f / imageAspect, 1f);
+                        }
+                        else
+                        {
+                            float yOffset = (1f - imageAspect) * 0.5f;
+                            duplicatedRawImage.uvRect = new Rect(0f, yOffset, 1f, imageAspect);
+                        }
+                        duplicatedRawImage.color = Color.white;
+                        dragging = true;
+                        originalRawImage.enabled = false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (dragging)
+        {
+            duplicatedRawImage.rectTransform.position = mousePosition;
+        }
+
+        if (Input.GetMouseButtonUp(0) && slotIndexBeingDragged != -1)
+        {
+            // Detect drop target
+            for (int i = 0; i < inventorySlots.Length; i++)
+            {
+                RawImage rawImage = inventorySlots[i];
+                if (rawImage != null && RectTransformUtility.RectangleContainsScreenPoint(rawImage.rectTransform, mousePosition))
+                {
+                    dragging = false;
+                    if (i != slotIndexBeingDragged)
+                    {
+                        SwapItems(slotIndexBeingDragged, i, i);
+                        ApplyAppearanceSettingsToItem(slotIndexBeingDragged);
+                        ApplyAppearanceSettingsToItem(i);
+                    }
+                    else
+                    {
+                        // restore original
+                        duplicatedRawImage.enabled = false;
+                        originalRawImage.enabled = true;
+                        if (inventoryItems.ContainsKey(i))
+                        {
+                            InventoryItem targetItem = inventoryItems[i];
+                            RawImage ri = inventorySlots[i];
+                            float imageAspect = (float)targetItem.itemImage.texture.width / targetItem.itemImage.texture.height;
+                            if (imageAspect > 1f)
+                            {
+                                float xOffset = (1f - 1f / imageAspect) * 0.5f;
+                                ri.uvRect = new Rect(xOffset, 0f, 1f / imageAspect, 1f);
+                            }
+                            else
+                            {
+                                float yOffset = (1f - imageAspect) * 0.5f;
+                                ri.uvRect = new Rect(0f, yOffset, 1f, imageAspect);
+                            }
+                            ri.color = Color.white;
+                        }
+                    }
+                    slotIndexBeingDragged = -1;
+                    return;
+                }
+            }
+
+            // No slot: throw
+            ThrowItem(slotIndexBeingDragged);
+            slotIndexBeingDragged = -1;
+            dragging = false;
+            originalRawImage.enabled = true;
+            duplicatedRawImage.enabled = false;
         }
     }
 

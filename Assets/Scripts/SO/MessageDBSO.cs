@@ -12,6 +12,9 @@ namespace Game.Messages
     [Header("Defaults")]
     [Tooltip("Default language code to validate VO presence (e.g., 'en'). Empty to skip this specific warning.")]
     [SerializeField] private string defaultLanguageCode = "en";
+    [Header("Editor / Warnings")]
+    [Tooltip("Si está activo, NO se mostrarán warnings informativos por entradas sin audio (solo duplicados/lenguajes faltantes críticos).")]
+    [SerializeField] private bool suppressNoAudioWarnings = true;
 
         [Serializable]
         public class Entry
@@ -140,7 +143,7 @@ namespace Game.Messages
                         if (e.localizedAudio[j] != null && e.localizedAudio[j].clip != null) { hasAnyAudio = true; break; }
                     }
                 }
-                if (!hasAnyAudio)
+                if (!hasAnyAudio && !suppressNoAudioWarnings)
                 {
                     Debug.LogWarning($"[MessageDB] Entry '{e.id}' has no audio set (default nor localized). This is fine if text-only.");
                 }

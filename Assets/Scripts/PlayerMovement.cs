@@ -27,7 +27,9 @@ namespace PlayerController
     [SerializeField] private bool holdToSprint = true;
         
         [Header("Debug")]
-        [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private bool showDebugLogs = true;
+    [Tooltip("Compila logs solo en Editor/Development. En build Release no saldrán.")]
+    [SerializeField] private bool restrictLogsToDevBuild = true;
         
         // Components
         private CharacterController characterController;
@@ -63,7 +65,7 @@ namespace PlayerController
         {
             characterController = GetComponent<CharacterController>();
             
-            if (showDebugLogs)
+            if (ShouldLog())
                 Debug.Log($"[PlayerMovement] Initialized on {gameObject.name}");
         }
         
@@ -193,7 +195,7 @@ namespace PlayerController
             if (wasGrounded != isGrounded)
             {
                 OnGroundedChanged?.Invoke(isGrounded);
-                if (showDebugLogs)
+                if (ShouldLog())
                     Debug.Log($"[PlayerMovement] Grounded: {isGrounded}");
             }
             
@@ -243,7 +245,7 @@ namespace PlayerController
             {
                 verticalVelocity = playerSettings.JumpForce;
                 
-                if (showDebugLogs)
+                if (ShouldLog())
                     Debug.Log($"[PlayerMovement] Jump executed with force: {playerSettings.JumpForce}");
             }
         }
@@ -266,7 +268,7 @@ namespace PlayerController
                 
                 OnCrouchChanged?.Invoke(isCrouching);
                 
-                if (showDebugLogs)
+                if (ShouldLog())
                     Debug.Log($"[PlayerMovement] Crouch state changed: {isCrouching}");
             }
         }
@@ -280,7 +282,7 @@ namespace PlayerController
             {
                 OnSprintChanged?.Invoke(isSprinting);
                 
-                if (showDebugLogs)
+                if (ShouldLog())
                     Debug.Log($"[PlayerMovement] Sprint state changed: {isSprinting}");
             }
         }
@@ -295,7 +297,7 @@ namespace PlayerController
             // Check if there's enough space to stand up usando cápsula del CharacterController
             if (!HasSpaceToStand())
             {
-                if (showDebugLogs)
+                if (ShouldLog())
                     Debug.LogWarning("[PlayerMovement] Cannot stand up - obstacle detected above");
                 // Revert intended state to keep logic consistent (still crouching)
                 isCrouching = true;
@@ -408,7 +410,7 @@ namespace PlayerController
             #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (moveAction == null || jumpAction == null || sprintAction == null || crouchAction == null)
             {
-                if (showDebugLogs)
+                if (ShouldLog())
                 {
                     Debug.Log("[PlayerMovement] Falta asignar alguna InputActionReference (Move/Jump/Sprint/Crouch). Usando fallback legacy temporal.");
                 }
@@ -432,7 +434,7 @@ namespace PlayerController
         public void SetSpeedMultiplier(float multiplier)
         {
             speedMultiplier = Mathf.Clamp01(multiplier);
-            if (showDebugLogs)
+            if (ShouldLog())
                 Debug.Log($"[PlayerMovement] Speed multiplier set to: {speedMultiplier}");
         }
         
@@ -444,8 +446,22 @@ namespace PlayerController
                 isSprinting = false;
                 OnSprintChanged?.Invoke(false);
             }
-            if (showDebugLogs)
+            if (ShouldLog())
                 Debug.Log($"[PlayerMovement] Can sprint set to: {canSprint}");
+        }
+
+        private bool ShouldLog()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (restrictLogsToDevBuild)
+                return showDebugLogs;
+            else
+                return showDebugLogs; // same in dev/editor
+#else
+            if (restrictLogsToDevBuild)
+                return false; // suprimido en release
+            return showDebugLogs;
+#endif
         }
 
     }
