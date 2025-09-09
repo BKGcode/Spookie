@@ -12,4 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86e46a4ef79246147b81322563ec7bfd, type: 3}
   m_Name: DayChapterSequence
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scenes.DayChapterSequenceSO
-  entries: []
+  entries:
+  - sceneName: SCN_A
+    dayCount: 1
+    endGameOnLastDay: 0
+    notes: 
+  - sceneName: SCN_B
+    dayCount: 2
+    endGameOnLastDay: 0
+    notes: 

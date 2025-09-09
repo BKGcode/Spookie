@@ -360,24 +360,29 @@ namespace Game.DayNight
                 yield return new WaitForSeconds(hold);
             }
 
-            // Persistir día y penalización para el siguiente amanecer
-            currentDay = Mathf.Max(1, currentDay + 1);
+            // Paso de día: integrar SaveGameManager + posible cambio de escena
+            bool sceneChanged = false;
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            string nextScene = currentScene;
+
+            // Incrementar día lógico
+            int newDay = Mathf.Max(1, currentDay + 1);
+
+            // Determinar escena destino usando SaveGameManager si disponible
+            var sgm = SaveGameManager.Instance;
+            if (sgm != null && sgm.HasLoaded)
+            {
+                nextScene = sgm.GetSceneForDay(newDay) ?? currentScene;
+            }
+
+            // Persistencia legacy (se eliminará tras migración completa)
+            currentDay = newDay;
             PlayerPrefs.SetInt(PP_DayKey, currentDay);
             PlayerPrefs.SetInt(PP_PenaltyKey, nextDayPenalty ? 1 : 0);
-
-            // Calcular duración de penalización para el próximo día
             if (nextDayPenalty && config != null)
             {
-                int dur = config.FaintNextDayPenaltyDurationSeconds; // en segundos del siguiente día
-                if (dur > 0)
-                {
-                    // Guardamos un marcador relativo al timeline del próximo día: segundos transcurridos desde el amanecer
-                    PlayerPrefs.SetInt(PP_PenaltyUntilKey, dur);
-                }
-                else
-                {
-                    PlayerPrefs.DeleteKey(PP_PenaltyUntilKey); // 0 = todo el día
-                }
+                int dur = config.FaintNextDayPenaltyDurationSeconds;
+                if (dur > 0) PlayerPrefs.SetInt(PP_PenaltyUntilKey, dur); else PlayerPrefs.DeleteKey(PP_PenaltyUntilKey);
             }
             else
             {
@@ -385,22 +390,64 @@ namespace Game.DayNight
             }
             PlayerPrefs.Save();
 
-            // Reiniciar ciclo: nuevo amanecer
-            InitializeDay();
-
-            // Fade out
-            if (nightFadeCanvasGroup != null)
+            // Guardado moderno
+            if (sgm != null && sgm.HasLoaded)
             {
-                yield return FadeCanvasGroup(nightFadeCanvasGroup, 1f, 0f, fadeOut);
-                nightFadeCanvasGroup.blocksRaycasts = false;
-            }
-            else if (fadeOut > 0f)
-            {
-                yield return new WaitForSeconds(fadeOut);
+                var data = sgm.CurrentData;
+                data.absoluteDay = currentDay;
+                data.sceneName = nextScene;
+                data.timeOfDaySeconds = 0f; // nuevo amanecer
+                data.dayState = DayState.Day.ToString();
+                // Penalización próxima jornada si faint
+                if (nextDayPenalty && config != null)
+                {
+                    data.penaltyActive = true;
+                    int dur = config.FaintNextDayPenaltyDurationSeconds;
+                    data.penaltyRemainingSeconds = dur > 0 ? dur : data.dayLengthSeconds; // si 0 => todo el día
+                }
+                else
+                {
+                    data.penaltyActive = false;
+                    data.penaltyRemainingSeconds = 0f;
+                }
+                // Asegurar spawn: sobreescribir posición guardada con spawnPoint si existe
+                if (spawnPoint != null)
+                {
+                    data.playerPosition = spawnPoint.position;
+                    data.playerYaw = spawnPoint.eulerAngles.y;
+                }
+                sgm.SaveManual(); // etiquetado Manual (podríamos usar tipo especial si se desea)
             }
 
-            // Desbloquear jugabilidad
-            BlockGameplay(false);
+            // Cargar nueva escena si cambia
+            if (nextScene != currentScene)
+            {
+                sceneChanged = Game.Scenes.SceneFlowService.Instance != null && Game.Scenes.SceneFlowService.Instance.LoadSceneIfNeeded(nextScene);
+            }
+
+            if (!sceneChanged)
+            {
+                // Continuar flujo original en misma escena
+                InitializeDay();
+
+                // Fade out
+                if (nightFadeCanvasGroup != null)
+                {
+                    yield return FadeCanvasGroup(nightFadeCanvasGroup, 1f, 0f, fadeOut);
+                    nightFadeCanvasGroup.blocksRaycasts = false;
+                }
+                else if (fadeOut > 0f)
+                {
+                    yield return new WaitForSeconds(fadeOut);
+                }
+
+                // Desbloquear jugabilidad
+                BlockGameplay(false);
+            }
+            else
+            {
+                // Escena nueva: no intentamos fade out local (el objeto será destruido)
+            }
 
             // Release Transition pause if held
             if (transitionHeld && pauseManager != null)

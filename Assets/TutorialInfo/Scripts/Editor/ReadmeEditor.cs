@@ -80,16 +80,36 @@ public class ReadmeEditor : UnityEditor.Editor
         if (ids.Length == 1)
         {
             var readmeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(ids[0]));
-
             Selection.objects = new UnityEngine.Object[] { readmeObject };
-
             return (Readme)readmeObject;
         }
-        else
+        if (ids.Length == 0)
         {
-            Debug.Log("Couldn't find a readme");
-            return null;
+            // Silencioso: crear placeholder mínimo para evitar spam de log
+            string folder = s_ReadmeSourceDirectory;
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                // Crear estructura si falta
+                string[] parts = folder.Split('/');
+                string accum = parts[0];
+                for (int i = 1; i < parts.Length; i++)
+                {
+                    string next = accum + "/" + parts[i];
+                    if (!AssetDatabase.IsValidFolder(next))
+                        AssetDatabase.CreateFolder(accum, parts[i]);
+                    accum = next;
+                }
+            }
+            var asset = ScriptableObject.CreateInstance<Readme>();
+            asset.title = "Project Readme";
+            asset.sections = new[] { new Readme.Section { heading = "Welcome", text = "Placeholder readme auto-creado." } };
+            string path = folder + "/AutoReadme.asset";
+            AssetDatabase.CreateAsset(asset, path);
+            AssetDatabase.SaveAssets();
+            return asset;
         }
+        // Si hay más de uno, no seleccionar y no loguear spam.
+        return null;
     }
 
     protected override void OnHeaderGUI()
